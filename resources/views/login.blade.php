@@ -52,35 +52,8 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>
                                         @endif
-                                        <div class="d-flex align-items-center justify-content-between mb-4">
-                                            <div class="d-flex align-items-center">
-                                                <div class="form-check form-check-md mb-0">
-                                                    <input class="form-check-input" id="remember_me" name="remember" type="checkbox" value="1">
-                                                    <label for="remember_me" class="form-check-label text-dark mt-0">Remember Me</label>
-                                                </div>
-                                            </div>
-                                            <div class="text-end">
-                                                <a href="{{ url('forgot-password') }}" class="link-primary">Forgot Password?</a>
-                                            </div>
-                                        </div>
                                         <div class="mb-4">
                                             <button type="submit" class="btn btn-primary w-100">Sign In</button>
-                                        </div>
-                                        <div class="login-or position-relative mb-4 text-center">
-                                            <span class="position-relative bg-white px-2 z-2">or continue with</span>
-                                        </div>
-                                        <div class="d-flex align-items-center justify-content-center flex-wrap gap-2">
-                                            <a href="#" class="btn btn-white d-flex align-items-center justify-content-center shadow flex-fill">
-                                                <img class="img-fluid me-2" src="{{ asset('build/img/icons/google.svg') }}" alt="google" style="max-height:20px"> Google
-                                            </a>
-                                            <a href="#" class="btn btn-white d-flex align-items-center justify-content-center shadow flex-fill">
-                                                <img class="img-fluid me-2" src="{{ asset('build/img/icons/fb.svg') }}" alt="facebook" style="max-height:20px"> Facebook
-                                            </a>
-                                        </div>
-                                        <div class="text-center mt-4">
-                                            <p class="fw-normal mb-0">Don't have an account?
-                                                <a href="{{ url('register') }}" class="link-primary"> Sign Up</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
