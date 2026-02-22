@@ -59,6 +59,32 @@
             margin-top: 0.35rem;
         }
 
+        /* Search */
+        .qr-search-wrap {
+            padding: 0.5rem 1rem;
+            background: var(--qr-card);
+            border-bottom: 1px solid var(--qr-border);
+        }
+        .qr-search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid var(--qr-border);
+            border-radius: var(--qr-radius-sm);
+            font-size: 0.9375rem;
+            background: var(--qr-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 0.75rem center;
+            color: var(--qr-text);
+        }
+        .qr-search-input::placeholder { color: var(--qr-text-muted); }
+        .qr-search-input:focus {
+            outline: none;
+            border-color: var(--qr-primary);
+        }
+
+        /* Search filter hidden states */
+        .menu-section.qr-section-hidden { display: none !important; }
+        .menu-item.qr-item-hidden { display: none !important; }
+        .category-pill.qr-pill-hidden { display: none !important; }
+
         /* Category pills */
         .category-pills {
             display: flex;

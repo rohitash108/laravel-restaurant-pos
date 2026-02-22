@@ -8,6 +8,11 @@
     <p class="mb-0"><span class="table-badge">🍽 Table {{ $table->name }}</span></p>
 </div>
 
+{{-- ========== SEARCH ========== --}}
+<div class="qr-search-wrap">
+    <input type="text" id="menu-search" class="qr-search-input" placeholder="Search items..." autocomplete="off">
+</div>
+
 {{-- ========== CATEGORY PILLS ========== --}}
 @php
     $activeCategories = $categories->filter(fn ($c) => $c->items->isNotEmpty());
@@ -60,7 +65,7 @@
                                 <p class="menu-item-desc">{{ $item->description }}</p>
                             @endif
                             <div class="menu-item-bottom">
-                                <span class="menu-item-price">{{ $restaurant->currency ?? '$' }}{{ number_format($item->price, 2) }}</span>
+                                <span class="menu-item-price">{{ $currency_symbol ?? '₹' }}{{ number_format($item->price, 2) }}</span>
 
                                 {{-- ADD / QTY CONTROL --}}
                                 <button type="button" class="add-btn" id="add-btn-{{ $item->id }}"
@@ -100,7 +105,7 @@
 <div class="cart-bar" id="cart-bar">
     <div class="cart-bar-left">
         <span class="cart-badge" id="cart-count">0 items</span>
-        <span class="cart-bar-total" id="cart-total">{{ $restaurant->currency ?? '$' }}0.00</span>
+        <span class="cart-bar-total" id="cart-total">{{ $currency_symbol ?? '₹' }}0.00</span>
     </div>
     <button type="button" class="cart-bar-btn" id="view-cart-btn">View Cart →</button>
 </div>
@@ -136,7 +141,7 @@
 (function () {
     'use strict';
 
-    const currency = '{{ $restaurant->currency ?? "$" }}';
+    const currency = '{{ $currency_symbol ?? "₹" }}';
     const cart = {};
 
     // ===== DOM References =====
@@ -288,44 +293,116 @@
         orderForm.submit();
     });
 
+    // ===== Search: filter by item name/description only. Category = click pill only. =====
+    const searchInput = document.getElementById('menu-search');
+
+    function filterMenu() {
+        var query = (searchInput && searchInput.value ? searchInput.value : '').trim();
+        query = query.toLowerCase();
+        var sections = document.querySelectorAll('.menu-section');
+        var pills = document.querySelectorAll('.category-pill');
+
+        if (query === '') {
+            sections.forEach(function (sec) {
+                sec.classList.remove('qr-section-hidden');
+                sec.querySelectorAll('.menu-item').forEach(function (it) { it.classList.remove('qr-item-hidden'); });
+            });
+            pills.forEach(function (p) { p.classList.remove('qr-pill-hidden'); });
+            return;
+        }
+
+        sections.forEach(function (sec) {
+            var items = sec.querySelectorAll('.menu-item');
+            var sectionHasVisible = false;
+            items.forEach(function (item) {
+                var nameEl = item.querySelector('.menu-item-name');
+                var descEl = item.querySelector('.menu-item-desc');
+                var itemName = (nameEl ? nameEl.textContent : '').replace(/\s+/g, ' ').trim().toLowerCase();
+                var itemDesc = (descEl ? descEl.textContent : '').replace(/\s+/g, ' ').trim().toLowerCase();
+                var match = itemName.indexOf(query) >= 0 || itemDesc.indexOf(query) >= 0;
+                if (match) {
+                    item.classList.remove('qr-item-hidden');
+                    sectionHasVisible = true;
+                } else {
+                    item.classList.add('qr-item-hidden');
+                }
+            });
+            if (sectionHasVisible) {
+                sec.classList.remove('qr-section-hidden');
+            } else {
+                sec.classList.add('qr-section-hidden');
+            }
+        });
+
+        pills.forEach(function (pill) {
+            var catId = pill.getAttribute('data-cat-id');
+            var section = document.getElementById('cat-' + catId);
+            var hide = !section || section.classList.contains('qr-section-hidden');
+            if (hide) {
+                pill.classList.add('qr-pill-hidden');
+            } else {
+                pill.classList.remove('qr-pill-hidden');
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterMenu);
+        searchInput.addEventListener('paste', function () { setTimeout(filterMenu, 0); });
+    }
+
     // ===== Category Pills =====
     const pills = document.querySelectorAll('.category-pill');
     const headerEl = document.querySelector('.qr-header');
     const pillsNav = document.getElementById('category-pills');
 
+    var searchWrapEl = document.querySelector('.qr-search-wrap');
+    function scrollToCategorySection(sectionEl) {
+        if (!sectionEl) return;
+        var headerH = headerEl ? headerEl.offsetHeight : 0;
+        var searchH = searchWrapEl ? searchWrapEl.offsetHeight : 0;
+        var pillsH = pillsNav ? pillsNav.offsetHeight : 0;
+        var offset = headerH + searchH + pillsH + 10;
+        var sectionTop = sectionEl.getBoundingClientRect().top + window.pageYOffset;
+        var scrollToY = sectionTop - offset;
+        window.scrollTo({ top: Math.max(0, scrollToY), behavior: 'smooth' });
+    }
+
     pills.forEach(function (pill) {
         pill.addEventListener('click', function (e) {
             e.preventDefault();
+            e.stopPropagation();
             pills.forEach(function (p) { p.classList.remove('active'); });
             this.classList.add('active');
-            const target = document.getElementById('cat-' + this.dataset.catId);
-            if (target) {
-                const offset = (headerEl ? headerEl.offsetHeight : 0) + (pillsNav ? pillsNav.offsetHeight : 0) + 8;
-                window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
-            }
+            var catId = this.getAttribute('data-cat-id');
+            var target = document.getElementById('cat-' + catId);
+            scrollToCategorySection(target);
         });
     });
 
-    // Highlight active pill on scroll
+    // Highlight active pill based on scroll position (only visible sections)
     if (pills.length > 0) {
-        const sections = document.querySelectorAll('.menu-section');
-        let ticking = false;
+        var sections = document.querySelectorAll('.menu-section');
+        var ticking = false;
         window.addEventListener('scroll', function () {
             if (!ticking) {
                 window.requestAnimationFrame(function () {
-                    const offset = (headerEl ? headerEl.offsetHeight : 0) + (pillsNav ? pillsNav.offsetHeight : 0) + 20;
-                    let current = '';
+                    var headerH = headerEl ? headerEl.offsetHeight : 0;
+                    var searchH = searchWrapEl ? searchWrapEl.offsetHeight : 0;
+                    var pillsH = pillsNav ? pillsNav.offsetHeight : 0;
+                    var scrollOffset = headerH + searchH + pillsH + 20;
+                    var current = '';
                     sections.forEach(function (sec) {
-                        if (sec.offsetTop - offset <= window.scrollY) {
-                            current = sec.id.replace('cat-', '');
+                        if (sec.classList.contains('qr-section-hidden')) return;
+                        var top = sec.getBoundingClientRect().top + window.pageYOffset;
+                        if (top - scrollOffset <= window.scrollY) {
+                            current = (sec.id || '').replace('cat-', '');
                         }
                     });
                     if (current) {
                         pills.forEach(function (p) {
-                            p.classList.toggle('active', p.dataset.catId === current);
-                            if (p.dataset.catId === current) {
-                                p.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                            }
+                            var isActive = p.getAttribute('data-cat-id') === current;
+                            p.classList.toggle('active', isActive);
                         });
                     }
                     ticking = false;
@@ -335,9 +412,11 @@
         });
     }
 
-    // Set pills sticky top based on header height
+    // Set pills sticky top based on header + search height
+    var searchWrap = document.querySelector('.qr-search-wrap');
     if (headerEl && pillsNav) {
-        pillsNav.style.top = headerEl.offsetHeight + 'px';
+        var topOffset = headerEl.offsetHeight + (searchWrap ? searchWrap.offsetHeight : 0);
+        pillsNav.style.top = topOffset + 'px';
     }
 
     function escapeHtml(s) {

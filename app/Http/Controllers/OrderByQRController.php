@@ -57,10 +57,21 @@ class OrderByQRController extends Controller
             ->with(['items' => fn ($q) => $q->where('is_available', true)->orderBy('sort_order')->orderBy('name')])
             ->get();
 
+        // QR order page always uses INR (₹) for India; USD is treated as INR
+        $currencySymbol = match ($restaurant->currency ?? 'INR') {
+            'INR' => '₹',
+            'USD' => '₹',   // show INR on QR menu (India use)
+            'EUR' => '€',
+            'GBP' => '£',
+            'AED' => 'AED ',
+            default => '₹',
+        };
+
         return view('order-by-qr.menu', [
             'restaurant' => $restaurant,
             'table' => $table,
             'categories' => $categories,
+            'currency_symbol' => $currencySymbol,
         ]);
     }
 

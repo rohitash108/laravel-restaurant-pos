@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
             'address' => '123 Main St',
             'phone' => '+1 555 123 4567',
             'email' => 'contact@tasteoflhasa.com',
-            'currency' => 'USD',
+            'currency' => 'INR',
             'is_active' => true,
         ]);
 

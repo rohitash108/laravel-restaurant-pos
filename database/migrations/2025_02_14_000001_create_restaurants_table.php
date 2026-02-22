@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
-            $table->string('currency', 3)->default('USD');
+            $table->string('currency', 3)->default('INR');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

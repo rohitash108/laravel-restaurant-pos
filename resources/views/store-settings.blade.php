@@ -138,8 +138,8 @@
                                         <label class="form-label">Currency<span class="text-danger ms-1">*</span></label>
                                         <select class="select" name="currency">
                                             <option value="">Select</option>
-                                            @foreach(['USD', 'AED', 'EUR', 'INR', 'GBP'] as $cur)
-                                                <option value="{{ $cur }}" {{ ($restaurant->currency ?? '') === $cur ? 'selected' : '' }}>{{ $cur }}</option>
+                                            @foreach(['INR', 'AED', 'EUR', 'GBP'] as $cur)
+                                                <option value="{{ $cur }}" {{ ($restaurant->currency ?? 'INR') === $cur ? 'selected' : '' }}>{{ $cur }}</option>
                                             @endforeach
                                         </select>
                                     </div>
