@@ -1,0 +1,174 @@
+@php $page = 'admin-dashboard'; @endphp
+@extends('layout.mainlayout')
+@section('content')
+
+    <!-- ========================
+        Super Admin Dashboard
+    ========================= -->
+
+    <div class="page-wrapper">
+        <div class="content">
+
+            {{-- Page header --}}
+            <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-3 mb-4">
+                <div class="flex-grow-1">
+                    <h3 class="mb-1">Super Admin Dashboard</h3>
+                    <p class="text-muted mb-0">Overview of all restaurants and platform activity.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-white btn-icon rounded-circle" title="Refresh"><i class="icon-refresh-ccw"></i></a>
+                    <a href="{{ route('admin.restaurants.create') }}" class="btn btn-secondary d-inline-flex align-items-center"><i class="icon-circle-plus me-1"></i>Add Restaurant</a>
+                </div>
+            </div>
+
+            {{-- KPI cards --}}
+            <div class="row g-3 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Total Restaurants</p>
+                                    <h3 class="mb-0 fw-bold">{{ number_format($total_restaurants ?? 0) }}</h3>
+                                    <small class="text-success">{{ $active_restaurants ?? 0 }} active</small>
+                                </div>
+                                <div class="avatar avatar-lg avatar-rounded bg-secondary text-white">
+                                    <i class="icon-warehouse fs-28"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Total Orders</p>
+                                    <h3 class="mb-0 fw-bold">{{ number_format($total_orders ?? 0) }}</h3>
+                                </div>
+                                <div class="avatar avatar-lg avatar-rounded bg-purple text-white">
+                                    <i class="icon-box fs-28"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Total Sales</p>
+                                    <h3 class="mb-0 fw-bold">{{ $currency_symbol }}{{ number_format($total_sales ?? 0, 2) }}</h3>
+                                </div>
+                                <div class="avatar avatar-lg avatar-rounded bg-success text-white">
+                                    <i class="icon-badge-dollar-sign fs-28"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Sales growth</p>
+                                    <h3 class="mb-0 fw-bold {{ ($sales_growth_percent ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
+                                        {{ ($sales_growth_percent ?? 0) >= 0 ? '+' : '' }}{{ $sales_growth_percent ?? 0 }}%
+                                    </h3>
+                                    <small class="text-muted">vs last month</small>
+                                </div>
+                                <div class="avatar avatar-lg avatar-rounded bg-orange text-white">
+                                    <i class="icon-trending-up fs-28"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                {{-- Orders (Last 7 Days) chart --}}
+                <div class="col-xxl-8 col-lg-7">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header border-0 bg-transparent d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <h5 class="mb-0 card-title">Orders (Last 7 Days)</h5>
+                            <a href="{{ route('admin.restaurants.index') }}" class="btn btn-sm btn-secondary">View restaurants</a>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div id="admin-statistic-chart" style="min-height: 260px;"></div>
+                        </div>
+                    </div>
+                </div>
+                {{-- Quick actions & Recent Restaurants --}}
+                <div class="col-xxl-4 col-lg-5">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Quick actions</h5>
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('admin.restaurants.create') }}" class="btn btn-secondary d-inline-flex align-items-center justify-content-center">
+                                    <i class="icon-circle-plus me-2"></i>Add new restaurant
+                                </a>
+                                <a href="{{ route('admin.restaurants.index') }}" class="btn btn-soft-secondary d-inline-flex align-items-center justify-content-center">
+                                    <i class="icon-warehouse me-2"></i>Manage restaurants
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header border-0 bg-transparent d-flex align-items-center justify-content-between">
+                            <h5 class="mb-0 card-title">Recent Restaurants</h5>
+                            <a href="{{ route('admin.restaurants.index') }}" class="btn btn-sm btn-link p-0">View all</a>
+                        </div>
+                        <div class="card-body pt-0">
+                            @forelse($recent_restaurants ?? [] as $r)
+                                <a href="{{ route('admin.restaurants.show', $r) }}" class="d-flex align-items-center gap-3 py-3 {{ $loop->last ? '' : 'border-bottom border-light' }} text-body text-decoration-none">
+                                    <div class="flex-shrink-0 rounded overflow-hidden bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        @if($r->logo)
+                                            <img src="{{ asset('storage/' . $r->logo) }}" alt="" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                                        @else
+                                            <i class="icon-warehouse text-muted"></i>
+                                        @endif
+                                    </div>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <span class="fw-medium d-block text-truncate">{{ $r->name }}</span>
+                                        <small class="text-muted">{{ $r->tables_count }} tables · {{ $r->orders_count }} orders</small>
+                                    </div>
+                                    <i class="icon-chevron-right text-muted flex-shrink-0"></i>
+                                </a>
+                            @empty
+                                <p class="text-muted small mb-0 py-2">No restaurants yet. <a href="{{ route('admin.restaurants.create') }}">Add one</a>.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('#admin-statistic-chart') && typeof ApexCharts !== 'undefined') {
+        var chartData = @json($admin_chart_data);
+        var categories = chartData.categories && chartData.categories.length ? chartData.categories : ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        var data = chartData.data && chartData.data.length ? chartData.data : [0,0,0,0,0,0,0];
+        new ApexCharts(document.querySelector('#admin-statistic-chart'), {
+            series: [{ name: 'Orders', data: data }],
+            chart: { height: 260, type: 'area', toolbar: { show: false } },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 2 },
+            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1 } },
+            xaxis: { categories: categories },
+            colors: ['#4da5ff'],
+            grid: { borderColor: 'transparent', padding: { top: 0, right: 0, bottom: 0, left: 0 } }
+        }).render();
+    }
+});
+</script>
+@endpush

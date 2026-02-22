@@ -1,0 +1,473 @@
+<?php $page = 'customer'; ?>
+@extends('layout.mainlayout')
+@section('content')
+
+    <!-- ========================
+        Start Page Content
+    ========================= -->
+
+    <div class="page-wrapper">
+
+        <!-- Start Content -->
+        <div class="content">
+
+            <!-- Page Header -->
+            <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-3 mb-4">
+                <div class="flex-grow-1">
+                    <h3 class="mb-0">Customer <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-white rounded-circle ms-2"><i class="icon-refresh-ccw"></i></a></h3>
+                </div>
+                <div class="gap-2 d-flex align-items-center flex-wrap">
+                    <div class="input-group input-group-flat w-auto">
+                        <input type="text" class="form-control" placeholder="Search">
+                        <span class="input-group-text">
+                            <i class="icon-search text-dark"></i>
+                        </span>
+                    </div>
+                    <a href="#" class="btn btn-primary d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#add_customer"><i class="icon-circle-plus me-1"></i>Add New</a>
+                </div>
+            </div>
+            <!-- End Page Header -->
+
+            <!-- Row start - dynamic from orders (customer_name, customer_phone) -->
+            <div class="row">
+                @forelse($customers ?? [] as $c)
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-rounded badge bg-light flex-shrink-0 me-2">
+                                        <i class="icon-user text-dark fs-16"></i>
+                                    </div>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0">{{ $c->customer_name ?: 'Walk-in Customer' }}</h6>
+                                        <p class="mb-0">{{ $c->orders_count }} order(s)</p>
+                                    </span>
+                                </div>
+                                <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#{{ str_pad($loop->iteration, 4, '0', STR_PAD_LEFT) }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone </span>
+                                    <span class="fw-medium text-dark">{{ $c->customer_phone ?: '–' }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Last order </span>
+                                    <span class="fw-medium text-dark">{{ $c->last_order_at ? \Carbon\Carbon::parse($c->last_order_at)->format('d M, Y') : '–' }}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="icon-user-round fs-48 text-muted mb-3"></i>
+                            <h5 class="mb-2">No customers yet</h5>
+                            <p class="text-muted mb-0">Customers will appear here when orders are placed with a name or phone number.</p>
+                        </div>
+                    </div>
+                </div>
+                @endforelse
+            </div>
+            <!-- Row end -->
+            <div class="d-none">
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details" class="avatar avatar-rounded flex-shrink-0 me-2">
+                                        <img src="{{URL::asset('build/img/profiles/avatar-33.jpg')}}" alt="category" class="img-fluid">
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Sue Allen</a></h6>
+                                        <p class="mb-0">Female</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#CR8238</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 67890 12345</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">sue@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">30 Nov, 2026 - 03:15 PM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-danger">Disabled</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details" class="avatar avatar-rounded flex-shrink-0 me-2">
+                                        <img src="{{URL::asset('build/img/profiles/avatar-34.jpg')}}" alt="category" class="img-fluid">
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Frank Barrett</a></h6>
+                                        <p class="mb-0">Female</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#CR4824</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 23456 78901</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">frank@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">05 Dec, 2026 - 11:30 AM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" class="avatar avatar-rounded badge bg-light flex-shrink-0 me-2">
+                                        <i class="icon-user text-dark fs-16"></i>
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Walkin Customer</a></h6>
+                                        <p class="mb-0">Male</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#CR4578</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 56985 65895</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">info@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">25 Nov, 2026, 02:44 PM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" class="avatar avatar-rounded badge bg-light flex-shrink-0 me-2">
+                                        <i class="icon-user text-dark fs-16"></i>
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Walkin Customer</a></h6>
+                                        <p class="mb-0">Female</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#CR6569</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 42367 12345</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">hello@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">26 Nov, 2026 - 03:15 PM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details" class="avatar avatar-rounded flex-shrink-0 me-2">
+                                        <img src="{{URL::asset('build/img/profiles/avatar-36.jpg')}}" alt="category" class="img-fluid">
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Jim Vickers</a></h6>
+                                        <p class="mb-0">Male</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#CR5458</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 78912 34567</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">jim@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">27 Nov, 2026 - 09:30 AM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-danger">Disabled</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details" class="avatar avatar-rounded flex-shrink-0 me-2">
+                                        <img src="{{URL::asset('build/img/profiles/avatar-40.jpg')}}" alt="category" class="img-fluid">
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">David Belcher</a></h6>
+                                        <p class="mb-0">Male</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#CR5458</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 23456 78901</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">david@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">12 Dec, 2026 - 09:15 AM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details" class="avatar avatar-rounded flex-shrink-0 me-2">
+                                        <img src="{{URL::asset('build/img/profiles/avatar-37.jpg')}}" alt="category" class="img-fluid">
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Nancy Chapman</a></h6>
+                                        <p class="mb-0">Female</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#7ED321</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 34567 89012</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">nancy@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">14 Jan, 2026 - 11:30 AM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-xl-4 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details" class="avatar avatar-rounded flex-shrink-0 me-2">
+                                        <img src="{{URL::asset('build/img/profiles/avatar-41.jpg')}}" alt="category" class="img-fluid">
+                                    </a>
+                                    <span>
+                                        <h6 class="fs-14 fw-semibold mb-0"><a href="#" data-bs-toggle="offcanvas" data-bs-target="#view_details">Julie Kangas</a></h6>
+                                        <p class="mb-0">Female</p>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="badge bg-light text-dark fw-medium fs-13 mb-0">#D0021B</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-phone text-dark me-2"></i> Phone Number </span>
+                                    <span class="fw-medium text-dark">+1 45678 90123</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-mail text-dark me-2"></i> Email </span>
+                                    <span class="fw-medium text-dark">julie@example.com</span>
+                                </p>
+                                <p class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Created at </span>
+                                    <span class="fw-medium text-dark">05 Feb, 2026 - 04:20 PM</span>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-3">
+                                <span class="badge badge-soft-success">Active</span>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle me-2" data-bs-toggle="modal" data-bs-target="#edit_customer">
+                                        <i class="icon-pencil-line"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="icon-trash-2 text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Row end -->
+
+            <!-- Pagination start -->
+            <nav class="pagination-nav">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                        <a class="page-link d-flex align-items-center" href="javascript:void(0);" aria-label="Previous">
+                            <span aria-hidden="true" class="me-1"><i class="icon-chevron-left"></i></span>
+                            Pre
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                    <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+                    <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link d-flex align-items-center" href="javascript:void(0);" aria-label="Previous">
+                            Next
+                            <span aria-hidden="true" class="ms-1"><i class="icon-chevron-right"></i></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Pagination end -->
+
+        </div>
+        <!-- End Content -->
+
+    </div>
+
+    <!-- ========================
+        End Page Content
+    ========================= -->
+
+@endsection

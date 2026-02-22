@@ -1,0 +1,33 @@
+{
+  "resources/css/style.css": {
+    "file": "css/style.min.css",
+    "src": "resources/css/style.css",
+    "isEntry": true,
+    "name": "style",
+    "names": [
+      "style.css"
+    ]
+  },
+  "resources/img/bg/count-bg-01.png": {
+    "file": "icons/count-bg-01.png",
+    "src": "resources/img/bg/count-bg-01.png"
+  },
+  "resources/img/bg/count-bg-02.png": {
+    "file": "icons/count-bg-02.png",
+    "src": "resources/img/bg/count-bg-02.png"
+  },
+  "resources/img/bg/count-bg-03.png": {
+    "file": "icons/count-bg-03.png",
+    "src": "resources/img/bg/count-bg-03.png"
+  },
+  "resources/img/bg/count-bg-04.png": {
+    "file": "icons/count-bg-04.png",
+    "src": "resources/img/bg/count-bg-04.png"
+  },
+  "resources/js/script.js": {
+    "file": "js/script.js",
+    "name": "script",
+    "src": "resources/js/script.js",
+    "isEntry": true
+  }
+}

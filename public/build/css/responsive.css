@@ -1,0 +1,209 @@
+/**
+ * Site-wide responsive overrides
+ * Ensures no horizontal overflow and proper stacking on small screens
+ */
+
+/* Prevent horizontal scroll and limit width */
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Main content area: allow shrinking in flex layout */
+.page-wrapper {
+  min-width: 0;
+  max-width: 100%;
+}
+.page-wrapper .content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Tables: horizontal scroll on small screens */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 767.98px) {
+  .table-responsive table {
+    min-width: 500px;
+  }
+}
+
+/* POS: stack columns and allow scroll */
+@media (max-width: 991.98px) {
+  .pos-wrapper .row.g-0 {
+    flex-direction: column;
+  }
+  .pos-wrapper .pos-left,
+  .pos-wrapper .col-lg-4 {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+  .pos-wrapper .pos-right {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+@media (max-width: 575.98px) {
+  .pos-wrapper .slider-wrapper .nav-tabs {
+    flex-wrap: wrap;
+  }
+  .pos-wrapper .pos-item-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* Report pages: filter row wraps */
+.earning-report-filter-wrap,
+.sales-report-filter-wrap,
+.order-report-filter-wrap,
+.border-bottom.earning-report-filter-wrap,
+.border-bottom.sales-report-filter-wrap,
+.border-bottom.order-report-filter-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.report-filter {
+  min-width: 0;
+}
+@media (max-width: 767.98px) {
+  .report-filter .form-label,
+  .report-filter .dropdown .btn,
+  .report-filter .form-control {
+    width: 100%;
+  }
+  .report-filter .input-group {
+    width: 100% !important;
+  }
+}
+
+/* Topbar / header: wrap and avoid overflow */
+.navbar-header,
+.topbar-menu,
+.header-menu {
+  flex-wrap: wrap;
+}
+@media (max-width: 991.98px) {
+  .header-links {
+    flex-wrap: wrap;
+  }
+  .header-links a {
+    font-size: 0.875rem;
+    padding: 0.35rem 0.5rem;
+  }
+}
+
+/* Dashboard & cards: ensure images and text don't overflow */
+.card .img-fluid,
+.card img.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+.card-body {
+  min-width: 0;
+}
+
+/* Offcanvas: full width on small screens */
+@media (max-width: 575.98px) {
+  .offcanvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Form controls and dropdowns: respect container width */
+.form-control,
+.form-select,
+.input-group,
+.dropdown .dropdown-toggle {
+  max-width: 100%;
+}
+@media (max-width: 767.98px) {
+  .daterangepick.custom-date,
+  .w-auto.d-flex {
+    width: 100% !important;
+    max-width: 100%;
+  }
+}
+
+/* Page headers: stack title and actions */
+@media (max-width: 575.98px) {
+  .d-flex.align-items-center.flex-wrap.gap-3.mb-4 .flex-grow-1,
+  .d-flex.align-items-sm-center.flex-sm-row.flex-column.gap-3.mb-4 .flex-grow-1 {
+    width: 100%;
+  }
+  .d-flex.gap-2.d-flex.align-items-center.flex-wrap,
+  .gap-2.d-flex.align-items-center.flex-wrap {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Admin dashboard: chart and cards stack */
+@media (max-width: 991.98px) {
+  .col-xxl-8.col-lg-7,
+  .col-xxl-4.col-lg-5 {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+}
+
+/* Orders list: smaller cards on mobile */
+@media (max-width: 575.98px) {
+  .orders-list-four .col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* Login / auth: ensure form is contained */
+@media (max-width: 575.98px) {
+  .auth-vh .col-xl-8,
+  .auth-vh .col-lg-10,
+  .auth-vh .col-md-8,
+  .auth-vh .col-sm-10 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* Super admin: reset sidebar margin on mobile so content is full width */
+@media (max-width: 991.98px) {
+  .mini-sidebar.expand-menu .page-wrapper {
+    margin-left: 0 !important;
+  }
+}
+
+/* Modals and dropdowns: don't overflow viewport on small screens */
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+  .dropdown-menu {
+    max-width: min(90vw, 320px);
+  }
+}
+
+/* Order-by-QR (public menu): ensure mobile-friendly */
+@media (max-width: 991.98px) {
+  .order-by-qr-header h1 {
+    font-size: 1.1rem;
+  }
+}
+@media (max-width: 575.98px) {
+  .container.py-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  .order-by-qr .sticky-top {
+    position: relative;
+  }
+}
