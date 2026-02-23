@@ -225,4 +225,71 @@ class ModulesTest extends TestCase
         $response = $this->get(route('invoice-details', $order));
         $response->assertStatus(200);
     }
+
+    #[Test]
+    public function restaurant_user_cannot_access_admin_routes(): void
+    {
+        $this->actingAs($this->restaurantUser);
+        $response = $this->get(route('admin.dashboard'));
+        $response->assertStatus(403);
+        $response = $this->get(route('admin.restaurants.index'));
+        $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function restaurant_user_cannot_view_other_restaurant_invoice(): void
+    {
+        $otherRestaurant = Restaurant::create([
+            'name' => 'Other Restaurant',
+            'slug' => 'other-restaurant',
+            'address' => 'Other St',
+            'is_active' => true,
+        ]);
+        $order = Order::create([
+            'restaurant_id' => $otherRestaurant->id,
+            'restaurant_table_id' => null,
+            'order_number' => Order::generateOrderNumber(),
+            'order_type' => Order::TYPE_TAKEAWAY,
+            'status' => Order::STATUS_COMPLETED,
+            'subtotal' => 30,
+            'tax_amount' => 0,
+            'discount_amount' => 0,
+            'total' => 30,
+            'customer_name' => 'Other Customer',
+        ]);
+        $this->actingAs($this->restaurantUser);
+        $response = $this->get(route('invoice-details', $order));
+        $response->assertStatus(404);
+    }
+
+    #[Test]
+    public function super_admin_can_update_restaurant(): void
+    {
+        $this->actingAs($this->superAdmin);
+        $response = $this->put(route('admin.restaurants.update', $this->restaurant), [
+            'name' => 'Updated Restaurant Name',
+            'address' => $this->restaurant->address,
+            'is_active' => 1,
+        ]);
+        $response->assertRedirect(route('admin.restaurants.index'));
+        $response->assertSessionHas('success');
+        $this->restaurant->refresh();
+        $this->assertSame('Updated Restaurant Name', $this->restaurant->name);
+    }
+
+    #[Test]
+    public function super_admin_can_delete_restaurant(): void
+    {
+        $toDelete = Restaurant::create([
+            'name' => 'To Delete',
+            'slug' => 'to-delete',
+            'address' => 'Addr',
+            'is_active' => true,
+        ]);
+        $this->actingAs($this->superAdmin);
+        $response = $this->delete(route('admin.restaurants.destroy', $toDelete));
+        $response->assertRedirect(route('admin.restaurants.index'));
+        $response->assertSessionHas('success');
+        $this->assertDatabaseMissing('restaurants', ['id' => $toDelete->id]);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesRestaurant;
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\RestaurantTable;
@@ -66,7 +67,21 @@ class PosController extends Controller
         $tax_rate = $tax ? (float) $tax->rate : 0;
         $tax_name = $tax ? $tax->name : 'Tax';
 
-        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'tax_rate', 'tax_name'));
+        $coupons = collect();
+        if ($restaurantId) {
+            $today = now()->toDateString();
+            $coupons = Coupon::where('restaurant_id', $restaurantId)
+                ->where('is_active', true)
+                ->where(function ($q) use ($today) {
+                    $q->whereNull('valid_from')->orWhere('valid_from', '<=', $today);
+                })
+                ->where(function ($q) use ($today) {
+                    $q->whereNull('valid_to')->orWhere('valid_to', '>=', $today);
+                })
+                ->get(['id', 'code', 'discount_type', 'discount_amount', 'category_id']);
+        }
+
+        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'tax_rate', 'tax_name', 'coupons'));
     }
 
     /**
@@ -105,7 +120,18 @@ class PosController extends Controller
         $tax_rate = $tax ? (float) $tax->rate : 0;
         $tax_name = $tax ? $tax->name : 'Tax';
 
+        $today = now()->toDateString();
+        $coupons = Coupon::where('restaurant_id', $restaurantId)
+            ->where('is_active', true)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('valid_from')->orWhere('valid_from', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
+                $q->whereNull('valid_to')->orWhere('valid_to', '>=', $today);
+            })
+            ->get(['id', 'code', 'discount_type', 'discount_amount', 'category_id']);
+
         $editOrder = $order;
-        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'editOrder', 'tax_rate', 'tax_name'));
+        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'editOrder', 'tax_rate', 'tax_name', 'coupons'));
     }
 }

@@ -93,6 +93,19 @@
                                     <span class="d-flex align-items-center"><i class="icon-calendar-fold text-dark me-2"></i> Last order </span>
                                     <span class="fw-medium text-dark">{{ $c->last_order_at ? \Carbon\Carbon::parse($c->last_order_at)->format('d M, Y') : '–' }}</span>
                                 </div>
+                                @if(isset($c->id) && isset($c->balance))
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="d-flex align-items-center"><i class="icon-wallet text-dark me-2"></i> Balance </span>
+                                    @php $bal = (float) ($c->balance ?? 0); @endphp
+                                    @if($bal > 0)
+                                        <span class="fw-semibold text-success">Credit {{ $currency_symbol ?? '₹' }}{{ number_format($bal, 2) }}</span>
+                                    @elseif($bal < 0)
+                                        <span class="fw-semibold text-danger">Due {{ $currency_symbol ?? '₹' }}{{ number_format(-$bal, 2) }}</span>
+                                    @else
+                                        <span class="fw-medium text-muted">{{ $currency_symbol ?? '₹' }}0.00</span>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                             <div class="d-flex align-items-center justify-content-between border-top pt-3">
                                 <span class="badge badge-soft-success">Active</span>

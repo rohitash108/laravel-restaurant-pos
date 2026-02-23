@@ -2,7 +2,12 @@
 {{-- POS page: data from PosController ($categories, $tables, $recentOrders, $customers). Cart & Place Order need public/build/js/script.js — after editing resources/js/script.js run: npm run copy:script --}}
 @extends('layout.mainlayout')
 @section('content')
-    <script>window.posTaxRate = @json($tax_rate ?? 0); window.posTaxName = @json($tax_name ?? 'Tax');</script>
+    @php
+        $posCouponsForJs = ($coupons ?? collect())->map(function ($c) {
+            return ['id' => $c->id, 'code' => $c->code, 'discount_type' => $c->discount_type, 'discount_amount' => (float) $c->discount_amount, 'category_id' => $c->category_id];
+        })->values();
+    @endphp
+    <script>window.posTaxRate = @json($tax_rate ?? 0); window.posTaxName = @json($tax_name ?? 'Tax'); window.posCoupons = @json($posCouponsForJs);</script>
     <style>
         .pos-item-click { cursor: pointer; }
         /* Fix: override theme's .input-item .btn-icon absolute positioning for customer row */
@@ -687,13 +692,29 @@
                                 <h6 class="mb-2">Payment Summary</h6>
                                 <p class="fs-14 fw-normal d-flex align-items-center justify-content-between mb-0">Sub Total <span id="pos-subtotal" class="fw-medium text-dark">{{ $currency_symbol }}0.00</span></p>
                                 <p class="fs-14 fw-normal d-flex align-items-center justify-content-between mb-0"><span id="pos-tax-label">{{ $tax_name ?? 'Tax' }} ({{ $tax_rate ?? 0 }}%)</span> <span id="pos-tax" class="fw-medium text-dark">{{ $currency_symbol }}0.00</span></p>
+                                <p class="fs-14 fw-normal d-flex align-items-center justify-content-between mb-2 mt-2">Discount <span id="pos-discount" class="fw-medium text-dark">{{ $currency_symbol }}0.00</span></p>
+                                <div class="mb-2" id="pos-coupon-row">
+                                    <div class="input-group input-group-sm mb-1" id="pos-coupon-apply-wrap">
+                                        <input type="text" class="form-control" id="pos-coupon-code" placeholder="Coupon code" aria-label="Coupon code" autocomplete="off">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="pos-coupon-apply">Apply</button>
+                                    </div>
+                                    <div class="d-none small mt-1 mb-1" id="pos-coupon-applied-wrap">
+                                        <span class="text-success fw-medium" id="pos-coupon-applied-label">Applied: </span>
+                                        <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-danger" id="pos-coupon-remove">Remove</button>
+                                    </div>
+                                    <p class="small text-danger mb-0 d-none" id="pos-coupon-error"></p>
+                                </div>
+                                <div class="input-group input-group-sm mb-2">
+                                    <span class="input-group-text">Discount ({{ $currency_symbol }})</span>
+                                    <input type="number" step="0.01" min="0" id="pos-discount-input" class="form-control" placeholder="0" value="0" aria-label="Discount amount">
+                                </div>
+                                <p class="fs-14 fw-normal d-flex align-items-center justify-content-between mb-0 pt-1 border-top"><strong>Amount to Pay</strong> <span id="pos-amount-paid" class="fw-semibold text-dark">{{ $currency_symbol }}0.00</span></p>
+                                <div class="input-group input-group-sm mt-2 mb-1">
+                                    <span class="input-group-text">Received ({{ $currency_symbol }})</span>
+                                    <input type="number" step="0.01" min="0" id="pos-received-input" class="form-control" placeholder="0" value="0" aria-label="Received amount">
+                                </div>
+                                <p class="fs-14 fw-normal d-flex align-items-center justify-content-between mb-0 mt-2"><strong>Change / Balance due</strong> <span id="pos-change" class="fw-semibold">{{ $currency_symbol }}0.00</span></p>
                             </div>
-                        </div>
-
-                        <!-- Amount to be Paid (Sub Total + GST) -->
-                        <div class="p-3 border-bottom d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                            <h5 class="mb-0">Amount to be Paid <span class="fs-13 fw-normal text-muted">(incl. GST)</span></h5>
-                            <h5 class="mb-0" id="pos-amount-paid">{{ $currency_symbol }}0.00</h5>
                         </div>
 
                         <!-- Place Order form (action/method set by JS when editing) -->
@@ -704,7 +725,11 @@
                             @endif
                             <input type="hidden" name="order_type" id="pos-order-type" value="dine_in">
                             <input type="hidden" name="restaurant_table_id" id="pos-form-table-id" value="">
+                            <input type="hidden" name="customer_id" id="pos-form-customer-id" value="">
                             <input type="hidden" name="customer_name" id="pos-form-customer-name" value="">
+                            <input type="hidden" name="coupon_id" id="pos-form-coupon-id" value="">
+                            <input type="hidden" name="discount_amount" id="pos-form-discount" value="0">
+                            <input type="hidden" name="received_amount" id="pos-form-received" value="">
                         </form>
                         <div class="p-3">
                             <button type="button" class="btn btn-primary w-100 mb-4" id="pos-place-order-btn">{{ isset($editOrder) ? 'Update Order' : 'Place an Order' }}</button>

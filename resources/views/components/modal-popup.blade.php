@@ -1379,7 +1379,7 @@
     </script>
     <!-- Items Details End -->
 
-    <!-- Add Item (theme: image, name, description min 200, price, net price, category, tax, variations, addons) -->
+    <!-- Add Item (theme: image, name, description, price, net price, category, tax, variations, addons) -->
     <div class="modal fade" id="add_item">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -1409,8 +1409,7 @@
                             <div class="col-lg-12">
                                 <div class="mb-3">
                                     <label class="form-label">Description</label>
-                                    <textarea name="description" rows="4" class="form-control" placeholder="Add Minimum 200 Characters">{{ old('description') }}</textarea>
-                                    <p class="small text-muted mb-0 mt-1">Add minimum 200 characters (optional)</p>
+                                    <textarea name="description" rows="4" class="form-control" placeholder="Item description (optional)">{{ old('description') }}</textarea>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -1525,8 +1524,7 @@
                             <div class="col-lg-12">
                                 <div class="mb-3">
                                     <label class="form-label">Description</label>
-                                    <textarea name="description" id="edit_item_description" rows="4" class="form-control" placeholder="Add Minimum 200 Characters"></textarea>
-                                    <p class="small text-muted mb-0 mt-1">Add minimum 200 characters (optional)</p>
+                                    <textarea name="description" id="edit_item_description" rows="4" class="form-control" placeholder="Item description (optional)"></textarea>
                                 </div>
                             </div>
                             <div class="col-lg-6">

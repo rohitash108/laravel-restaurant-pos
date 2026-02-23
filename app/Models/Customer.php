@@ -16,7 +16,15 @@ class Customer extends Model
         'gender',
         'status',
         'image',
+        'balance',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'balance' => 'decimal:2',
+        ];
+    }
 
     public function restaurant(): BelongsTo
     {

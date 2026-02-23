@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesRestaurant;
+use App\Models\Coupon;
+use App\Models\Customer;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\RestaurantTable;
@@ -113,24 +115,64 @@ class OrderController extends Controller
 
         $taxRate = 0.18;
         $taxAmount = round($subtotal * $taxRate, 2);
-        $total = round($subtotal + $taxAmount, 2);
+        $couponId = $request->filled('coupon_id') ? (int) $request->coupon_id : null;
+        $coupon = null;
+        if ($couponId) {
+            $coupon = Coupon::where('restaurant_id', $restaurantId)->where('id', $couponId)
+                ->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('valid_from')->orWhere('valid_from', '<=', now()->toDateString());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('valid_to')->orWhere('valid_to', '>=', now()->toDateString());
+                })
+                ->first();
+            if (! $coupon) {
+                $couponId = null;
+            }
+        }
+        if ($coupon) {
+            $discountAmount = $coupon->discount_type === 'percentage'
+                ? round($subtotal * (float) $coupon->discount_amount / 100, 2)
+                : round(min((float) $coupon->discount_amount, $subtotal), 2);
+        } else {
+            $discountAmount = $request->filled('discount_amount') ? round((float) $request->discount_amount, 2) : 0;
+        }
+        $total = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
+        $receivedAmount = $request->filled('received_amount') ? round((float) $request->received_amount, 2) : null;
+        $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;
+        if ($customerId && Customer::where('id', $customerId)->where('restaurant_id', $restaurantId)->doesntExist()) {
+            $customerId = null;
+        }
 
         $order = Order::create([
             'restaurant_id' => $restaurantId,
             'restaurant_table_id' => $tableId,
+            'customer_id' => $customerId,
+            'coupon_id' => $couponId,
             'order_number' => Order::generateOrderNumber(),
             'order_type' => $request->order_type,
             'status' => Order::STATUS_PENDING,
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
-            'discount_amount' => 0,
+            'discount_amount' => $discountAmount,
             'total' => $total,
+            'received_amount' => $receivedAmount,
             'customer_name' => $request->customer_name ?: 'Walk-in',
             'notes' => $request->notes,
         ]);
 
         foreach ($orderItemsData as $data) {
             $order->items()->create($data);
+        }
+
+        if ($customerId) {
+            $customer = Customer::where('restaurant_id', $restaurantId)->find($customerId);
+            if ($customer) {
+                $unpaid = $total - ($receivedAmount ?? 0);
+                $customer->balance = (float) $customer->balance - $unpaid;
+                $customer->save();
+            }
         }
 
         if ($request->wantsJson()) {
@@ -165,6 +207,10 @@ class OrderController extends Controller
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
             'customer_name' => ['nullable', 'string', 'max:255'],
+            'customer_id' => ['nullable', 'integer', 'exists:customers,id'],
+            'coupon_id' => ['nullable', 'integer', 'exists:coupons,id'],
+            'discount_amount' => ['nullable', 'numeric', 'min:0'],
+            'received_amount' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string', 'max:500'],
         ], [
             'items.required' => 'Add at least one item to the order.',
@@ -203,15 +249,46 @@ class OrderController extends Controller
 
         $taxRate = 0.18;
         $taxAmount = round($subtotal * $taxRate, 2);
-        $total = round($subtotal + $taxAmount, 2);
+        $couponId = $request->filled('coupon_id') ? (int) $request->coupon_id : null;
+        $coupon = null;
+        if ($couponId) {
+            $coupon = Coupon::where('restaurant_id', $restaurantId)->where('id', $couponId)
+                ->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('valid_from')->orWhere('valid_from', '<=', now()->toDateString());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('valid_to')->orWhere('valid_to', '>=', now()->toDateString());
+                })
+                ->first();
+            if (! $coupon) {
+                $couponId = null;
+            }
+        }
+        if ($coupon) {
+            $discountAmount = $coupon->discount_type === 'percentage'
+                ? round($subtotal * (float) $coupon->discount_amount / 100, 2)
+                : round(min((float) $coupon->discount_amount, $subtotal), 2);
+        } else {
+            $discountAmount = $request->filled('discount_amount') ? round((float) $request->discount_amount, 2) : 0;
+        }
+        $total = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
+        $receivedAmount = $request->filled('received_amount') ? round((float) $request->received_amount, 2) : null;
+        $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;
+        if ($customerId && Customer::where('id', $customerId)->where('restaurant_id', $restaurantId)->doesntExist()) {
+            $customerId = null;
+        }
 
         $order->update([
             'restaurant_table_id' => $tableId,
+            'customer_id' => $customerId,
+            'coupon_id' => $couponId,
             'order_type' => $request->order_type,
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
-            'discount_amount' => 0,
+            'discount_amount' => $discountAmount,
             'total' => $total,
+            'received_amount' => $receivedAmount,
             'customer_name' => $request->customer_name ?: 'Walk-in',
             'notes' => $request->notes,
         ]);

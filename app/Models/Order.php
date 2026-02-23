@@ -14,6 +14,8 @@ class Order extends Model
     protected $fillable = [
         'restaurant_id',
         'restaurant_table_id',
+        'customer_id',
+        'coupon_id',
         'order_number',
         'order_type',
         'status',
@@ -21,6 +23,7 @@ class Order extends Model
         'tax_amount',
         'discount_amount',
         'total',
+        'received_amount',
         'customer_name',
         'customer_phone',
         'notes',
@@ -33,6 +36,7 @@ class Order extends Model
             'tax_amount' => 'decimal:2',
             'discount_amount' => 'decimal:2',
             'total' => 'decimal:2',
+            'received_amount' => 'decimal:2',
         ];
     }
 
@@ -63,6 +67,16 @@ class Order extends Model
     public function table(): BelongsTo
     {
         return $this->belongsTo(RestaurantTable::class, 'restaurant_table_id');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 
     public function items(): HasMany
