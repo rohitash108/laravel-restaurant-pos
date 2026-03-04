@@ -38,9 +38,12 @@ class SettingsController extends Controller
 
         $request->validate([
             'logo' => 'nullable|image|mimes:jpeg,png,gif,webp|max:5120',
+            'payment_qr' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
         ], [
             'logo.image' => 'The logo must be an image (JPEG, PNG, GIF or WebP).',
             'logo.max' => 'The logo must not be larger than 5 MB.',
+            'payment_qr.image' => 'Payment QR must be an image (JPEG, PNG, GIF or WebP).',
+            'payment_qr.max' => 'Payment QR must not be larger than 2 MB.',
         ]);
 
         $logoPath = $restaurant->logo;
@@ -57,6 +60,25 @@ class SettingsController extends Controller
             $logoPath = $request->file('logo')->store('restaurants', 'public');
         }
 
+        $paymentQrPath = $restaurant->payment_qr;
+        if ($request->has('remove_payment_qr') && $request->boolean('remove_payment_qr')) {
+            if ($paymentQrPath && Storage::disk('public')->exists($paymentQrPath)) {
+                Storage::disk('public')->delete($paymentQrPath);
+            }
+            $paymentQrPath = null;
+        } elseif ($request->hasFile('payment_qr')) {
+            if ($paymentQrPath && Storage::disk('public')->exists($paymentQrPath)) {
+                Storage::disk('public')->delete($paymentQrPath);
+            }
+            $paymentQrPath = $request->file('payment_qr')->store('restaurants/payment-qr', 'public');
+        }
+
+        // Ensure currency never becomes null (DB column is NOT NULL)
+        $currency = $request->input('currency');
+        if (! $currency) {
+            $currency = $restaurant->currency ?: 'INR';
+        }
+
         // Update restaurant basic info
         $restaurant->update([
             'name' => $request->input('store_name', $restaurant->name),
@@ -68,8 +90,9 @@ class SettingsController extends Controller
             'pincode' => $request->input('pincode'),
             'email' => $request->input('email', $restaurant->email),
             'phone' => $request->input('phone', $restaurant->phone),
-            'currency' => $request->input('currency', $restaurant->currency),
+            'currency' => $currency,
             'logo' => $logoPath,
+            'payment_qr' => $paymentQrPath,
         ]);
 
         // Save toggle settings

@@ -14,6 +14,7 @@ class Restaurant extends Model
         'name',
         'slug',
         'logo',
+        'payment_qr',
         'address',
         'address2',
         'country',

@@ -19,6 +19,7 @@ class Order extends Model
         'order_number',
         'order_type',
         'status',
+        'payment_status',
         'subtotal',
         'tax_amount',
         'discount_amount',
@@ -52,6 +53,9 @@ class Order extends Model
     public const STATUS_SERVED = 'served';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
+
+    public const PAYMENT_STATUS_UNPAID = 'unpaid';
+    public const PAYMENT_STATUS_PAID = 'paid';
 
     /** Orders that are not yet completed or cancelled (table is still "in use"). */
     public function scopeActive($query)

@@ -70,6 +70,37 @@
                                     </div>
                                 </div> <!-- end col -->
 
+                                <div class="col-xl-12">
+                                    <div class="mb-4 p-3 border rounded bg-light">
+                                        <label class="form-label fw-semibold mb-2">Payment QR (for customer payments)</label>
+                                        <p class="fs-13 text-muted mb-3">Upload your UPI/bank payment QR so customers can scan and pay. After they pay, mark the order as <strong>Paid</strong> from the <a href="{{ url('orders') }}">Orders</a> page.</p>
+                                        <div class="d-flex align-items-center flex-wrap gap-3">
+                                            <div class="avatar avatar-3xl border bg-white rounded" id="payment-qr-preview">
+                                                @if($restaurant && $restaurant->payment_qr)
+                                                    <img src="{{ asset('storage/' . $restaurant->payment_qr) }}" alt="Payment QR" class="img-fluid rounded">
+                                                @else
+                                                    <i class="icon-qrcode fs-28 text-muted"></i>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                                    <div class="btn btn-icon btn-sm btn-white rounded-circle position-relative">
+                                                        <input type="file" name="payment_qr" id="payment-qr-input" class="form-control position-absolute w-100 h-100 top-0 start-0 opacity-0" accept="image/jpeg,image/png,image/gif,image/webp">
+                                                        <i class="icon-upload"></i>
+                                                    </div>
+                                                    @if($restaurant && $restaurant->payment_qr)
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" class="form-check-input" name="remove_payment_qr" value="1" id="remove_payment_qr">
+                                                            <label class="form-check-label text-muted fs-13" for="remove_payment_qr">Remove current QR</label>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <p class="fs-12 text-muted mb-0 mt-1">JPG, PNG, GIF or WebP, max 2 MB</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- end col -->
+
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Store Name<span class="text-danger ms-1">*</span></label>
@@ -207,4 +238,34 @@
         End Page Content
     ========================= -->
 
+@push('scripts')
+<script>
+(function() {
+    var logoInput = document.getElementById('store-logo-input');
+    var logoPreview = document.getElementById('store-logo-preview');
+    if (logoInput && logoPreview) {
+        logoInput.addEventListener('change', function(e) {
+            var f = e.target.files[0];
+            if (f && f.type.indexOf('image') === 0) {
+                var r = new FileReader();
+                r.onload = function() { logoPreview.innerHTML = '<img src="' + r.result + '" alt="Preview" class="img-fluid">'; };
+                r.readAsDataURL(f);
+            }
+        });
+    }
+    var qrInput = document.getElementById('payment-qr-input');
+    var qrPreview = document.getElementById('payment-qr-preview');
+    if (qrInput && qrPreview) {
+        qrInput.addEventListener('change', function(e) {
+            var f = e.target.files[0];
+            if (f && f.type.indexOf('image') === 0) {
+                var r = new FileReader();
+                r.onload = function() { qrPreview.innerHTML = '<img src="' + r.result + '" alt="Payment QR Preview" class="img-fluid rounded">'; };
+                r.readAsDataURL(f);
+            }
+        });
+    }
+})();
+</script>
+@endpush
 @endsection

@@ -137,6 +137,14 @@
                                     </div>
                                 </div>
                             </div>
+                            @if($order->restaurant && $order->restaurant->payment_qr)
+                            <div class="mb-4 p-4 border rounded bg-light text-center">
+                                <h6 class="mb-2">Pay using QR</h6>
+                                <p class="text-muted small mb-3">Scan the QR below to pay. After payment, inform staff so they can mark this order as paid.</p>
+                                <img src="{{ asset('storage/' . $order->restaurant->payment_qr) }}" alt="Payment QR" class="img-fluid rounded" style="max-width: 180px;">
+                                <p class="text-muted small mt-2 mb-0">Order total: {{ $currency_symbol }}{{ number_format($order->total ?? 0, 2) }}</p>
+                            </div>
+                            @endif
                             <div class="d-flex justify-content-center algin-item-center flex-wrap gap-3">
                                 <button type="button" class="btn btn-white d-flex align-items-center"><i class="icon-download me-1"></i>Download PDF</button>
                             <button type="button" class="btn btn-white d-flex align-items-center"><i class="icon-printer me-1"></i>Print Invoice</button>

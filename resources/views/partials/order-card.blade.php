@@ -18,6 +18,16 @@
                     @if($order->status !== 'completed' && $order->status !== 'cancelled')
                     <li><a href="{{ route('orders.edit', $order) }}" class="dropdown-item rounded d-flex align-items-center"><i class="icon-pencil-line me-2"></i>Edit Order</a></li>
                     @endif
+                    @if($order->status !== 'cancelled')
+                    <li>
+                        <form action="{{ route('orders.update-payment-status', $order) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="payment_status" value="{{ ($order->payment_status ?? 'unpaid') === 'paid' ? 'unpaid' : 'paid' }}">
+                            <button type="submit" class="dropdown-item rounded d-flex align-items-center w-100 border-0 bg-transparent text-start"><i class="icon-{{ ($order->payment_status ?? 'unpaid') === 'paid' ? 'circle-alert' : 'circle-check' }} me-2"></i>{{ ($order->payment_status ?? 'unpaid') === 'paid' ? 'Mark Unpaid' : 'Mark Paid' }}</button>
+                        </form>
+                    </li>
+                    @endif
                     @if($order->status !== 'completed')
                     <li>
                         <form action="{{ route('orders.update-status', $order) }}" method="POST" class="d-inline">
@@ -76,6 +86,22 @@
                 </div>
                 @endif
             </div>
+        </div>
+        @php $paymentStatus = $order->payment_status ?? 'unpaid'; @endphp
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+            <span class="badge mb-0 {{ $paymentStatus === 'paid' ? 'badge-soft-success' : 'badge-soft-warning' }}">
+                <i class="icon-{{ $paymentStatus === 'paid' ? 'circle-check' : 'circle-alert' }} me-1"></i> {{ $paymentStatus === 'paid' ? 'Paid' : 'Unpaid' }}
+            </span>
+            @if($order->status !== 'cancelled')
+            <form action="{{ route('orders.update-payment-status', $order) }}" method="POST" class="d-inline">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="payment_status" value="{{ $paymentStatus === 'paid' ? 'unpaid' : 'paid' }}">
+                <button type="submit" class="btn btn-sm {{ $paymentStatus === 'paid' ? 'btn-outline-warning' : 'btn-outline-success' }}">
+                    {{ $paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid' }}
+                </button>
+            </form>
+            @endif
         </div>
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <p class="badge mb-0 @if($order->status === 'completed') badge-soft-success @elseif($order->status === 'cancelled') badge-soft-danger @else badge-soft-primary @endif">{{ ucfirst($order->status) }}</p>

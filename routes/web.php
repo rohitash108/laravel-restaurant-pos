@@ -85,6 +85,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin'])->grou
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::patch('/orders/{order}/payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
     Route::get('/pos', [PosController::class, 'index'])->name('pos');
     Route::get('/pos/order/{order}/edit', [PosController::class, 'editOrder'])->name('orders.edit');
     Route::get('/payments', [PaymentsController::class, 'index'])->name('payments');
@@ -98,6 +99,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin'])->grou
     Route::post('/table', [RestaurantTableController::class, 'store'])->name('table.store');
     Route::put('/table/{table}', [RestaurantTableController::class, 'update'])->name('table.update');
     Route::delete('/table/{table}', [RestaurantTableController::class, 'destroy'])->name('table.destroy');
+    Route::get('/table/{table}/qr-print', [RestaurantTableController::class, 'printCard'])->name('table.qr-print');
 
     // ——— Settings Pages (now dynamic) ———
     Route::get('/store-settings', [SettingsController::class, 'storeSettings'])->name('store-settings');

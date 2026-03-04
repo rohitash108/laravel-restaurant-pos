@@ -157,4 +157,19 @@ class RestaurantTableController extends Controller
         $table->delete();
         return redirect()->route('table')->with('success', 'Table deleted successfully.');
     }
+
+    /**
+     * Printable QR standee for a single table.
+     */
+    public function printCard(RestaurantTable $table)
+    {
+        $restaurantId = $this->currentRestaurantId();
+        if (! $restaurantId || (int) $table->restaurant_id !== (int) $restaurantId) {
+            abort(403);
+        }
+
+        $restaurant = $table->restaurant;
+
+        return view('table-qr-print', compact('table', 'restaurant'));
+    }
 }

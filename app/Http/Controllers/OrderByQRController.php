@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -50,11 +51,22 @@ class OrderByQRController extends Controller
             ->where(fn ($q) => $q->where('slug', $table)->orWhere('id', (int) $table))
             ->firstOrFail();
 
+        // Load categories with items; each item with variations and addons from database so customer can choose when ordering
         $categories = $restaurant->categories()
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->with(['items' => fn ($q) => $q->where('is_available', true)->orderBy('sort_order')->orderBy('name')])
+            ->with([
+                'items' => function ($q) {
+                    $q->where('is_available', true)
+                        ->orderBy('sort_order')
+                        ->orderBy('name')
+                        ->with([
+                            'addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'),
+                            'variations' => fn ($vq) => $vq->orderBy('sort_order')->orderBy('name'),
+                        ]);
+                },
+            ])
             ->get();
 
         // QR order page always uses INR (₹) for India; USD is treated as INR
@@ -67,11 +79,22 @@ class OrderByQRController extends Controller
             default => '₹',
         };
 
+        $coupons = Coupon::where('restaurant_id', $restaurant->id)
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('valid_from')->orWhere('valid_from', '<=', now()->toDateString());
+            })
+            ->where(function ($q) {
+                $q->whereNull('valid_to')->orWhere('valid_to', '>=', now()->toDateString());
+            })
+            ->get(['id', 'code', 'discount_type', 'discount_amount']);
+
         return view('order-by-qr.menu', [
             'restaurant' => $restaurant,
             'table' => $table,
             'categories' => $categories,
             'currency_symbol' => $currencySymbol,
+            'coupons' => $coupons,
         ]);
     }
 
@@ -86,8 +109,11 @@ class OrderByQRController extends Controller
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
+            'items.*.notes' => 'nullable|string|max:500',
             'customer_name' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:500',
+            'coupon_id' => 'nullable|integer|exists:coupons,id',
         ]);
 
         $restaurant = Restaurant::findOrFail($request->restaurant_id);
@@ -102,12 +128,13 @@ class OrderByQRController extends Controller
                 continue;
             }
             $qty = (int) $row['quantity'];
-            $total = $item->price * $qty;
+            $unitPrice = isset($row['unit_price']) && is_numeric($row['unit_price']) ? (float) $row['unit_price'] : (float) $item->price;
+            $total = round($unitPrice * $qty, 2);
             $subtotal += $total;
             $orderItemsData[] = [
                 'item_id' => $item->id,
                 'item_name' => $item->name,
-                'unit_price' => $item->price,
+                'unit_price' => $unitPrice,
                 'quantity' => $qty,
                 'total_price' => $total,
                 'notes' => $row['notes'] ?? null,
@@ -118,6 +145,29 @@ class OrderByQRController extends Controller
             return back()->with('error', 'Please add at least one item.')->withInput();
         }
 
+        $couponId = $request->filled('coupon_id') ? (int) $request->coupon_id : null;
+        $discountAmount = 0;
+        if ($couponId) {
+            $coupon = Coupon::where('restaurant_id', $restaurant->id)->where('id', $couponId)
+                ->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('valid_from')->orWhere('valid_from', '<=', now()->toDateString());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('valid_to')->orWhere('valid_to', '>=', now()->toDateString());
+                })
+                ->first();
+            if ($coupon) {
+                $discountAmount = $coupon->discount_type === 'percentage'
+                    ? round($subtotal * (float) $coupon->discount_amount / 100, 2)
+                    : round(min((float) $coupon->discount_amount, $subtotal), 2);
+            } else {
+                $couponId = null;
+            }
+        }
+
+        $total = round(max(0, $subtotal - $discountAmount), 2);
+
         $order = Order::create([
             'restaurant_id' => $restaurant->id,
             'restaurant_table_id' => $table->id,
@@ -126,8 +176,9 @@ class OrderByQRController extends Controller
             'status' => Order::STATUS_PENDING,
             'subtotal' => $subtotal,
             'tax_amount' => 0,
-            'discount_amount' => 0,
-            'total' => $subtotal,
+            'discount_amount' => $discountAmount,
+            'total' => $total,
+            'coupon_id' => $couponId,
             'customer_name' => $request->customer_name,
             'notes' => $request->notes,
         ]);

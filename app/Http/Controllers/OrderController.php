@@ -312,4 +312,19 @@ class OrderController extends Controller
 
         return redirect()->route('orders')->with('success', 'Order status updated.');
     }
+
+    /**
+     * Update order payment status (paid/unpaid). Used when customer pays via QR or other method.
+     */
+    public function updatePaymentStatus(Request $request, Order $order)
+    {
+        $restaurantId = $this->currentRestaurantId();
+        if (! $restaurantId || (int) $order->restaurant_id !== (int) $restaurantId) {
+            abort(403);
+        }
+        $request->validate(['payment_status' => 'required|in:paid,unpaid']);
+        $order->update(['payment_status' => $request->payment_status]);
+
+        return redirect()->route('orders')->with('success', 'Payment status updated to ' . $request->payment_status . '.');
+    }
 }
