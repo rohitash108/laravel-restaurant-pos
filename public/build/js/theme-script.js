@@ -1,21 +1,23 @@
 
 (function () {
   const html = document.documentElement;
-  const defaultTheme = "light";
+  const defaultTheme = "dark";
 
   try {
-    const savedConfig = JSON.parse(sessionStorage.getItem("__THEME_CONFIG__")) || {};
+    const saved = localStorage.getItem("__THEME_CONFIG__");
+    const savedConfig = saved ? JSON.parse(saved) : {};
     html.setAttribute("data-bs-theme", savedConfig.theme || defaultTheme);
   } catch {
     html.setAttribute("data-bs-theme", defaultTheme);
   }
 })();
 
-// --- THEME CONFIG ---
-const defaults = { theme: "light" };
+// --- THEME CONFIG (dark by default; user can switch to light via button) ---
+const defaults = { theme: "dark" };
 let storedConfig = {};
 try {
-  storedConfig = JSON.parse(sessionStorage.getItem("__THEME_CONFIG__")) || {};
+  const saved = localStorage.getItem("__THEME_CONFIG__");
+  storedConfig = saved ? JSON.parse(saved) : {};
 } catch {
   storedConfig = {};
 }
@@ -30,8 +32,8 @@ class ThemeCustomizer {
   }
 
   saveConfig() {
-    sessionStorage.setItem("__THEME_CONFIG__", JSON.stringify(this.config));
-    sessionStorage.setItem("__THEME_LABEL__", this.config.theme === "dark" ? "Dark" : "Light");
+    localStorage.setItem("__THEME_CONFIG__", JSON.stringify(this.config));
+    localStorage.setItem("__THEME_LABEL__", this.config.theme === "dark" ? "Dark" : "Light");
   }
 
   applyTheme(theme) {
@@ -53,8 +55,18 @@ class ThemeCustomizer {
 
     // Update dropdown label
     const dropdownToggle = document.querySelector(".theme-dropdown .dropdown-toggle");
-    const savedLabel = sessionStorage.getItem("__THEME_LABEL__");
+    const savedLabel = localStorage.getItem("__THEME_LABEL__");
     if (dropdownToggle && savedLabel) dropdownToggle.textContent = savedLabel;
+
+    // Update light/dark button icon and title: dark mode = show sun (click for light), light mode = show moon (click for dark)
+    document.querySelectorAll(".light-dark-mode").forEach(btn => {
+      const icon = btn.querySelector("i");
+      if (icon) {
+        icon.className = this.config.theme === "dark" ? "icon-sun fs-16" : "icon-moon fs-16";
+      }
+      btn.setAttribute("aria-label", this.config.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+      btn.setAttribute("title", this.config.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    });
   }
 
   initListeners() {
