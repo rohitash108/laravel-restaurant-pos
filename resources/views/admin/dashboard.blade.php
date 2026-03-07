@@ -114,6 +114,12 @@
                                 <a href="{{ route('admin.restaurants.index') }}" class="btn btn-soft-secondary d-inline-flex align-items-center justify-content-center">
                                     <i class="icon-warehouse me-2"></i>Manage restaurants
                                 </a>
+                                <a href="{{ route('admin.subscriptions') }}" class="btn btn-soft-primary d-inline-flex align-items-center justify-content-center">
+                                    <i class="icon-credit-card me-2"></i>Manage subscriptions
+                                    @if(($expiring_soon ?? 0) > 0)
+                                        <span class="badge bg-warning ms-2">{{ $expiring_soon }} expiring</span>
+                                    @endif
+                                </a>
                             </div>
                         </div>
                     </div>

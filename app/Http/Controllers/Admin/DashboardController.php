@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Restaurant;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -48,6 +49,10 @@ class DashboardController extends Controller
 
         $currencySymbol = config('app.currency_symbol', '₹');
 
+        // Subscription stats
+        $activeSubscriptions = Subscription::active()->count();
+        $expiringSoon = Subscription::expiringSoon(7)->count();
+
         $adminChartData = [
             'categories' => $dayNames,
             'data' => $ordersByDay,
@@ -67,6 +72,8 @@ class DashboardController extends Controller
             'sales_growth_percent' => $salesGrowthPercent,
             'this_month_sales' => $thisMonthSales,
             'currency_symbol' => $currencySymbol,
+            'active_subscriptions' => $activeSubscriptions,
+            'expiring_soon' => $expiringSoon,
         ]);
     }
 }

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
             'restaurant' => \App\Http\Middleware\EnsureRestaurantContext::class,
             'redirect_super_admin_to_admin' => \App\Http\Middleware\RedirectSuperAdminToAdmin::class,
+            'subscription' => \App\Http\Middleware\CheckSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

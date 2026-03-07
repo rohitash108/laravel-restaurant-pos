@@ -13,7 +13,7 @@ class RestaurantsController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::withCount('tables')->latest()->paginate(12);
+        $restaurants = Restaurant::withCount('tables')->with('activeSubscription.plan')->latest()->paginate(12);
         return response()
             ->view('admin.restaurants.index', compact('restaurants'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')

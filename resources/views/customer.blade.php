@@ -71,6 +71,7 @@
                                     <div class="dropdown">
                                         <a href="#" class="btn btn-icon btn-sm btn-white border" data-bs-toggle="dropdown"><i class="icon-ellipsis-vertical"></i></a>
                                         <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a href="#" class="dropdown-item receive-payment-btn" data-receive-url="{{ route('customer.receive-payment', $c) }}" data-name="{{ e($c->customer_name ?? $c->name ?? '') }}" data-balance="{{ (float)($c->balance ?? 0) }}" data-bs-toggle="modal" data-bs-target="#receive_payment_modal"><i class="icon-wallet me-2"></i>Receive payment</a></li>
                                             <li><a href="#" class="dropdown-item edit-customer-btn" data-id="{{ $c->id }}" data-name="{{ e($c->customer_name ?? $c->name ?? '') }}" data-phone="{{ e($c->customer_phone ?? $c->phone ?? '') }}" data-email="{{ e($c->email ?? '') }}" data-bs-toggle="modal" data-bs-target="#edit_customer"><i class="icon-pencil-line me-2"></i>Edit</a></li>
                                             <li>
                                                 <form action="{{ route('customer.destroy', $c) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this customer?');">
@@ -136,6 +137,39 @@
 
     </div>
 
+    <!-- Receive payment modal -->
+    <div class="modal fade" id="receive_payment_modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="receive_payment_form" method="POST" action="">
+                    @csrf
+                    <input type="hidden" name="currency_symbol" value="{{ $currency_symbol ?? '₹' }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Receive payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2">Customer: <strong id="receive_payment_customer_name"></strong></p>
+                        <p class="mb-3 text-muted small">Current balance: <span id="receive_payment_balance_display"></span></p>
+                        <div class="mb-3">
+                            <label class="form-label">Amount received ({{ $currency_symbol ?? '₹' }}) <span class="text-danger">*</span></label>
+                            <input type="number" name="amount" class="form-control" step="0.01" min="0.01" placeholder="e.g. 100" required>
+                            <div class="form-text">Recording a payment reduces the amount due. E.g. due 500, pay 100 → remaining due 400.</div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Notes (optional)</label>
+                            <input type="text" name="notes" class="form-control" placeholder="e.g. Cash payment" maxlength="500">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Record payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ========================
         End Page Content
     ========================= -->
@@ -150,5 +184,30 @@ document.getElementById('customer-search') && document.getElementById('customer-
         card.style.display = show ? '' : 'none';
     });
 });
+
+(function() {
+    var modal = document.getElementById('receive_payment_modal');
+    var form = document.getElementById('receive_payment_form');
+    var nameEl = document.getElementById('receive_payment_customer_name');
+    var balanceEl = document.getElementById('receive_payment_balance_display');
+    var currency = '{{ $currency_symbol ?? "₹" }}';
+    if (modal && form) {
+        modal.addEventListener('show.bs.modal', function(e) {
+            var btn = e.relatedTarget;
+            if (btn && btn.classList.contains('receive-payment-btn')) {
+                form.action = btn.getAttribute('data-receive-url') || '';
+                if (nameEl) nameEl.textContent = btn.getAttribute('data-name') || '';
+                var bal = parseFloat(btn.getAttribute('data-balance')) || 0;
+                if (balanceEl) {
+                    if (bal > 0) balanceEl.innerHTML = '<span class="text-success">Credit ' + currency + bal.toFixed(2) + '</span>';
+                    else if (bal < 0) balanceEl.innerHTML = '<span class="text-danger">Due ' + currency + (-bal).toFixed(2) + '</span>';
+                    else balanceEl.textContent = currency + '0.00';
+                }
+                form.querySelector('input[name="amount"]').value = '';
+                form.querySelector('input[name="notes"]').value = '';
+            }
+        });
+    }
+})();
 </script>
 @endsection

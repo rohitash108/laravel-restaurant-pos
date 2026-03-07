@@ -90,6 +90,20 @@
                                     @else
                                         <span class="badge badge-soft-secondary">Inactive</span>
                                     @endif
+                                    @if($restaurant->activeSubscription)
+                                        @php $days = $restaurant->activeSubscription->daysRemaining(); @endphp
+                                        @if($days <= 7)
+                                            <span class="badge badge-soft-warning" title="Expires {{ $restaurant->activeSubscription->ends_at->format('d M Y') }}">
+                                                <i class="icon-clock"></i> {{ $days }}d left
+                                            </span>
+                                        @else
+                                            <span class="badge badge-soft-info" title="{{ $restaurant->activeSubscription->plan->name ?? '' }} — Expires {{ $restaurant->activeSubscription->ends_at->format('d M Y') }}">
+                                                <i class="icon-credit-card"></i> {{ $restaurant->activeSubscription->plan->name ?? 'Subscribed' }}
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="badge badge-soft-danger">No Subscription</span>
+                                    @endif
                                 </div>
                                 <div class="d-flex gap-2">
                                     <a href="{{ route('admin.restaurants.show', $restaurant) }}" class="btn btn-sm btn-soft-primary flex-grow-1">View</a>

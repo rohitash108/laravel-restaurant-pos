@@ -5,6 +5,7 @@
     @include('layout.partials.title-meta')
 
     @include('layout.partials.head-css')
+    @stack('styles')
 </head>
 
 @if (Route::is(['login', 'register', 'email-verification', 'forgot-password', 'otp', 'reset-password']))

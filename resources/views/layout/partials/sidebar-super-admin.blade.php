@@ -13,6 +13,9 @@
                     <a href="#" class="nav-link {{ Request::is('admin/restaurants*') ? 'active' : '' }}" title="Restaurants" data-bs-toggle="tab" data-bs-target="#admin-restaurants-tab">
                         <i class="icon-warehouse"></i>
                     </a>
+                    <a href="#" class="nav-link {{ Request::is('admin/subscription*') ? 'active' : '' }}" title="Subscriptions" data-bs-toggle="tab" data-bs-target="#admin-subscriptions-tab">
+                        <i class="icon-credit-card"></i>
+                    </a>
                 </div>
                 <div class="sidebar-profile">
                     @if(false) {{-- Notifications: hidden for now --}}
@@ -79,6 +82,17 @@
                                     <i class="icon-warehouse"></i><span>Restaurants</span>
                                 </a>
                             </li>
+                            <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
+                            <li>
+                                <a href="{{ route('admin.subscription-plans') }}" class="{{ Request::is('admin/subscription-plans*') ? 'active' : '' }}">
+                                    <i class="icon-credit-card"></i><span>Plans</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.subscriptions') }}" class="{{ Request::is('admin/subscriptions*') ? 'active' : '' }}">
+                                    <i class="icon-list"></i><span>Subscriptions</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     <div class="tab-pane fade {{ Request::is('admin/restaurants*') ? 'show active' : '' }}" id="admin-restaurants-tab">
@@ -91,8 +105,24 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="tab-pane fade {{ Request::is('admin/subscription*') ? 'show active' : '' }}" id="admin-subscriptions-tab">
+                        <ul>
+                            <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
+                            <li>
+                                <a href="{{ route('admin.subscription-plans') }}" class="{{ Request::is('admin/subscription-plans*') ? 'active' : '' }}">
+                                    <i class="icon-credit-card"></i><span>Plans</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.subscriptions') }}" class="{{ Request::is('admin/subscriptions*') ? 'active' : '' }}">
+                                    <i class="icon-list"></i><span>Subscriptions</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+

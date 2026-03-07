@@ -136,4 +136,33 @@ class CustomerController extends Controller
 
         return redirect()->route('customer')->with('success', 'Customer deleted successfully.');
     }
+
+    /**
+     * Record a payment received from the customer (reduces amount due / increases balance).
+     * E.g. customer owes 500, pays 100 → balance becomes -400 (due 400).
+     */
+    public function receivePayment(Request $request, Customer $customer)
+    {
+        $restaurantId = $this->currentRestaurantId();
+        if (! $restaurantId || (int) $customer->restaurant_id !== (int) $restaurantId) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $amount = round((float) $request->amount, 2);
+        $previousBalance = (float) $customer->balance;
+        $customer->balance = $previousBalance + $amount;
+        $customer->save();
+
+        $newBalance = (float) $customer->balance;
+        $message = $newBalance >= 0
+            ? 'Payment of ' . $request->input('currency_symbol', '₹') . number_format($amount, 2) . ' recorded. Customer balance: Credit ' . number_format($newBalance, 2)
+            : 'Payment of ' . $request->input('currency_symbol', '₹') . number_format($amount, 2) . ' recorded. Remaining due: ' . $request->input('currency_symbol', '₹') . number_format(-$newBalance, 2);
+
+        return redirect()->route('customer')->with('success', $message);
+    }
 }
