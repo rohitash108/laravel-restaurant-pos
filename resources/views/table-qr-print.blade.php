@@ -350,7 +350,7 @@
 
     <!-- Footer -->
     <div class="card-footer-section">
-        <div class="powered-line">Powered by CS Labs</div>
+        <div class="powered-line">Powered by IT Software</div>
         <div class="powered-sub">www.cslabs.in &nbsp;|&nbsp; contact@cslabs.in</div>
     </div>
 </div>
