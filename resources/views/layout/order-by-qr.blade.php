@@ -483,6 +483,51 @@
         }
         .order-again-btn:active { background: var(--qr-primary-dark); }
 
+        /* ===== Success: payment status badge ===== */
+        .payment-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--qr-radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .payment-status-badge .payment-status-icon { font-size: 1.1rem; }
+        .payment-status-paid {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+        }
+        .payment-status-unpaid {
+            background: rgba(245, 158, 11, 0.15);
+            color: #b45309;
+        }
+        /* ===== Success: Scan & Pay card ===== */
+        .qr-scan-pay-card {
+            background: var(--qr-card);
+            border-radius: var(--qr-radius);
+            box-shadow: var(--qr-shadow);
+            border: 1px solid var(--qr-border);
+            padding: 1rem;
+        }
+        .qr-pay-qr-wrap {
+            width: 100px;
+            height: 100px;
+            padding: 6px;
+            background: linear-gradient(135deg, #ef4444, #7c3aed);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-pay-qr-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #fff;
+        }
+
         /* ===== Spacing for cart bar ===== */
         .page-bottom-spacer { height: 85px; }
 

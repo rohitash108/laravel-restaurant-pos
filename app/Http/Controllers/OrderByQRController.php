@@ -195,20 +195,64 @@ class OrderByQRController extends Controller
     }
 
     /**
-     * Order placed success page.
+     * Order placed success page. Loads order so we can show payment QR, total, and payment status.
      */
     public function success(Restaurant $restaurant, string $table, string $order)
     {
-        $table = RestaurantTable::where('restaurant_id', $restaurant->id)
+        $tableModel = RestaurantTable::where('restaurant_id', $restaurant->id)
             ->where(fn ($q) => $q->where('slug', $table)->orWhere('id', (int) $table))
             ->firstOrFail();
 
         $orderNumber = session('order_number', $order);
+        $orderModel = Order::where('restaurant_id', $restaurant->id)
+            ->where('restaurant_table_id', $tableModel->id)
+            ->where('order_number', $orderNumber)
+            ->first();
+
+        $currencySymbol = ($restaurant->currency ?? 'INR') === 'INR' ? '₹' : ($restaurant->currency ?? '₹');
 
         return view('order-by-qr.success', [
             'restaurant' => $restaurant,
-            'table' => $table,
+            'table' => $tableModel,
             'order_number' => $orderNumber,
+            'order' => $orderModel,
+            'currency_symbol' => $currencySymbol,
+        ]);
+    }
+
+    /**
+     * Public API: get order payment/status for success page polling (no auth).
+     * GET /order/{restaurant}/{table}/order-status?order_number=XXX
+     */
+    public function orderStatus(Request $request, Restaurant $restaurant, string $table)
+    {
+        $orderNumber = $request->query('order_number');
+        if (! $orderNumber) {
+            return response()->json(['error' => 'order_number required'], 400);
+        }
+
+        $tableModel = RestaurantTable::where('restaurant_id', $restaurant->id)
+            ->where(fn ($q) => $q->where('slug', $table)->orWhere('id', (int) $table))
+            ->first();
+
+        if (! $tableModel) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        $order = Order::where('restaurant_id', $restaurant->id)
+            ->where('restaurant_table_id', $tableModel->id)
+            ->where('order_number', $orderNumber)
+            ->first(['id', 'order_number', 'status', 'payment_status', 'total']);
+
+        if (! $order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        return response()->json([
+            'order_number' => $order->order_number,
+            'status' => $order->status,
+            'payment_status' => $order->payment_status ?? 'unpaid',
+            'total' => (float) $order->total,
         ]);
     }
 }

@@ -47,6 +47,8 @@ Route::get('/order/{restaurant:slug}/{table}', [OrderByQRController::class, 'sho
 Route::post('/order/place', [OrderByQRController::class, 'placeOrder'])->name('order.by-qr.place');
 Route::get('/order/{restaurant:slug}/{table}/success/{order}', [OrderByQRController::class, 'success'])
     ->name('order.by-qr.success');
+Route::get('/order/{restaurant:slug}/{table}/order-status', [OrderByQRController::class, 'orderStatus'])
+    ->name('order.by-qr.order-status');
 
 // ——— Authenticated app (restaurant staff only; super admin is redirected to admin/restaurants) ———
 Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subscription'])->group(function () {
