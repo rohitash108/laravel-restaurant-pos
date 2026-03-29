@@ -7,13 +7,9 @@
 <div class="two-col-sidebar" id="two-col-sidebar">
     <div class="sidebar sidebar-twocol">
         <div class="twocol-mini">
-            <a href="{{ route('dashboard') }}" class="logo-small">
-                @php $restaurantLogo = auth()->user()->restaurant?->logo ?? null; @endphp
-                @if($restaurantLogo)
-                    <span class="app-brand-logo app-brand-logo--sm"><img src="{{ asset('storage/' . $restaurantLogo) }}" alt="Logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;"></span>
-                @else
-                    <span class="app-brand-logo app-brand-logo--sm"><img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="Logo"></span>
-                @endif
+            <a href="{{ route('dashboard') }}" class="logo-small" title="IT Software">
+                {{-- Always platform logo; restaurant logo is shown in the expanded sidebar header dropdown --}}
+                <span class="app-brand-logo app-brand-logo--sm"><img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="IT Software"></span>
             </a>
             <div class="sidebar-left">
                 <div class="nav flex-column align-items-center sidebar-nav" id="sidebar-tabs" role="tablist" aria-orientation="vertical" data-simplebar>
