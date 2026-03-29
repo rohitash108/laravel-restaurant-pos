@@ -177,6 +177,33 @@ class ModulesTest extends TestCase
     }
 
     #[Test]
+    public function super_admin_can_view_and_update_account_profile(): void
+    {
+        $this->actingAs($this->superAdmin);
+
+        $response = $this->get(route('admin.profile.edit'));
+        $response->assertStatus(200);
+        $response->assertSee('Account', false);
+
+        $response = $this->put(route('admin.profile.update'), [
+            'name' => 'Super Admin Updated',
+            'email' => 'superadmin@test.com',
+        ]);
+        $response->assertRedirect(route('admin.profile.edit'));
+
+        $this->superAdmin->refresh();
+        $this->assertSame('Super Admin Updated', $this->superAdmin->name);
+    }
+
+    #[Test]
+    public function restaurant_user_cannot_access_super_admin_profile(): void
+    {
+        $this->actingAs($this->restaurantUser);
+        $response = $this->get(route('admin.profile.edit'));
+        $response->assertStatus(403);
+    }
+
+    #[Test]
     public function public_order_by_qr_route_accepts_valid_slug_and_table(): void
     {
         RestaurantTable::create([

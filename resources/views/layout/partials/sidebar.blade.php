@@ -10,9 +10,9 @@
             <a href="{{ route('dashboard') }}" class="logo-small">
                 @php $restaurantLogo = auth()->user()->restaurant?->logo ?? null; @endphp
                 @if($restaurantLogo)
-                    <img src="{{ asset('storage/' . $restaurantLogo) }}" alt="Logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;">
+                    <span class="app-brand-logo app-brand-logo--sm"><img src="{{ asset('storage/' . $restaurantLogo) }}" alt="Logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;"></span>
                 @else
-                    <img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="Logo">
+                    <span class="app-brand-logo app-brand-logo--sm"><img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="Logo"></span>
                 @endif
             </a>
             <div class="sidebar-left">

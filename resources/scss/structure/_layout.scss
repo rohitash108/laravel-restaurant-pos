@@ -5,6 +5,11 @@
 @use "../variables" as *;
 @use "../utils/mixins" as *;
 
+// Sticky footer bar: fixed to viewport bottom — reserve space so content does not sit under it
+:root {
+    --app-footer-height: 52px;
+}
+
 .page-wrapper {
     @include transition(all 0.5s ease);
     margin: 0 0 0 $sidenav-width;
@@ -12,7 +17,8 @@
     flex-direction: column;
     position: relative;
     left: 0;
-    min-height: calc(100vh - ($topbar-height + 1px));
+    // Topbar (sticky) + fixed footer — fill viewport without stacking footer below the fold
+    min-height: calc(100vh - #{$topbar-height} - var(--app-footer-height) - 1px);
     @include transition(all 0.2s ease);
     @include respond-below(lg) {
         margin: 0;
@@ -20,4 +26,47 @@
     .content {
         padding:  1.5rem;
     }
+}
+
+// Reserve bottom gap so last content is not hidden behind fixed footer (auth pages, short views)
+.main-wrapper--with-footer {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: var(--app-footer-height);
+}
+
+// Auth / marketing columns use Bootstrap .vh-100 — subtract footer so the page does not gain a second scroll
+.main-wrapper--with-footer .vh-100 {
+    min-height: calc(100vh - var(--app-footer-height)) !important;
+    min-height: calc(100dvh - var(--app-footer-height)) !important;
+    height: calc(100vh - var(--app-footer-height)) !important;
+    height: calc(100dvh - var(--app-footer-height)) !important;
+}
+
+.app-site-footer {
+    position: fixed;
+    bottom: 0;
+    left: $sidenav-width;
+    right: 0;
+    z-index: 8;
+    margin-left: 0;
+    padding: 0.65rem 0;
+    padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid $border-color;
+    background: $topbar-bg;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+    @include respond-below(lg) {
+        left: 0;
+    }
+
+    p {
+        line-height: 1.5;
+    }
+}
+
+[data-bs-theme="dark"] .app-site-footer {
+    background: $gray-900;
+    border-top-color: rgba($white, 0.08);
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.25);
 }

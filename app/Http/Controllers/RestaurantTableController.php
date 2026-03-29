@@ -170,6 +170,11 @@ class RestaurantTableController extends Controller
 
         $restaurant = $table->restaurant;
 
-        return view('table-qr-print', compact('table', 'restaurant'));
+        $tableOccupied = Order::where('restaurant_id', $table->restaurant_id)
+            ->active()
+            ->where('restaurant_table_id', $table->id)
+            ->exists();
+
+        return view('table-qr-print', compact('table', 'restaurant', 'tableOccupied'));
     }
 }

@@ -6,11 +6,11 @@
             <div class="header-menu">
                 <div class="header-logo">
                     @if($posStoreLogo)
-                        <a href="{{ route('dashboard') }}" class="logo-dark"><img src="{{ asset('storage/' . $posStoreLogo) }}" alt="logo" class="img-fluid" style="max-height: 36px; width: auto; object-fit: contain;"></a>
-                        <a href="{{ route('dashboard') }}" class="logo-light"><img src="{{ asset('storage/' . $posStoreLogo) }}" alt="logo" class="img-fluid" style="max-height: 36px; width: auto; object-fit: contain;"></a>
+                        <a href="{{ route('dashboard') }}" class="logo-dark"><span class="app-brand-logo app-brand-logo--pos"><img src="{{ asset('storage/' . $posStoreLogo) }}" alt="logo" class="img-fluid" style="max-height: 36px; width: auto; object-fit: contain;"></span></a>
+                        <a href="{{ route('dashboard') }}" class="logo-light"><span class="app-brand-logo app-brand-logo--pos"><img src="{{ asset('storage/' . $posStoreLogo) }}" alt="logo" class="img-fluid" style="max-height: 36px; width: auto; object-fit: contain;"></span></a>
                     @else
-                        <a href="{{ route('dashboard') }}" class="logo-dark"> <img src="{{ URL::asset('build/img/logo.svg') }}" alt="logo" class="img-fluid"></a>
-                        <a href="{{ route('dashboard') }}" class="logo-light"> <img src="{{ URL::asset('build/img/logo-white.svg') }}" alt="logo" class="img-fluid"></a>
+                        <a href="{{ route('dashboard') }}" class="logo-dark"><span class="app-brand-logo app-brand-logo--pos"><img src="{{ URL::asset('build/img/logo.svg') }}" alt="logo" class="img-fluid"></span></a>
+                        <a href="{{ route('dashboard') }}" class="logo-light"><span class="app-brand-logo app-brand-logo--pos"><img src="{{ URL::asset('build/img/logo-white.svg') }}" alt="logo" class="img-fluid"></span></a>
                     @endif
                 </div>
                 <div class="navbar-header">
@@ -482,7 +482,7 @@
                 @if(auth()->user() && auth()->user()->isSuperAdmin())
                 <!-- Super Admin: single logo to avoid overlap -->
                 <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                    <img src="{{ asset('build/img/logo.svg') }}" alt="Logo" class="img-fluid" style="max-height: 32px; max-width: 140px;">
+                    <span class="app-brand-logo app-brand-logo--topbar"><img src="{{ asset('build/img/logo.svg') }}" alt="Logo" class="img-fluid" style="max-width: 140px;"></span>
                 </a>
                 @else
                 <!-- Logo (light/dark variants); use store logo from settings when set -->
@@ -490,18 +490,18 @@
                 <a href="{{ route('dashboard') }}" class="logo">
                     <span class="logo-light">
                         @if($storeLogo)
-                            <span class="logo-lg"><img src="{{ asset('storage/' . $storeLogo) }}" alt="logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;"></span>
-                            <span class="logo-sm"><img src="{{ asset('storage/' . $storeLogo) }}" alt="small logo" class="img-fluid" style="max-height: 28px; width: auto; object-fit: contain;"></span>
+                            <span class="logo-lg"><span class="app-brand-logo app-brand-logo--topbar"><img src="{{ asset('storage/' . $storeLogo) }}" alt="logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;"></span></span>
+                            <span class="logo-sm"><span class="app-brand-logo app-brand-logo--topbar"><img src="{{ asset('storage/' . $storeLogo) }}" alt="small logo" class="img-fluid" style="max-height: 28px; width: auto; object-fit: contain;"></span></span>
                         @else
-                            <span class="logo-lg"><img src="{{ URL::asset('build/img/logo.svg') }}" alt="logo"></span>
-                            <span class="logo-sm"><img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="small logo"></span>
+                            <span class="logo-lg"><span class="app-brand-logo app-brand-logo--topbar"><img src="{{ URL::asset('build/img/logo.svg') }}" alt="logo"></span></span>
+                            <span class="logo-sm"><span class="app-brand-logo app-brand-logo--topbar"><img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="small logo"></span></span>
                         @endif
                     </span>
                     <span class="logo-dark">
                         @if($storeLogo)
-                            <span class="logo-lg"><img src="{{ asset('storage/' . $storeLogo) }}" alt="dark logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;"></span>
+                            <span class="logo-lg"><span class="app-brand-logo app-brand-logo--topbar"><img src="{{ asset('storage/' . $storeLogo) }}" alt="dark logo" class="img-fluid" style="max-height: 32px; width: auto; object-fit: contain;"></span></span>
                         @else
-                            <span class="logo-lg"><img src="{{ URL::asset('build/img/logo-white.svg') }}" alt="dark logo"></span>
+                            <span class="logo-lg"><span class="app-brand-logo app-brand-logo--topbar"><img src="{{ URL::asset('build/img/logo-white.svg') }}" alt="dark logo"></span></span>
                         @endif
                     </span>
                 </a>

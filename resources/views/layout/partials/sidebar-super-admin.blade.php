@@ -3,12 +3,15 @@
     <div class="sidebar sidebar-twocol" id="sidebar">
         <div class="twocol-mini">
             <a href="{{ route('admin.dashboard') }}" class="logo-small">
-                <img src="{{ asset('build/img/logo-small.svg') }}" alt="Logo">
+                <span class="app-brand-logo app-brand-logo--sm"><img src="{{ asset('build/img/logo-small.svg') }}" alt="Logo"></span>
             </a>
             <div class="sidebar-left">
                 <div class="nav flex-column align-items-center sidebar-nav" id="sidebar-tabs" role="tablist" data-simplebar>
                     <a href="#" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" title="Dashboard" data-bs-toggle="tab" data-bs-target="#admin-dashboard-tab">
                         <i class="icon-layout-dashboard"></i>
+                    </a>
+                    <a href="{{ route('admin.profile.edit') }}" class="nav-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" title="Account">
+                        <i class="icon-user-cog"></i>
                     </a>
                     <a href="#" class="nav-link {{ Request::is('admin/restaurants*') ? 'active' : '' }}" title="Restaurants" data-bs-toggle="tab" data-bs-target="#admin-restaurants-tab">
                         <i class="icon-warehouse"></i>
@@ -46,6 +49,9 @@
                                 <p class="mb-0 fw-medium">{{ auth()->user()->name ?? 'Super Admin' }}</p>
                                 <p class="fs-12 text-muted mb-0">{{ auth()->user()->email }}</p>
                             </div>
+                            <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('admin.profile.edit') }}">
+                                <i class="icon-user-cog me-2"></i>Account settings
+                            </a>
                             <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('logout') }}"
                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="icon-log-out me-2"></i>Logout
@@ -74,6 +80,11 @@
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="{{ Request::is('admin/dashboard') ? 'active' : '' }}">
                                     <i class="icon-layout-dashboard"></i><span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.profile.edit') }}" class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
+                                    <i class="icon-user-cog"></i><span>Account</span>
                                 </a>
                             </li>
                             <li class="menu-title"><span>RESTAURANTS</span></li>

@@ -1,6 +1,80 @@
 @use "../variables" as *;
 @use "../utils/mixins" as *;
 
+// ── Login: brand block (logo + welcome as one unit; no global “badge” frame) ──
+.login-page {
+    .auth-brand {
+        max-width: 28rem;
+        margin-left: auto;
+        margin-right: auto;
+        @include respond-above(lg) {
+            margin-left: 0;
+            margin-right: 0;
+        }
+    }
+
+    .auth-brand__mark {
+        width: 100%;
+    }
+
+    .auth-brand__logo-wrap {
+        display: inline-block;
+        padding: 0.5rem 0.65rem;
+        border-radius: 1.25rem;
+        background: linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+        border: 1px solid rgba(var(--primary-rgb), 0.12);
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.95) inset,
+            0 12px 40px rgba(var(--primary-rgb), 0.1),
+            0 4px 14px rgba(15, 23, 42, 0.06);
+        transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .auth-brand__mark:hover .auth-brand__logo-wrap {
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 1) inset,
+            0 16px 48px rgba(var(--primary-rgb), 0.14),
+            0 6px 18px rgba(15, 23, 42, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .auth-brand__logo {
+        display: block;
+        max-width: 200px;
+        width: 100%;
+        height: auto;
+        border-radius: 0.85rem;
+    }
+
+    .auth-brand__rule {
+        display: block;
+        width: 3rem;
+        height: 3px;
+        margin-top: 1.25rem;
+        border-radius: 2px;
+        background: linear-gradient(90deg, $primary 0%, rgba(var(--primary-rgb), 0.35) 100%);
+        align-self: center;
+        @include respond-above(lg) {
+            align-self: flex-start;
+        }
+    }
+
+    .auth-brand__title {
+        color: $gray-900;
+        letter-spacing: -0.02em;
+        font-size: clamp(1.35rem, 2.5vw, 1.6rem);
+    }
+
+    .auth-brand__lead {
+        font-size: 0.95rem;
+        max-width: 26rem;
+        margin-left: auto;
+        margin-right: auto;
+        @include respond-above(lg) {
+            margin-left: 0;
+        }
+    }
+}
 
 .login-or {
 	&::after {

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddonsController;
 use App\Http\Controllers\Admin\RestaurantsController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponsController;
@@ -148,6 +149,10 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
 // ——— Super Admin only: Dashboard & Restaurant management ———
 Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
     Route::resource('restaurants', RestaurantsController::class)->except(['show']);
     Route::get('restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurants.show');
 

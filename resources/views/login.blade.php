@@ -15,14 +15,19 @@
                             <form action="{{ route('login.submit') }}" method="POST">
                                 @csrf
                                 <div class="d-flex flex-column justify-content-between">
-                                    <div class="mb-5">
-                                        <a href="{{ route('dashboard') }}"><img src="{{ asset('build/img/logo.svg') }}" class="img-fluid" alt="Logo"></a>
-                                    </div>
-                                    <div>
-                                        <div class="mb-4">
-                                            <h3 class="mb-2">Hi, Welcome Back!</h3>
-                                            <p class="mb-0 text-muted">Please enter your credentials to sign in.</p>
+                                    <header class="auth-brand mb-4 mb-xl-5">
+                                        <a href="{{ route('dashboard') }}" class="auth-brand__mark link-body-emphasis d-inline-flex flex-column align-items-center align-items-lg-start text-decoration-none">
+                                            <span class="auth-brand__logo-wrap">
+                                                <img src="{{ asset('build/img/logo.svg') }}" class="auth-brand__logo img-fluid" width="220" alt="IT Software">
+                                            </span>
+                                            <span class="auth-brand__rule" aria-hidden="true"></span>
+                                        </a>
+                                        <div class="auth-brand__intro mt-4 pt-1 text-center text-lg-start">
+                                            <h3 class="auth-brand__title mb-2 fw-bold">Hi, Welcome Back!</h3>
+                                            <p class="auth-brand__lead mb-0 text-muted">Please enter your credentials to sign in.</p>
                                         </div>
+                                    </header>
+                                    <div>
                                         <div class="mb-3">
                                             <label class="form-label">Email <span class="text-danger">*</span></label>
                                             <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>

@@ -9,7 +9,7 @@
 </head>
 
 @if (Route::is(['login', 'register', 'email-verification', 'forgot-password', 'otp', 'reset-password']))
-    <body class="bg-white">
+    <body class="bg-white{{ Route::is('login') ? ' login-page' : '' }}">
 @elseif (Route::is('pos'))
     <body class="pos-page">
 @elseif(auth()->check() && auth()->user()->isSuperAdmin() && request()->routeIs('admin.*'))
@@ -24,7 +24,7 @@
     @if (Route::is(['pos']))
     <div class="main-wrapper pos-wrapper">
     @else
-    <div class="main-wrapper">
+    <div class="main-wrapper main-wrapper--with-footer">
     @endif
 
     @if (!Route::is(['login', 'register', 'email-verification', 'forgot-password', 'otp', 'reset-password']))
@@ -33,6 +33,10 @@
     @endif
 
         @yield('content')
+
+        @if (!Route::is(['pos']))
+            @include('layout.partials.footer')
+        @endif
 
     </div>
     <!-- /Main Wrapper -->

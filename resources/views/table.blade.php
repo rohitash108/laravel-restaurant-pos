@@ -192,7 +192,7 @@
                                                     </li>
                                                 </ul>
                                             </div>
-                                            <small class="d-block text-muted table-qr-powered">Powered by <span class="fw-semibold">IT Software</span></small>
+                                            <small class="d-block text-muted table-qr-powered">Powered by <span class="fw-semibold">IT Softwar</span></small>
                                         </div>
                                     </div>
                                 </div>

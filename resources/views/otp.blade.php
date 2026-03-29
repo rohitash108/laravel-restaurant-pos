@@ -24,7 +24,7 @@
 
                                 <div class="d-flex flex-column justify-content-between p-3">
                                     <div class="mb-5">
-                                        <a href="{{ route('dashboard') }}"><img src="{{URL::asset('build/img/logo.svg')}}" class="img-fluid" alt="Logo"></a>
+                                        <a href="{{ route('dashboard') }}"><span class="app-brand-logo app-brand-logo--lg"><img src="{{URL::asset('build/img/logo.svg')}}" class="img-fluid" alt="Logo"></span></a>
                                     </div>
 
                                     <div>
