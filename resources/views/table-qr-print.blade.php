@@ -7,13 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
     <style>
         /*
-         * Compact sticker: ~70×100mm portrait (Paytm / bank QR standee style).
-         * Set printer to 100% scale — @page tells the browser the physical size.
+         * Acrylic stand / bank style: A6 portrait (105×148mm).
+         * IMPORTANT: in print dialog choose “Actual size / 100%”, not “Fit to page”.
          */
-        @page {
-            size: 70mm 100mm;
-            margin: 0;
-        }
+        @page { size: 105mm 148mm; margin: 0; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -45,175 +42,162 @@
             color: #334155;
             cursor: pointer;
         }
-        .top-actions .btn-print {
-            background: #6b21a8;
-            color: #fff;
-            border-color: #6b21a8;
-        }
+        .top-actions .btn-print { background: #6b21a8; color: #fff; border-color: #6b21a8; }
 
-        /* Physical sticker: 70mm × 100mm */
-        .sticker {
-            width: 70mm;
-            height: 100mm;
+        .standee {
+            width: 105mm;
+            height: 148mm;
             background: #fff;
-            border-radius: 3mm;
-            border: 0.35mm solid #1e293b;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border-radius: 10mm;
             overflow: hidden;
+            border: 0.5mm solid rgba(30, 41, 59, 0.35);
+            box-shadow: 0 14px 44px rgba(0,0,0,0.16);
             display: flex;
             flex-direction: column;
-            align-items: stretch;
         }
 
-        .sticker-header {
+        .standee-inner {
+            padding: 7mm 7mm 6mm;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5mm;
+        }
+
+        .header {
             text-align: center;
-            padding: 3mm 3mm 2mm;
-            border-bottom: 0.25mm solid rgba(107, 33, 168, 0.25);
         }
         .brand-name {
             font-family: 'Playfair Display', Georgia, serif;
             font-style: italic;
             font-weight: 700;
-            font-size: 3.8mm;
+            font-size: 7.2mm;
             color: #6b21a8;
-            line-height: 1.2;
+            letter-spacing: 0.02em;
         }
         .restaurant-name {
+            margin-top: 2.5mm;
             font-weight: 800;
-            font-size: 3.2mm;
+            font-size: 5mm;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #1e293b;
-            margin-top: 1mm;
-            line-height: 1.2;
+            color: #111827;
         }
         .table-line {
-            font-weight: 700;
-            font-size: 2.9mm;
+            margin-top: 2.5mm;
+            font-weight: 800;
+            font-size: 4.6mm;
             color: #dc2626;
-            margin-top: 0.8mm;
         }
 
-        .sticker-qr-wrap {
-            flex: 1;
+        .body {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2mm 3mm;
-            min-height: 0;
+            gap: 4.5mm;
+            align-items: flex-start;
         }
+
+        .qr-col { flex: 0 0 auto; }
         .qr-frame {
             background: linear-gradient(135deg, #ef4444, #7c3aed);
-            padding: 0.8mm;
-            border-radius: 2.5mm;
+            padding: 1.2mm;
+            border-radius: 5mm;
         }
         .qr-inner {
             background: #fff;
-            border-radius: 2mm;
-            padding: 1.5mm;
-            line-height: 0;
+            padding: 3mm;
+            border-radius: 4mm;
         }
         .qr-inner img {
             display: block;
-            width: 42mm;
-            height: 42mm;
+            width: 46mm;
+            height: 46mm;
+            border-radius: 2mm;
             image-rendering: pixelated;
-            border-radius: 1mm;
         }
-
-        .sticker-footer {
-            padding: 2mm 3mm 2.5mm;
-            border-top: 0.25mm solid rgba(107, 33, 168, 0.25);
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 2mm;
-            font-size: 2.4mm;
-            color: #475569;
-        }
-        .sticker-meta {
-            flex: 1;
-            min-width: 0;
-        }
-        .sticker-meta strong {
-            display: block;
-            font-size: 2.5mm;
-            color: #1e293b;
-            margin-bottom: 0.5mm;
-        }
-        .badge-print {
-            display: inline-block;
-            padding: 0.4mm 1.2mm;
-            border-radius: 1mm;
-            font-size: 2.2mm;
+        .scan-hint {
+            margin-top: 3mm;
+            text-align: center;
+            font-size: 3.4mm;
             font-weight: 700;
+            color: #334155;
         }
-        .badge-print.available { background: #dcfce7; color: #166534; }
-        .badge-print.occupied { background: #fef3c7; color: #92400e; }
-        .badge-print.reserved { background: #fee2e2; color: #991b1b; }
 
-        .powered {
-            text-align: right;
-            font-size: 2.3mm;
-            font-weight: 600;
-            color: #c2410c;
+        .steps-col { flex: 1; padding-top: 1mm; }
+        .steps-title {
+            font-weight: 800;
+            font-size: 3.6mm;
+            color: #111827;
+            margin-bottom: 3mm;
+        }
+        .step {
+            display: flex;
+            gap: 3mm;
+            align-items: flex-start;
+            margin-bottom: 3mm;
+        }
+        .step:last-child { margin-bottom: 0; }
+        .step-icon {
+            width: 8.5mm;
+            height: 8.5mm;
+            border-radius: 3mm;
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .step-icon svg {
+            width: 5mm;
+            height: 5mm;
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .step-text strong {
+            display: block;
+            font-size: 3.3mm;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1.2;
+        }
+        .step-text span {
+            display: block;
+            margin-top: 0.6mm;
+            font-size: 3mm;
+            color: #64748b;
             line-height: 1.25;
-            max-width: 28mm;
         }
 
-        /* Screen preview: show sticker at readable scale (not full mm on monitor) */
-        @media screen {
-            .sticker {
-                width: 280px;
-                height: 400px;
-                box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-            }
-            .brand-name { font-size: 15px; }
-            .restaurant-name { font-size: 13px; }
-            .table-line { font-size: 12px; }
-            .qr-inner img { width: 168px; height: 168px; }
-            .sticker-footer { font-size: 10px; padding: 8px 12px 10px; }
-            .sticker-meta strong { font-size: 10px; }
-            .badge-print { font-size: 9px; padding: 2px 6px; }
-            .powered { font-size: 9px; max-width: 110px; }
-            .sticker-header { padding: 12px 12px 8px; }
-            .sticker-qr-wrap { padding: 8px 12px; }
+        .divider {
+            height: 0.35mm;
+            background: linear-gradient(90deg, rgba(239,68,68,0.55), rgba(124,58,237,0.55));
+            border-radius: 1mm;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 0 7mm 7mm;
+        }
+        .powered {
+            font-weight: 700;
+            color: #111827;
+            font-size: 3.6mm;
+        }
+        .sub {
+            margin-top: 1.8mm;
+            color: #64748b;
+            font-size: 3mm;
+            font-weight: 600;
         }
 
         @media print {
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            @page {
-                size: 70mm 100mm;
-                margin: 0;
-            }
-            html, body {
-                width: 70mm;
-                height: 100mm;
-                margin: 0;
-                padding: 0;
-                background: #fff !important;
-            }
-            body {
-                display: block;
-                padding: 0;
-            }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            html, body { width: 105mm; height: 148mm; margin: 0; padding: 0; background: #fff !important; }
+            body { display: block; }
             .top-actions { display: none !important; }
-            .sticker {
-                width: 70mm !important;
-                height: 100mm !important;
-                max-width: 70mm !important;
-                max-height: 100mm !important;
-                box-shadow: none !important;
-                border-radius: 2mm;
-                page-break-inside: avoid;
-            }
-            .qr-inner img {
-                width: 42mm !important;
-                height: 42mm !important;
-            }
+            .standee { box-shadow: none !important; border-radius: 8mm; }
         }
     </style>
 </head>
@@ -224,40 +208,76 @@
     <button type="button" onclick="window.close()">Close</button>
 </div>
 
-@php
-    $badgeClass = 'available';
-    $badgeLabel = 'Available';
-    if (! empty($tableOccupied)) {
-        $badgeClass = 'occupied';
-        $badgeLabel = 'Occupied';
-    } elseif (($table->status ?? '') === 'reserved') {
-        $badgeClass = 'reserved';
-        $badgeLabel = 'Reserved';
-    }
-@endphp
+<div class="standee">
+    <div class="standee-inner">
+        <div class="header">
+            <div class="brand-name">OrderByQR</div>
+            <div class="restaurant-name">{{ $restaurant->name ?? 'Restaurant' }}</div>
+            <div class="table-line">Table Number-{{ $table->table_number ?? $table->name }}</div>
+        </div>
 
-<div class="sticker">
-    <div class="sticker-header">
-        <div class="brand-name">OrderByQR</div>
-        <div class="restaurant-name">{{ $restaurant->name ?? 'Restaurant' }}</div>
-        <div class="table-line">Table Number – {{ $table->name }}</div>
-    </div>
+        <div class="body">
+            <div class="qr-col">
+                <div class="qr-frame">
+                    <div class="qr-inner">
+                        <img src="{{ route('order.by-qr.qr-image', ['restaurant' => $table->restaurant->slug, 'table' => $table->slug ?? $table->id]) }}"
+                             alt="QR – Table {{ $table->name }}">
+                    </div>
+                </div>
+                <div class="scan-hint">Scan &amp; order</div>
+            </div>
 
-    <div class="sticker-qr-wrap">
-        <div class="qr-frame">
-            <div class="qr-inner">
-                <img src="{{ route('order.by-qr.qr-image', ['restaurant' => $table->restaurant->slug, 'table' => $table->slug ?? $table->id]) }}"
-                     alt="QR – Table {{ $table->name }}">
+            <div class="steps-col">
+                <div class="steps-title">How to order food</div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </div>
+                    <div class="step-text">
+                        <strong>Step 1</strong>
+                        <span>Scan the QR with your phone</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <div class="step-text">
+                        <strong>Step 2</strong>
+                        <span>Menu will be displayed</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 4c-5 0-9 3-10 7 1 4 5 7 10 7s9-3 10-7c-1-4-5-7-10-7z"/><circle cx="12" cy="11" r="2"/></svg>
+                    </div>
+                    <div class="step-text">
+                        <strong>Step 3</strong>
+                        <span>Select food</span>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    </div>
+                    <div class="step-text">
+                        <strong>Step 4</strong>
+                        <span>Place order</span>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="divider" aria-hidden="true"></div>
     </div>
 
-    <div class="sticker-footer">
-        <div class="sticker-meta">
-            <strong>Floor: {{ $table->floor ?: '–' }} · Capacity: {{ $table->capacity ?? '–' }}</strong>
-            <span class="badge-print {{ $badgeClass }}">{{ $badgeLabel }}</span>
-        </div>
+    <div class="footer">
         <div class="powered">Powered by IT Softwar</div>
+        <div class="sub">softwar.in &nbsp;|&nbsp; info@softwar.in</div>
     </div>
 </div>
 

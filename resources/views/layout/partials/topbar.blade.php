@@ -528,12 +528,17 @@
             <div class="d-flex align-items-center header-list">
 
                 @if(!auth()->user() || !auth()->user()->isSuperAdmin())
-                    <!-- Upgrade Button -->
+                @php
+                    $activeSub = auth()->user()?->restaurant?->activeSubscription;
+                    $subEndsAt = $activeSub?->ends_at;
+                @endphp
+                @if($subEndsAt)
                 <div class="header-item d-none d-sm-flex">
-                    <a href="#" class="btn btn-sm btn-primary d-inline-flex align-items-center">
-                        <i class="icon-crown me-1"></i>Upgrade
-                    </a>
+                    <span class="small fw-semibold text-danger">
+                        Subscription ends: {{ $subEndsAt->format('d M Y') }}
+                    </span>
                 </div>
+                @endif
 
                 <!-- Search Button -->
                 <div class="header-item d-flex">

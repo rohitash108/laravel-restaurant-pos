@@ -89,6 +89,7 @@ class RestaurantsController extends Controller
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email',
             'is_active' => 'boolean',
+            'admin_password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $restaurant->update([
@@ -99,6 +100,19 @@ class RestaurantsController extends Controller
             'email' => $request->email,
             'is_active' => $request->boolean('is_active', true),
         ]);
+
+        // Optional: update the restaurant admin user's password (super admin only route)
+        if ($request->filled('admin_password')) {
+            $adminUser = User::where('restaurant_id', $restaurant->id)
+                ->where('role', 'restaurant_admin')
+                ->orderBy('id')
+                ->first();
+
+            if ($adminUser) {
+                $adminUser->password = $request->admin_password; // hashed via User cast
+                $adminUser->save();
+            }
+        }
 
         return redirect()->route('admin.restaurants.index')->with('success', 'Restaurant updated successfully.');
     }

@@ -30,6 +30,8 @@ class RestaurantTableController extends Controller
         }
 
         $tables = RestaurantTable::with('restaurant')->where('restaurant_id', $restaurantId)
+            ->orderByRaw("CASE WHEN table_number IS NULL THEN 1 ELSE 0 END")
+            ->orderBy('table_number')
             ->orderByRaw("CASE WHEN floor IS NULL OR floor = '' THEN 1 ELSE 0 END")
             ->orderBy('floor')
             ->orderBy('name')
@@ -56,6 +58,7 @@ class RestaurantTableController extends Controller
         }
 
         $request->validate([
+            'table_number' => 'nullable|integer|min:1|max:999',
             'name' => [
                 'required',
                 'string',
@@ -91,6 +94,7 @@ class RestaurantTableController extends Controller
             RestaurantTable::create([
                 'restaurant_id' => $restaurantId,
                 'name' => $request->name,
+                'table_number' => $request->filled('table_number') ? (int) $request->table_number : null,
                 'slug' => $slug,
                 'floor' => $request->floor,
                 'capacity' => (int) ($request->capacity ?? 4),
@@ -110,6 +114,7 @@ class RestaurantTableController extends Controller
         }
 
         $request->validate([
+            'table_number' => 'nullable|integer|min:1|max:999',
             'name' => [
                 'required',
                 'string',
@@ -138,6 +143,7 @@ class RestaurantTableController extends Controller
 
         $table->update([
             'name' => $request->name,
+            'table_number' => $request->filled('table_number') ? (int) $request->table_number : null,
             'floor' => $request->floor,
             'capacity' => (int) ($request->capacity ?? 4),
             'status' => $request->status ?? $table->status,

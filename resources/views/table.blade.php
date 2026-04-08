@@ -148,7 +148,9 @@
                                         <p class="mb-0 table-qr-hotel">
                                             {{ $restaurant->name ?? ($t->restaurant->name ?? 'Restaurant') }}
                                         </p>
-                                        <p class="mb-1 table-qr-table">Table Number - {{ $t->name }}</p>
+                                        <p class="mb-1 table-qr-table">
+                                            Table Number - {{ $t->table_number ?? $t->name }}
+                                        </p>
                                     </div>
                                     <div class="table-qr-qrbox text-center mb-3">
                                         <div class="table-qr-qr-inner">
@@ -181,7 +183,7 @@
                                                     <i class="icon-ellipsis-vertical"></i>
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-split">
-                                                    <li><a href="#" class="dropdown-item edit-table-btn" data-bs-toggle="modal" data-bs-target="#edit_table" data-id="{{ $t->id }}" data-name="{{ $t->name }}" data-floor="{{ $t->floor }}" data-capacity="{{ $t->capacity }}" data-status="{{ $t->status }}"><i class="icon-pencil-line me-2"></i>Edit</a></li>
+                                                    <li><a href="#" class="dropdown-item edit-table-btn" data-bs-toggle="modal" data-bs-target="#edit_table" data-id="{{ $t->id }}" data-table-number="{{ $t->table_number }}" data-name="{{ $t->name }}" data-floor="{{ $t->floor }}" data-capacity="{{ $t->capacity }}" data-status="{{ $t->status }}"><i class="icon-pencil-line me-2"></i>Edit</a></li>
                                                     <li><a href="{{ route('table.qr-print', $t) }}" target="_blank" class="dropdown-item"><i class="icon-printer me-2"></i>Print QR Stand</a></li>
                                                     <li>
                                                         <form action="{{ route('table.destroy', $t) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this table?');">

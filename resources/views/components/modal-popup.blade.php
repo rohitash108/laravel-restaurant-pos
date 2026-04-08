@@ -4047,6 +4047,11 @@
                     @csrf
                     <div class="modal-body p-4 pt-1">
                         <div class="mb-3">
+                            <label class="form-label">Table Number</label>
+                            <input type="number" name="table_number" class="form-control" min="1" max="999" placeholder="e.g. 1, 2, 10">
+                            <div class="form-text">Used for sorting. Optional.</div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Table Name<span class="text-danger"> *</span></label>
                             <input type="text" name="name" class="form-control" required>
                         </div>
@@ -4090,6 +4095,11 @@
                     @method('PUT')
                     <div class="modal-body p-4 pt-1">
                         <div class="mb-3">
+                            <label class="form-label">Table Number</label>
+                            <input type="number" name="table_number" id="edit_table_number" class="form-control" min="1" max="999" placeholder="e.g. 1, 2, 10">
+                            <div class="form-text">Used for sorting. Optional.</div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Table Name<span class="text-danger"> *</span></label>
                             <input type="text" name="name" id="edit_table_name" class="form-control" required>
                         </div>
@@ -4124,6 +4134,7 @@
             var id = this.dataset.id;
             var form = document.getElementById('edit_table_form');
             form.action = '{{ url("table") }}/' + id;
+            document.getElementById('edit_table_number').value = this.dataset.tableNumber || '';
             document.getElementById('edit_table_name').value = this.dataset.name || '';
             document.getElementById('edit_table_floor').value = this.dataset.floor || '';
             document.getElementById('edit_table_capacity').value = this.dataset.capacity || '4';

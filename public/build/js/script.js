@@ -4,7 +4,7 @@ Template Name: POS - Bootstrap Admin Template
 */
 
 
-$(document).ready(function () {
+$(document).ready(function(){
 
 	// Variables declarations
 	const $wrapper = $('.main-wrapper');
@@ -79,7 +79,7 @@ $(document).ready(function () {
 
 
 	// Datetimepicker
-	if ($('.datetimepicker').length > 0) {
+	if($('.datetimepicker').length > 0 ){
 		$('.datetimepicker').datetimepicker({
 			format: 'DD-MM-YYYY',
 			icons: {
@@ -132,12 +132,12 @@ $(document).ready(function () {
 		}
 	}
 
-	// Select 2 Search
+		// Select 2 Search
 	if ($('.select2').length > 0) {
 		$('.select2').select2({
 			// Set to 0 to always show search, or a number like 10 
 			// to show only when there are 10+ results
-			minimumResultsForSearch: 0,
+			minimumResultsForSearch: 0, 
 			width: '100%'
 		});
 	}
@@ -156,7 +156,7 @@ $(document).ready(function () {
 	});
 
 	// Counter 
-	if ($('.counter').length > 0) {
+	if($('.counter').length > 0) {
 		$('.counter').counterUp({
 			delay: 20,
 			time: 2000
@@ -179,22 +179,22 @@ $(document).ready(function () {
 	}
 
 	// Sidebar
-	var Sidemenu = function () {
+	var Sidemenu = function() {
 		this.$menuItem = $('.sidebar-menu a');
 	};
 
 	function init() {
 		var $this = Sidemenu;
-		$('.sidebar-menu a').on('click', function (e) {
-			if ($(this).parent().hasClass('submenu')) {
+		$('.sidebar-menu a').on('click', function(e) {
+			if($(this).parent().hasClass('submenu')) {
 				e.preventDefault();
 			}
-			if (!$(this).hasClass('subdrop')) {
+			if(!$(this).hasClass('subdrop')) {
 				$('ul', $(this).parents('ul:first')).slideUp(250);
 				$('a', $(this).parents('ul:first')).removeClass('subdrop');
 				$(this).next('ul').slideDown(350);
 				$(this).addClass('subdrop');
-			} else if ($(this).hasClass('subdrop')) {
+			} else if($(this).hasClass('subdrop')) {
 				$(this).removeClass('subdrop');
 				$(this).next('ul').slideUp(350);
 			}
@@ -203,14 +203,14 @@ $(document).ready(function () {
 	}
 
 	// Sidebar
-	var Colsidemenu = function () {
+	var Colsidemenu = function() {
 		this.$menuItems = $('.sidebar-right a');
 	};
 
 	function colinit() {
-		var $this = Colsidemenu;
+    var $this = Colsidemenu;
 
-		// Unbind previous click handlers to avoid duplicates
+    // Unbind previous click handlers to avoid duplicates
 		$('.sidebar-right ul a').off('click').on('click', function (e) {
 
 			// Check if parent has 'submenu' class
@@ -245,41 +245,41 @@ $(document).ready(function () {
 	colinit();
 
 
-
+	
 	// Sidebar Initiate
 	init();
-	$(document).on('mouseover', function (e) {
-		e.stopPropagation();
+	$(document).on('mouseover', function(e) {
+        e.stopPropagation();
+        if ($('body').hasClass('mini-sidebar')) {
+            var targ = $(e.target).closest('.sidebar, .header-left').length;
+            if (targ) {
+                $('body').addClass('expand-menu');
+                $('.subdrop + ul').slideDown();
+            } else {
+                $('body').removeClass('expand-menu');
+                $('.subdrop + ul').slideUp();
+            }
+            return false;
+        }
 		if ($('body').hasClass('mini-sidebar')) {
-			var targ = $(e.target).closest('.sidebar, .header-left').length;
-			if (targ) {
-				$('body').addClass('expand-menu');
-				$('.subdrop + ul').slideDown();
-			} else {
-				$('body').removeClass('expand-menu');
-				$('.subdrop + ul').slideUp();
-			}
-			return false;
-		}
-		if ($('body').hasClass('mini-sidebar')) {
-			var targ = $(e.target).closest('.sidebar, .header-left').length;
-			if (targ) {
-				$('body.layout-box-mode').addClass('expand-menu');
-				$('.subdrop + ul').slideDown();
-			} else {
-				$('body').removeClass('expand-menu');
-				$('.subdrop + ul').slideUp();
-			}
-			return false;
-		}
-	});
+            var targ = $(e.target).closest('.sidebar, .header-left').length;
+            if (targ) {
+                $('body.layout-box-mode').addClass('expand-menu');
+                $('.subdrop + ul').slideDown();
+            } else {
+                $('body').removeClass('expand-menu');
+                $('.subdrop + ul').slideUp();
+            }
+            return false;
+        }
+    });
 
 	// Toggle Button
 	$(document).on('click', '#toggle_btn', function () {
 		const $body = $('body');
 		const $html = $('html');
 		const isMini = $body.hasClass('mini-sidebar');
-
+	
 		if (isMini) {
 			$body.removeClass('mini-sidebar');
 			$(this).addClass('active');
@@ -296,93 +296,93 @@ $(document).ready(function () {
 			}, 100);
 		}
 
-
+	
 		return false;
 	});
-
+		
 	// Tooltip
-	if ($('[data-bs-toggle="tooltip"]').length > 0) {
+	if($('[data-bs-toggle="tooltip"]').length > 0) {
 		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 		var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 			return new bootstrap.Tooltip(tooltipTriggerEl)
 		})
 	}
 
-	// Initialize Flatpickr on elements with data-provider="flatpickr"
-	document.querySelectorAll('[data-provider="flatpickr"]').forEach(el => {
-		const config = {
-			disableMobile: true
-		};
-		if (el.hasAttribute('data-date-format')) {
-			config.dateFormat = el.getAttribute('data-date-format');
-		}
-		if (el.hasAttribute('data-enable-time')) {
-			config.enableTime = true;
-			config.dateFormat = config.dateFormat ? `${config.dateFormat} H:i` : 'Y-m-d H:i';
-		}
-		if (el.hasAttribute('data-altFormat')) {
-			config.altInput = true;
-			config.altFormat = el.getAttribute('data-altFormat');
-		}
-		if (el.hasAttribute('data-minDate')) {
-			config.minDate = el.getAttribute('data-minDate');
-		}
-		if (el.hasAttribute('data-maxDate')) {
-			config.maxDate = el.getAttribute('data-maxDate');
-		}
-		if (el.hasAttribute('data-default-date')) {
-			const defaultDate = el.getAttribute('data-default-date');
-			// Check if it's a valid date string
-			if (!["true", "false", "", null].includes(defaultDate) && !isNaN(Date.parse(defaultDate))) {
-				config.defaultDate = defaultDate;
+		// Initialize Flatpickr on elements with data-provider="flatpickr"
+		document.querySelectorAll('[data-provider="flatpickr"]').forEach(el => {
+			const config = {
+				disableMobile: true
+			};
+			if (el.hasAttribute('data-date-format')) {
+				config.dateFormat = el.getAttribute('data-date-format');
 			}
-		}
-		if (el.hasAttribute('data-multiple-date')) {
-			config.mode = 'multiple';
-		}
-		if (el.hasAttribute('data-range-date')) {
-			config.mode = 'range';
-		}
-		if (el.hasAttribute('data-inline-date')) {
-			config.inline = true;
-			const inlineDate = el.getAttribute('data-inline-date');
-			if (!["true", "false", "", null].includes(inlineDate) && !isNaN(Date.parse(inlineDate))) {
-				config.defaultDate = inlineDate;
+			if (el.hasAttribute('data-enable-time')) {
+				config.enableTime = true;
+				config.dateFormat = config.dateFormat ? `${config.dateFormat} H:i` : 'Y-m-d H:i';
 			}
-		}
-		if (el.hasAttribute('data-disable-date')) {
-			config.disable = el.getAttribute('data-disable-date').split(',');
-		}
-		if (el.hasAttribute('data-week-number')) {
-			config.weekNumbers = true;
-		}
-		flatpickr(el, config);
-	});
+			if (el.hasAttribute('data-altFormat')) {
+				config.altInput = true;
+				config.altFormat = el.getAttribute('data-altFormat');
+			}
+			if (el.hasAttribute('data-minDate')) {
+				config.minDate = el.getAttribute('data-minDate');
+			}
+			if (el.hasAttribute('data-maxDate')) {
+				config.maxDate = el.getAttribute('data-maxDate');
+			}
+			if (el.hasAttribute('data-default-date')) {
+				const defaultDate = el.getAttribute('data-default-date');
+				// Check if it's a valid date string
+				if (!["true", "false", "", null].includes(defaultDate) && !isNaN(Date.parse(defaultDate))) {
+					config.defaultDate = defaultDate;
+				}
+			}
+			if (el.hasAttribute('data-multiple-date')) {
+				config.mode = 'multiple';
+			}
+			if (el.hasAttribute('data-range-date')) {
+				config.mode = 'range';
+			}
+			if (el.hasAttribute('data-inline-date')) {
+				config.inline = true;
+				const inlineDate = el.getAttribute('data-inline-date');
+				if (!["true", "false", "", null].includes(inlineDate) && !isNaN(Date.parse(inlineDate))) {
+					config.defaultDate = inlineDate;
+				}
+			}
+			if (el.hasAttribute('data-disable-date')) {
+				config.disable = el.getAttribute('data-disable-date').split(',');
+			}
+			if (el.hasAttribute('data-week-number')) {
+				config.weekNumbers = true;
+			}
+			flatpickr(el, config);
+		});
+		
+		// Add input in modal
 
-	// Add input in modal
+		// Add new row (works for all groups)
+			$(document).on("click", ".addRowBtn", function () {
+				let target = $(this).data("target");  // get group id
+				let template = $("#" + target + "-template").clone();
 
-	// Add new row (works for all groups)
-	$(document).on("click", ".addRowBtn", function () {
-		let target = $(this).data("target");  // get group id
-		let template = $("#" + target + "-template").clone();
+				template.removeClass("d-none rowTemplate");
+				$("#" + target).append(template);
+			});
 
-		template.removeClass("d-none rowTemplate");
-		$("#" + target).append(template);
-	});
+			// Delete row (works for all groups)
+			$(document).on("click", ".deleteRowBtn", function () {
+				$(this).closest(".row").remove();
+			});
 
-	// Delete row (works for all groups)
-	$(document).on("click", ".deleteRowBtn", function () {
-		$(this).closest(".row").remove();
-	});
-
-	//Copy to Clipboard
-	$(document).on("click", ".copytoclipboard", function () {
-		let text = document.getElementById("copytext").innerText;
-		navigator.clipboard.writeText(text)
-			.then(() => alert("Copied to clipboard!"))
-			.catch(err => console.error("Failed to copy: ", err));
-	});
-
+		//Copy to Clipboard
+		$(document).on("click", ".copytoclipboard", function () {
+			let text = document.getElementById("copytext").innerText;
+			navigator.clipboard.writeText(text)
+				.then(() => alert("Copied to clipboard!"))
+				.catch(err => console.error("Failed to copy: ", err));
+			});
+	
 	// Timer
 	$(".card").each(function () {
 		const card = $(this);
@@ -435,93 +435,93 @@ $(document).ready(function () {
 
 
 
-	// Attach keydown event only when modal is open
-	$('#calculator').on('shown.bs.modal', function () {
-		document.addEventListener("keydown", myFunction);
-	});
-
-	// Remove keydown event when modal is closed
-	$('#calculator').on('hidden.bs.modal', function () {
-		document.removeEventListener("keydown", myFunction);
-	});
-
-	// Kanban Drag
-	if ($('.kanban-drag-wrap').length > 0) {
-		$(".kanban-drag-wrap").sortable({
-			connectWith: ".kanban-drag-wrap",
-			handle: ".kanban-card",
-			placeholder: "drag-placeholder"
-		});
-	}
-
-	// Timer
-	$(".card").each(function () {
-
-		let seconds = 0;
-		let timerInterval = null;
-		let startedOnce = false;
-
-		const card = $(this);
-		const btn = card.find(".timer-btn");
-		const icon = btn.find("i");
-		const label = btn.find(".label");
-		const timeText = btn.find(".time");
-		const modalId = btn.data("bs-target");
-
-		function formatTime(sec) {
-			let m = String(Math.floor(sec / 60)).padStart(2, "0");
-			let s = String(sec % 60).padStart(2, "0");
-			return `${m}:${s}`;
-		}
-
-		function startTimer() {
-			if (timerInterval) return;
-
-			btn.addClass("running");
-			icon.removeClass("icon-play").addClass("icon-pause");
-			label.text("Pause");
-
-			timerInterval = setInterval(() => {
-				seconds++;
-				timeText.text(formatTime(seconds));
-			}, 1000);
-		}
-
-		function pauseTimer() {
-			clearInterval(timerInterval);
-			timerInterval = null;
-
-			btn.removeClass("running");
-			icon.removeClass("icon-pause").addClass("icon-play");
-			label.text("Play");
-		}
-
-		// ▶ Start timer ONLY first time modal opens
-		$(modalId).on("shown.bs.modal", function () {
-			if (!startedOnce) {
-				startedOnce = true;
-				startTimer();
-			}
+		// Attach keydown event only when modal is open
+		$('#calculator').on('shown.bs.modal', function () {
+			document.addEventListener("keydown", myFunction);
 		});
 
-		// ⏯ Toggle play / pause
-		btn.on("click", function (e) {
-
-			// If already running → pause (don’t reopen modal)
-			if (btn.hasClass("running")) {
-				e.preventDefault();
-				pauseTimer();
-				return;
-			}
-
-			// If paused and modal already opened → resume
-			if (startedOnce) {
-				e.preventDefault();
-				startTimer();
-			}
+		// Remove keydown event when modal is closed
+		$('#calculator').on('hidden.bs.modal', function () {
+			document.removeEventListener("keydown", myFunction);
 		});
+		
+		// Kanban Drag
+		if($('.kanban-drag-wrap').length > 0) {
+			$(".kanban-drag-wrap").sortable({
+				connectWith: ".kanban-drag-wrap",
+				handle: ".kanban-card",
+				placeholder: "drag-placeholder"
+			});
+		}
 
-	});
+		// Timer
+		$(".card").each(function () {
+
+			let seconds = 0;
+			let timerInterval = null;
+			let startedOnce = false;
+
+			const card = $(this);
+			const btn = card.find(".timer-btn");
+			const icon = btn.find("i");
+			const label = btn.find(".label");
+			const timeText = btn.find(".time");
+			const modalId = btn.data("bs-target");
+
+			function formatTime(sec) {
+				let m = String(Math.floor(sec / 60)).padStart(2, "0");
+				let s = String(sec % 60).padStart(2, "0");
+				return `${m}:${s}`;
+			}
+
+			function startTimer() {
+				if (timerInterval) return;
+
+				btn.addClass("running");
+				icon.removeClass("icon-play").addClass("icon-pause");
+				label.text("Pause");
+
+				timerInterval = setInterval(() => {
+					seconds++;
+					timeText.text(formatTime(seconds));
+				}, 1000);
+			}
+
+			function pauseTimer() {
+				clearInterval(timerInterval);
+				timerInterval = null;
+
+				btn.removeClass("running");
+				icon.removeClass("icon-pause").addClass("icon-play");
+				label.text("Play");
+			}
+
+			// ▶ Start timer ONLY first time modal opens
+			$(modalId).on("shown.bs.modal", function () {
+				if (!startedOnce) {
+					startedOnce = true;
+					startTimer();
+				}
+			});
+
+			// ⏯ Toggle play / pause
+			btn.on("click", function (e) {
+
+				// If already running → pause (don’t reopen modal)
+				if (btn.hasClass("running")) {
+					e.preventDefault();
+					pauseTimer();
+					return;
+				}
+
+				// If paused and modal already opened → resume
+				if (startedOnce) {
+					e.preventDefault();
+					startTimer();
+				}
+			});
+
+		});
 
 	//Increment Decrement Numberes (skip POS item cards – they use delegated handlers below)
 	document.querySelectorAll(".quantity-control").forEach(container => {
@@ -587,26 +587,9 @@ $(document).ready(function () {
 			const cart = window.posCartLines || [];
 			const totalMenus = cart.reduce(function (s, r) { return s + (r.quantity || 1); }, 0);
 			const subtotal = cart.reduce(function (s, r) { return s + (r.price || 0) * (r.quantity || 1); }, 0);
-			const taxRate = (typeof window.posTaxRate !== 'undefined' ? window.posTaxRate : 18) / 100;
+			const taxRate = 0.18;
 			const tax = subtotal * taxRate;
-			const discountInput = document.getElementById("pos-discount-input");
-			let discountAmount = 0;
-			if (window.posAppliedCoupon) {
-				var c = window.posAppliedCoupon;
-				if (c.discount_type === "percentage") {
-					discountAmount = subtotal * (parseFloat(c.discount_amount) || 0) / 100;
-				} else {
-					discountAmount = Math.min(parseFloat(c.discount_amount) || 0, subtotal);
-				}
-				discountAmount = Math.round(discountAmount * 100) / 100;
-				if (discountInput) discountInput.value = discountAmount.toFixed(2);
-			} else {
-				discountAmount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
-			}
-			const amountToPay = Math.max(0, subtotal + tax - discountAmount);
-			const receivedInput = document.getElementById("pos-received-input");
-			const received = receivedInput ? (parseFloat(receivedInput.value) || 0) : 0;
-			const changeOrDue = received - amountToPay;
+			const total = subtotal + tax;
 			const $empty = $("#pos-cart-empty");
 			const $container = $("#pos-cart-items");
 			const $summary = $("#pos-cart-summary");
@@ -614,13 +597,7 @@ $(document).ready(function () {
 			var cur = (typeof window.currencySymbol !== "undefined" ? window.currencySymbol : "₹");
 			$("#pos-subtotal").text(cur + subtotal.toFixed(2));
 			if ($("#pos-tax").length) $("#pos-tax").text(cur + tax.toFixed(2));
-			if ($("#pos-discount").length) $("#pos-discount").text(cur + discountAmount.toFixed(2));
-			$("#pos-amount-paid").text(cur + amountToPay.toFixed(2));
-			var $changeEl = $("#pos-change");
-			if ($changeEl.length) {
-				$changeEl.text(cur + (changeOrDue >= 0 ? changeOrDue.toFixed(2) : (-changeOrDue).toFixed(2)));
-				$changeEl.removeClass("text-success text-danger").addClass(changeOrDue >= 0 ? "text-success" : "text-danger");
-			}
+			$("#pos-amount-paid").text(cur + total.toFixed(2));
 			document.querySelectorAll(".pos-item-card").forEach(function (card) {
 				const itemId = card.getAttribute("data-item-id");
 				const sum = (window.posCartLines || []).reduce(function (s, r) {
@@ -644,7 +621,6 @@ $(document).ready(function () {
 					const lineTotal = amount.toFixed(2);
 					const nameSafe = (row.name || "").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 					const badge = (row.variation_name || "Default").replace(/</g, "&lt;");
-					const addonLabel = row.addon_names && row.addon_names.length > 0 ? row.addon_names.map(function (n) { return n.replace(/</g, "&lt;"); }).join(", ") : "";
 					const imgSrc = (row.image || "").replace(/^about:blank$/i, "");
 					const collapseId = "pos-cart-collapse-" + idx;
 					const isFirst = idx === 0;
@@ -658,7 +634,6 @@ $(document).ready(function () {
 						'<div class="overflow-hidden">' +
 						'<h6 class="mb-1 fs-14 fw-semibold text-truncate">' + nameSafe + '</h6>' +
 						'<p class="badge badge-md bg-light text-dark mb-0">' + badge + '</p>' +
-						(addonLabel ? '<p class="small text-muted mb-0 mt-1" style="font-size:11px"><i class="icon-plus" style="font-size:9px"></i> ' + addonLabel + '</p>' : '') +
 						'</div></a>' +
 						'<div class="d-flex align-items-center gap-2 flex-shrink-0">' +
 						'<div class="quantity-control pos-cart-qty">' +
@@ -736,44 +711,6 @@ $(document).ready(function () {
 		$(document).on("input", ".pos-search-menu", applyPosMenuVisibility);
 		applyPosMenuVisibility();
 
-		$(document).on("input change", "#pos-discount-input, #pos-received-input", function () {
-			if (typeof window.updatePosCart === "function") window.updatePosCart();
-		});
-
-		$("#pos-coupon-apply").on("click", function () {
-			var code = ($("#pos-coupon-code").val() || "").trim();
-			$("#pos-coupon-error").addClass("d-none").text("");
-			if (!code) {
-				$("#pos-coupon-error").text("Enter a coupon code").removeClass("d-none");
-				return;
-			}
-			var list = window.posCoupons || [];
-			var found = null;
-			for (var i = 0; i < list.length; i++) {
-				if (String(list[i].code || "").trim().toLowerCase() === code.toLowerCase()) {
-					found = list[i];
-					break;
-				}
-			}
-			if (!found) {
-				$("#pos-coupon-error").text("Invalid or expired coupon").removeClass("d-none");
-				return;
-			}
-			window.posAppliedCoupon = { id: found.id, code: found.code, discount_type: found.discount_type, discount_amount: found.discount_amount, category_id: found.category_id };
-			$("#pos-coupon-applied-label").text("Applied: " + found.code);
-			$("#pos-coupon-apply-wrap").addClass("d-none");
-			$("#pos-coupon-applied-wrap").removeClass("d-none");
-			if (typeof window.updatePosCart === "function") window.updatePosCart();
-		});
-		$("#pos-coupon-remove").on("click", function () {
-			window.posAppliedCoupon = null;
-			$("#pos-coupon-code").val("");
-			$("#pos-coupon-error").addClass("d-none").text("");
-			$("#pos-coupon-apply-wrap").removeClass("d-none");
-			$("#pos-coupon-applied-wrap").addClass("d-none");
-			if (typeof window.updatePosCart === "function") window.updatePosCart();
-		});
-
 		window.updatePosCart();
 
 		$("#pos-place-order-btn").on("click", function () {
@@ -812,31 +749,10 @@ $(document).ready(function () {
 					return;
 				}
 			}
-			var customerId = "";
-			if ($tab1.hasClass("active") && $tab1.hasClass("show")) {
-				var v = $tab1.find(".pos-customer-select").val();
-				if (v && v !== "__new__") customerId = v;
-			} else if ($tab2.hasClass("active") && $tab2.hasClass("show")) {
-				var v = $tab2.find(".pos-customer-select").val();
-				if (v && v !== "__new__") customerId = v;
-			} else if ($tab3.hasClass("active") && $tab3.hasClass("show")) {
-				var v = $tab3.find(".pos-customer-select").val();
-				if (v && v !== "__new__") customerId = v;
-			} else if ($tab4.hasClass("active") && $tab4.hasClass("show")) {
-				var v = $tab4.find(".pos-customer-select").val();
-				if (v && v !== "__new__") customerId = v;
-			}
-			var discountVal = (document.getElementById("pos-discount-input") && parseFloat(document.getElementById("pos-discount-input").value)) || 0;
-			var receivedVal = (document.getElementById("pos-received-input") && parseFloat(document.getElementById("pos-received-input").value)) || "";
-			var couponId = (window.posAppliedCoupon && window.posAppliedCoupon.id) ? window.posAppliedCoupon.id : "";
 			const $form = $("#pos-order-form");
 			$form.find("#pos-order-type").val(orderType);
 			$form.find("#pos-form-table-id").val(tableId);
-			$form.find("#pos-form-customer-id").val(customerId);
-			$form.find("#pos-form-coupon-id").val(couponId);
 			$form.find("#pos-form-customer-name").val(customerName);
-			$form.find("#pos-form-discount").val(discountVal.toFixed(2));
-			$form.find("#pos-form-received").val(receivedVal !== "" ? parseFloat(receivedVal).toFixed(2) : "");
 			$form.find("[name^='items']").remove();
 			cart.forEach(function (row, i) {
 				$form.append('<input type="hidden" name="items[' + i + '][item_id]" value="' + row.item_id + '">');
@@ -954,13 +870,13 @@ $(document).ready(function () {
 			var selectedPrice = basePrice;
 			var selectedVariationName = "";
 			if (variations && variations.length > 0) {
-				// Default option: main item price (selected by default)
-				$sizesEl.append('<div class="size-tab"><button type="button" class="tag d-flex align-items-center gap-2 pos-size-tag active" data-price="' + basePrice + '" data-name="">Default <span class="pos-modal-price-val">' + (window.currencySymbol || "₹") + basePrice.toFixed(2) + '</span></button></div>');
 				$(variations).each(function (i) {
 					var v = this;
 					var vPrice = parseFloat(v.price) || 0;
 					var vName = (v.name || "Option " + (i + 1)).replace(/</g, "&lt;");
-					$sizesEl.append('<div class="size-tab"><button type="button" class="tag d-flex align-items-center gap-2 pos-size-tag" data-price="' + vPrice + '" data-name="' + (v.name || "") + '">' + vName + ' <span class="pos-modal-price-val">' + (window.currencySymbol || "₹") + vPrice.toFixed(2) + '</span></button></div>');
+					var isFirst = i === 0;
+					if (isFirst) selectedPrice = vPrice; selectedVariationName = v.name || "";
+					$sizesEl.append('<div class="size-tab"><button type="button" class="tag d-flex align-items-center gap-2 pos-size-tag' + (isFirst ? " active" : "") + '" data-price="' + vPrice + '" data-name="' + (v.name || "") + '">' + vName + ' <span class="pos-modal-price-val">' + (window.currencySymbol || "₹") + vPrice.toFixed(2) + '</span></button></div>');
 				});
 			} else {
 				$sizesEl.append('<div class="size-tab"><button type="button" class="tag d-flex align-items-center gap-2 pos-size-tag active" data-price="' + basePrice + '" data-name="">Default <span class="pos-modal-price-val">' + (window.currencySymbol || "₹") + basePrice.toFixed(2) + '</span></button></div>');
@@ -1044,10 +960,8 @@ $(document).ready(function () {
 			var qty = parseInt($("#pos-modal-qty").val(), 10) || 1;
 			if (!itemId || qty < 1) return;
 			var addonTotal = 0;
-			var addonNames = [];
 			$("#pos-modal-addons .pos-addon-item.active").each(function () {
 				addonTotal += (parseFloat($(this).attr("data-price")) || 0) * qty;
-				addonNames.push($(this).data("name") || "");
 			});
 			var unitPrice = price + (addonTotal / qty);
 			var imgSrc = ($("#pos-modal-image").attr("src") || "").replace(/^about:blank$/i, "");
@@ -1059,7 +973,6 @@ $(document).ready(function () {
 					price: unitPrice,
 					quantity: 1,
 					variation_name: variationName || null,
-					addon_names: addonNames.length > 0 ? addonNames : null,
 					image: imgSrc
 				});
 			}
@@ -1088,7 +1001,7 @@ $(document).ready(function () {
 				var name = (row.name || "Item").replace(/</g, "&lt;");
 				itemLines.push("<div class=\"pos-receipt-item d-flex align-items-center justify-content-between py-1\"><span class=\"text-truncate me-2\">" + name + " &times;" + qty + "</span><span class=\"fw-medium text-dark flex-shrink-0\">" + (window.currencySymbol || "₹") + amount.toFixed(2) + "</span></div>");
 			});
-			var taxRate = (typeof window.posTaxRate !== 'undefined' ? window.posTaxRate : 18) / 100;
+			var taxRate = 0.18;
 			var tax = subtotal * taxRate;
 			var total = subtotal + tax;
 			var now = new Date();
@@ -1107,7 +1020,7 @@ $(document).ready(function () {
 			}
 			orderType = orderType.replace(/_/g, " ");
 			var tableName = "";
-			var $tableSel = $(".tab-pane.active .pos-table-select").filter(function () { return $(this).val(); });
+			var $tableSel = $(".tab-pane.active .pos-table-select").filter(function() { return $(this).val(); });
 			if ($tableSel.length) tableName = $tableSel.find("option:selected").text().trim();
 			var orderTypeLabel = orderType.charAt(0).toUpperCase() + orderType.slice(1);
 			if (tableName) orderTypeLabel += " (Table " + tableName + ")";
@@ -1131,15 +1044,20 @@ $(document).ready(function () {
 			if (!cart.length) return;
 			var $content = $("#pos-receipt-content");
 			if (!$content.length) return;
-			var printCss = "body{font-family:sans-serif;padding:16px;font-size:14px;} " +
-				".pos-receipt-item-list .pos-receipt-item{font-size:11px;line-height:1.35;padding:2px 0;} " +
-				".pos-receipt-item-list .pos-receipt-item span:first-child{max-width:70%;} " +
-				"h5{font-size:15px;} .fs-14{font-size:13px;} .border-bottom{border-bottom:1px solid #dee2e6;} " +
-				".d-flex{display:flex;} .justify-content-between{justify-content:space-between;} .fw-medium{font-weight:500;} " +
-				".mb-0{margin-bottom:0;} .mb-2{margin-bottom:6px;} .mb-3{margin-bottom:10px;} .pb-3{padding-bottom:10px;} " +
+			// Thermal (58mm) print CSS — works via browser print dialog
+			var printCss =
+				"@page{size:58mm auto;margin:0;} " +
+				"html,body{width:58mm;margin:0;padding:0;} " +
+				"body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:6mm 4mm 6mm;font-size:12px;line-height:1.3;color:#111;} " +
+				"h5{font-size:13px;margin:0 0 6px;} .fs-16{font-size:13px;} .fs-14{font-size:12px;} " +
+				".border-bottom{border-bottom:1px dashed #9ca3af;} " +
+				".d-flex{display:flex;} .justify-content-between{justify-content:space-between;} .fw-medium{font-weight:600;} .text-dark{color:#111;} " +
+				".mb-0{margin-bottom:0;} .mb-2{margin-bottom:5px;} .mb-3{margin-bottom:8px;} .pb-3{padding-bottom:8px;} " +
+				".pos-receipt-item-list .pos-receipt-item{font-size:11px;line-height:1.25;padding:2px 0;} " +
+				".pos-receipt-item-list .pos-receipt-item span:first-child{max-width:66%;} " +
 				".text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}";
 			var clone = $content.clone().get(0);
-			var w = window.open("", "_blank", "width=400,height=600");
+			var w = window.open("", "_blank", "width=320,height=600");
 			w.document.write("<!DOCTYPE html><html><head><title>Receipt</title><style>" + printCss + "</style></head><body>" + clone.outerHTML + "</body></html>");
 			w.document.close();
 			w.focus();
@@ -1242,14 +1160,14 @@ $(document).ready(function () {
 	});
 
 	// Size Tab
-	document.addEventListener("click", function (e) {
+	document.addEventListener("click", function(e) {
 		const btn = e.target.closest(".size-tab .tag");
 		if (!btn) return;
-
+	
 		const parent = btn.closest(".size-group");
-
+	
 		parent.querySelectorAll(".size-tab").forEach(tab => tab.classList.remove("active"));
-
+	
 		btn.closest(".size-tab").classList.add("active");
 	});
 
@@ -1300,7 +1218,7 @@ $(document).ready(function () {
 
 	// Accordion Active
 	if ($('.menu-item').length > 0) {
-		$(".menu-item .collapse").on("shown.bs.collapse", function () {
+	  	$(".menu-item .collapse").on("shown.bs.collapse", function() {
 			var $menuItem = $(this).closest(".menu-item");
 
 			// Remove active from all other menu-items
@@ -1311,13 +1229,13 @@ $(document).ready(function () {
 		});
 
 		// Handle collapse hidden
-		$(".menu-item .collapse").on("hidden.bs.collapse", function () {
+		$(".menu-item .collapse").on("hidden.bs.collapse", function() {
 			var $menuItem = $(this).closest(".menu-item");
 			$menuItem.removeClass("active");
 		});
 
 		// Optional: mark active for initially open collapse
-		$(".menu-item .collapse.show").each(function () {
+		$(".menu-item .collapse.show").each(function() {
 			$(this).closest(".menu-item").addClass("active");
 		});
 	}
@@ -1343,7 +1261,7 @@ $(document).ready(function () {
 			draggingElement = e.target.closest('.drag-item');
 			e.target.classList.add('dragging');
 			// For Firefox support
-			e.dataTransfer.setData('text/plain', '');
+			e.dataTransfer.setData('text/plain', ''); 
 		});
 
 		container.addEventListener('dragend', (e) => {

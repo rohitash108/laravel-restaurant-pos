@@ -1044,15 +1044,20 @@ $(document).ready(function(){
 			if (!cart.length) return;
 			var $content = $("#pos-receipt-content");
 			if (!$content.length) return;
-			var printCss = "body{font-family:sans-serif;padding:16px;font-size:14px;} " +
-				".pos-receipt-item-list .pos-receipt-item{font-size:11px;line-height:1.35;padding:2px 0;} " +
-				".pos-receipt-item-list .pos-receipt-item span:first-child{max-width:70%;} " +
-				"h5{font-size:15px;} .fs-14{font-size:13px;} .border-bottom{border-bottom:1px solid #dee2e6;} " +
-				".d-flex{display:flex;} .justify-content-between{justify-content:space-between;} .fw-medium{font-weight:500;} " +
-				".mb-0{margin-bottom:0;} .mb-2{margin-bottom:6px;} .mb-3{margin-bottom:10px;} .pb-3{padding-bottom:10px;} " +
+			// Thermal (58mm) print CSS — works via browser print dialog
+			var printCss =
+				"@page{size:58mm auto;margin:0;} " +
+				"html,body{width:58mm;margin:0;padding:0;} " +
+				"body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:6mm 4mm 6mm;font-size:12px;line-height:1.3;color:#111;} " +
+				"h5{font-size:13px;margin:0 0 6px;} .fs-16{font-size:13px;} .fs-14{font-size:12px;} " +
+				".border-bottom{border-bottom:1px dashed #9ca3af;} " +
+				".d-flex{display:flex;} .justify-content-between{justify-content:space-between;} .fw-medium{font-weight:600;} .text-dark{color:#111;} " +
+				".mb-0{margin-bottom:0;} .mb-2{margin-bottom:5px;} .mb-3{margin-bottom:8px;} .pb-3{padding-bottom:8px;} " +
+				".pos-receipt-item-list .pos-receipt-item{font-size:11px;line-height:1.25;padding:2px 0;} " +
+				".pos-receipt-item-list .pos-receipt-item span:first-child{max-width:66%;} " +
 				".text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}";
 			var clone = $content.clone().get(0);
-			var w = window.open("", "_blank", "width=400,height=600");
+			var w = window.open("", "_blank", "width=320,height=600");
 			w.document.write("<!DOCTYPE html><html><head><title>Receipt</title><style>" + printCss + "</style></head><body>" + clone.outerHTML + "</body></html>");
 			w.document.close();
 			w.focus();
