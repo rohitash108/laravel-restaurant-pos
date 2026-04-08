@@ -52,6 +52,7 @@
                     border: none;
                     background: transparent;
                     transition: transform 0.2s ease;
+                    position: relative;
                 }
                 .table-qr-card:hover {
                     transform: translateY(-4px);
@@ -60,6 +61,7 @@
                     background: linear-gradient(135deg, #ef4444, #7c3aed);
                     padding: 2.5px;
                     border-radius: 18px;
+                    overflow: visible;
                 }
                 .table-qr-inner {
                     background: #ffffff;
@@ -69,6 +71,7 @@
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
+                    overflow: visible;
                 }
                 .table-qr-title {
                     font-family: 'Georgia', serif;
@@ -127,6 +130,15 @@
                     font-size: 0.72rem;
                     padding: 3px 10px;
                 }
+
+                /* Fix dropdown actions (Delete) overlapping/clipping in the card grid */
+                .table-qr-card .dropdown,
+                .table-qr-card .text-end {
+                    position: relative;
+                }
+                .table-qr-card .dropdown-menu {
+                    z-index: 2000;
+                }
                 @media (max-width: 575.98px) {
                     .table-qr-inner {
                         padding: 12px 10px;
@@ -178,7 +190,7 @@
                                             </span>
                                         </div>
                                         <div class="text-end">
-                                            <div class="dropdown mb-1">
+                                            <div class="dropup mb-1">
                                                 <a href="#" class="table-menu" data-bs-toggle="dropdown">
                                                     <i class="icon-ellipsis-vertical"></i>
                                                 </a>
