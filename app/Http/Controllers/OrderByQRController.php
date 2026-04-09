@@ -8,8 +8,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantTable;
+use App\Models\PrintJob;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\ReceiptPayload;
 
 class OrderByQRController extends Controller
 {
@@ -186,6 +188,15 @@ class OrderByQRController extends Controller
         foreach ($orderItemsData as $data) {
             $order->items()->create($data);
         }
+
+        // Create a print job for the restaurant (staff tablet can print when online)
+        PrintJob::create([
+            'restaurant_id' => $restaurant->id,
+            'order_id' => $order->id,
+            'type' => 'receipt',
+            'status' => 'pending',
+            'payload' => ReceiptPayload::fromOrder($order),
+        ]);
 
         return redirect()->route('order.by-qr.success', [
             'restaurant' => $restaurant->slug,

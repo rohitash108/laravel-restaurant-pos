@@ -17,6 +17,7 @@ use App\Http\Controllers\OrderByQRController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\PrintJobController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReservationsController;
@@ -144,6 +145,11 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     Route::delete('/role-permission/{role}', [RolePermissionController::class, 'destroy'])->name('role-permission.destroy');
 
     Route::get('/sales-report', [ReportController::class, 'sales'])->name('sales-report');
+
+    // ——— Print Jobs (tablet polls for pending jobs) ———
+    Route::get('/print-jobs/next', [PrintJobController::class, 'next'])->name('print-jobs.next');
+    Route::post('/print-jobs/{job}/printed', [PrintJobController::class, 'markPrinted'])->name('print-jobs.printed');
+    Route::post('/print-jobs/{job}/failed', [PrintJobController::class, 'markFailed'])->name('print-jobs.failed');
 });
 
 // ——— Super Admin only: Dashboard & Restaurant management ———
