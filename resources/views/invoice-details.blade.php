@@ -6,6 +6,69 @@
         Start Page Content
     ========================= -->
 
+    <style>
+        /* Invoice print: fit on a single page (desktop printers) */
+        @media print {
+            @page { size: A4; margin: 8mm; }
+
+            /* Hide app chrome */
+            .navbar-header,
+            .sidebar,
+            .app-site-footer,
+            .top-actions,
+            .btn,
+            .dropdown,
+            .mobile-btn,
+            #mobile_btn {
+                display: none !important;
+            }
+
+            html, body {
+                background: #fff !important;
+            }
+
+            .page-wrapper {
+                margin: 0 !important;
+                min-height: auto !important;
+            }
+
+            .content {
+                padding: 0 !important;
+            }
+
+            .card {
+                box-shadow: none !important;
+                border: 0 !important;
+            }
+
+            .card-body {
+                padding: 0 !important;
+            }
+
+            /* Prevent responsive wrappers from clipping */
+            .table-responsive {
+                overflow: visible !important;
+            }
+
+            /* Compact typography so it stays one-page */
+            h3 { font-size: 16px !important; margin: 0 0 8px !important; }
+            h6 { font-size: 12px !important; margin-bottom: 6px !important; }
+            p, td, th, small, span { font-size: 11px !important; }
+
+            .mb-4 { margin-bottom: 10px !important; }
+            .pb-4 { padding-bottom: 10px !important; }
+
+            /* Avoid page breaks inside the main invoice blocks */
+            .invoice-logo,
+            .table,
+            .row,
+            .card-body > div {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+
     <div class="page-wrapper">
 
         <!-- Start Content -->
