@@ -7,9 +7,10 @@
     ========================= -->
 
     <style>
-        /* Invoice print: fit on a single page (desktop printers) */
+        /* Invoice print: compact “standard bill” (single page) */
         @media print {
-            @page { size: A4; margin: 8mm; }
+            /* A5 is the most common compact bill size on desktop printers */
+            @page { size: A5 portrait; margin: 6mm; }
 
             /* Hide app chrome */
             .navbar-header,
@@ -25,6 +26,20 @@
 
             html, body {
                 background: #fff !important;
+            }
+
+            /* Hide big decorative blocks that force A4 look */
+            img[alt="paid-invoices-img"],
+            .invoice-logo .app-brand-logo,
+            [alt="Payment QR"] {
+                display: none !important;
+            }
+
+            /* Hide page header + back link + terms section (compact bill) */
+            .invoice-page-header,
+            .invoice-back-link,
+            .invoice-terms {
+                display: none !important;
             }
 
             .page-wrapper {
@@ -51,12 +66,22 @@
             }
 
             /* Compact typography so it stays one-page */
-            h3 { font-size: 16px !important; margin: 0 0 8px !important; }
-            h6 { font-size: 12px !important; margin-bottom: 6px !important; }
-            p, td, th, small, span { font-size: 11px !important; }
+            h3 { font-size: 14px !important; margin: 0 0 6px !important; }
+            h6 { font-size: 11px !important; margin-bottom: 4px !important; }
+            p, td, th, small, span { font-size: 10px !important; }
 
-            .mb-4 { margin-bottom: 10px !important; }
-            .pb-4 { padding-bottom: 10px !important; }
+            .mb-4 { margin-bottom: 8px !important; }
+            .pb-4 { padding-bottom: 8px !important; }
+
+            .border-bottom { padding-bottom: 6px !important; margin-bottom: 6px !important; }
+
+            /* Tighten table spacing */
+            .table > :not(caption) > * > * {
+                padding: 4px 6px !important;
+            }
+            .table thead th {
+                white-space: nowrap;
+            }
 
             /* Avoid page breaks inside the main invoice blocks */
             .invoice-logo,
@@ -75,7 +100,7 @@
         <div class="content">
 
             <!-- Page Header -->
-            <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-3 mb-4">
+            <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-3 mb-4 invoice-page-header">
                 <div class="flex-grow-1">
                     <h3 class="mb-0">Invoices Details <a href="#" class="btn btn-icon btn-sm btn-white rounded-circle ms-2"><i class="icon-refresh-ccw"></i></a></h3>
                 </div>
@@ -97,7 +122,7 @@
             </div>
             <!-- End Page Header -->
 
-            <a href="{{url('invoices')}}" class="d-inline-flex align-items-center mb-4"><i class="icon-arrow-left me-2"></i>Back</a>
+            <a href="{{url('invoices')}}" class="d-inline-flex align-items-center mb-4 invoice-back-link"><i class="icon-arrow-left me-2"></i>Back</a>
 
             <!-- card start -->
             <div class="card mb-0">
@@ -164,7 +189,7 @@
                                 </table>
                                 </div>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-4 invoice-terms">
                                 <div class="row g-3 justify-content-between align-items-center pb-4 border-bottom">
                                     <div class="col-md-6">
                                         <h6 class="mb-2">Terms and Conditions</h6>
