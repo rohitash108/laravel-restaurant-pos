@@ -142,7 +142,12 @@
                         <div class="row justify-content-between align-items-center border-bottom pb-4">
                             <div class="col-md-6">
                                 <h6 class="mb-2">#{{ $order->order_number ?? $order->id ?? '–' }}</h6>
-                                <h6>{{ $order->restaurant->name ?? 'Restaurant' }}</h6>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <h6 class="mb-0">{{ $order->restaurant->name ?? 'Restaurant' }}</h6>
+                                    <span class="badge badge-soft-{{ $order->invoice_payment_status_badge }}">
+                                        {{ $order->invoice_payment_status_label }}
+                                    </span>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                     <div class="mb-2 invoice-logo d-flex align-items-center justify-content-md-end justify-content-start">

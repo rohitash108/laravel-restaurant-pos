@@ -161,7 +161,11 @@
                                     <td>{{ $inv->created_at->format('d M Y') }}</td>
                                     <td>{{ ucfirst(str_replace('_', ' ', $inv->order_type ?? 'dine_in')) }}</td>
                                     <td>{{ $currency_symbol }}{{ number_format($inv->total, 2) }}</td>
-                                    <td><span class="badge badge-soft-{{ $inv->status === 'completed' ? 'success' : 'primary' }}">{{ ucfirst($inv->status) }}</span></td>
+                                    <td>
+                                        <span class="badge badge-soft-{{ $inv->invoice_payment_status_badge }}">
+                                            {{ $inv->invoice_payment_status_label }}
+                                        </span>
+                                    </td>
                                     <td>
                                         <a href="{{ route('invoice-details', $inv) }}" class="btn btn-icon btn-sm btn-white rounded-circle me-2"><i class="icon-eye"></i></a>
                                     </td>

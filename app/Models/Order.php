@@ -56,6 +56,42 @@ class Order extends Model
 
     public const PAYMENT_STATUS_UNPAID = 'unpaid';
     public const PAYMENT_STATUS_PAID = 'paid';
+    public const PAYMENT_STATUS_PENDING = 'pending';
+
+    /**
+     * Invoice-friendly payment status.
+     *
+     * - paid: payment_status is paid
+     * - pending: not paid yet, and the order is still in progress
+     * - unpaid: not paid, and the order is completed/cancelled
+     */
+    public function getInvoicePaymentStatusAttribute(): string
+    {
+        if (($this->payment_status ?? null) === self::PAYMENT_STATUS_PAID) {
+            return self::PAYMENT_STATUS_PAID;
+        }
+
+        $orderStatus = $this->status ?? self::STATUS_PENDING;
+        if (! in_array($orderStatus, [self::STATUS_COMPLETED, self::STATUS_CANCELLED], true)) {
+            return self::PAYMENT_STATUS_PENDING;
+        }
+
+        return self::PAYMENT_STATUS_UNPAID;
+    }
+
+    public function getInvoicePaymentStatusLabelAttribute(): string
+    {
+        return ucfirst($this->invoice_payment_status);
+    }
+
+    public function getInvoicePaymentStatusBadgeAttribute(): string
+    {
+        return match ($this->invoice_payment_status) {
+            self::PAYMENT_STATUS_PAID => 'success',
+            self::PAYMENT_STATUS_PENDING => 'warning',
+            default => 'danger',
+        };
+    }
 
     /** Orders that are not yet completed or cancelled (table is still "in use"). */
     public function scopeActive($query)
