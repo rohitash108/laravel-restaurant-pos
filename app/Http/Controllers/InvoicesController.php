@@ -29,4 +29,19 @@ class InvoicesController extends Controller
 
         return view('invoice-details', compact('order'));
     }
+
+    /**
+     * Thermal-friendly receipt print (58mm) for an order.
+     */
+    public function receipt(Order $order)
+    {
+        $restaurantId = $this->currentRestaurantId();
+        if (! $restaurantId || (int) $order->restaurant_id !== (int) $restaurantId) {
+            abort(404);
+        }
+
+        $order->load(['restaurant', 'table', 'items']);
+
+        return view('receipt-print', compact('order'));
+    }
 }

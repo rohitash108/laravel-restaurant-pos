@@ -879,7 +879,7 @@
                                     <td>{{ $currency_symbol }}{{ number_format($order->total, 2) }}</td>
                                     <td>
                                         <a href="{{ route('invoice-details', $order) }}" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle me-1" title="View invoice"><i class="icon-eye"></i></a>
-                                        <a href="{{ route('invoice-details', $order) }}?print=1" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle" title="Print"><i class="icon-printer"></i></a>
+                                        <a href="{{ route('receipt-print', $order) }}" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle" title="Print"><i class="icon-printer"></i></a>
                                     </td>
                                 </tr>
                                 @empty
@@ -926,7 +926,7 @@
                                     <td><span class="badge bg-primary">{{ ucfirst($order->status) }}</span></td>
                                     <td>
                                         <a href="{{ route('invoice-details', $order) }}" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle me-1" title="View"><i class="icon-eye"></i></a>
-                                        <a href="{{ route('invoice-details', $order) }}?print=1" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle" title="Print"><i class="icon-printer"></i></a>
+                                        <a href="{{ route('receipt-print', $order) }}" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle" title="Print"><i class="icon-printer"></i></a>
                                     </td>
                                 </tr>
                                 @empty
@@ -1013,7 +1013,7 @@
                                     <td>{{ $currency_symbol }}{{ number_format($order->total, 2) }}</td>
                                     <td>
                                         <a href="{{ route('invoice-details', $order) }}" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle me-1" title="View"><i class="icon-eye"></i></a>
-                                        <a href="{{ route('invoice-details', $order) }}?print=1" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle" title="Print"><i class="icon-printer"></i></a>
+                                        <a href="{{ route('receipt-print', $order) }}" target="_blank" class="btn btn-icon btn-sm btn-white rounded-circle" title="Print"><i class="icon-printer"></i></a>
                                     </td>
                                 </tr>
                                 @empty

@@ -79,6 +79,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     Route::get('/earning-report', [ReportController::class, 'earning'])->name('earning-report');
     Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices');
     Route::get('/invoice-details/{order}', [InvoicesController::class, 'show'])->name('invoice-details');
+    Route::get('/receipt-print/{order}', [InvoicesController::class, 'receipt'])->name('receipt-print');
     Route::get('/items', [ItemController::class, 'index'])->name('items');
     Route::post('/items', [ItemController::class, 'store'])->name('items.store');
     Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');

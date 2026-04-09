@@ -58,7 +58,7 @@
                         </form>
                     </li>
                     @endif
-                    <li><a href="{{ route('invoice-details', $order) }}?print=1" target="_blank" class="dropdown-item rounded d-flex align-items-center"><i class="icon-printer me-2"></i>Print Receipt</a></li>
+                    <li><a href="{{ route('receipt-print', $order) }}" target="_blank" class="dropdown-item rounded d-flex align-items-center"><i class="icon-printer me-2"></i>Print Receipt</a></li>
                 </ul>
             </div>
         </div>
