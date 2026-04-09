@@ -1052,6 +1052,15 @@ $(document).ready(function(){
 			var $content = $("#pos-receipt-content");
 			if (!$content.length) return;
 
+			// Close the Bootstrap modal first; otherwise the backdrop can make the page feel "disabled"
+			try {
+				var modalEl = document.getElementById("pos-print-receipt");
+				if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+					var inst = window.bootstrap.Modal.getInstance(modalEl);
+					if (inst) inst.hide();
+				}
+			} catch (e) { /* ignore */ }
+
 			// 1) Enqueue a server print job (Android bridge will fetch and print via Bluetooth ESC/POS)
 			try {
 				var csrfEl = document.querySelector('meta[name=\"csrf-token\"]');
@@ -1087,11 +1096,22 @@ $(document).ready(function(){
 				".pos-receipt-item-list .pos-receipt-item span:first-child{max-width:66%;} " +
 				".text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}";
 			var clone = $content.clone().get(0);
-			var w = window.open("", "_blank", "width=320,height=600");
-			w.document.write("<!DOCTYPE html><html><head><title>Receipt</title><style>" + printCss + "</style></head><body>" + clone.outerHTML + "</body></html>");
-			w.document.close();
-			w.focus();
-			setTimeout(function () { w.print(); w.close(); }, 250);
+
+			// Give the modal a moment to finish closing before opening the print window
+			setTimeout(function () {
+				var w = window.open("", "_blank", "width=320,height=600");
+				if (!w) {
+					// Popup blocked; at least ensure UI isn't stuck
+					document.body.classList.remove("modal-open");
+					var backdrops = document.querySelectorAll(".modal-backdrop");
+					backdrops.forEach(function (b) { b.parentNode && b.parentNode.removeChild(b); });
+					return;
+				}
+				w.document.write("<!DOCTYPE html><html><head><title>Receipt</title><style>" + printCss + "</style></head><body>" + clone.outerHTML + "</body></html>");
+				w.document.close();
+				w.focus();
+				setTimeout(function () { w.print(); w.close(); }, 250);
+			}, 180);
 		});
 
 		// POS: Cancel – clear cart and close modal
