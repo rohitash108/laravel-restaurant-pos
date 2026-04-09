@@ -31,6 +31,18 @@
         .item .name { max-width: 36mm; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .totals .row { margin: 4px 0; }
         .grand { font-weight: 900; font-size: 13px; }
+        .badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .badge--success { border-color: #16a34a; color: #166534; }
+        .badge--warning { border-color: #f59e0b; color: #92400e; }
+        .badge--danger { border-color: #ef4444; color: #991b1b; }
     </style>
 </head>
 <body onload="setTimeout(function(){ window.print(); }, 250)">
@@ -51,6 +63,7 @@
     <div class="hr"></div>
 
     <div class="row"><span>Order</span><span>{{ $order->order_number }}</span></div>
+    <div class="row"><span>Status</span><span class="badge badge--{{ $order->invoice_payment_status_badge }}">{{ $order->invoice_payment_status_label }}</span></div>
     <div class="row"><span>Date</span><span>{{ $order->created_at?->format('d M Y H:i') }}</span></div>
     @if($table)
         <div class="row"><span>Table</span><span>{{ $table->table_number ?? $table->name }}</span></div>
