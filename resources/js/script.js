@@ -1054,7 +1054,8 @@ $(document).ready(function(){
 
 			// 1) Enqueue a server print job (Android bridge will fetch and print via Bluetooth ESC/POS)
 			try {
-				var csrf = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content') || '';
+				var csrfEl = document.querySelector('meta[name=\"csrf-token\"]');
+				var csrf = (csrfEl && csrfEl.getAttribute('content')) ? csrfEl.getAttribute('content') : '';
 				var payload = {
 					type: "receipt",
 					generated_at: new Date().toISOString(),
