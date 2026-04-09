@@ -148,6 +148,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
 
     // ——— Print Jobs (tablet polls for pending jobs) ———
     Route::get('/print-jobs/next', [PrintJobController::class, 'next'])->name('print-jobs.next');
+    Route::post('/print-jobs/enqueue', [PrintJobController::class, 'enqueue'])->name('print-jobs.enqueue');
     Route::post('/print-jobs/{job}/printed', [PrintJobController::class, 'markPrinted'])->name('print-jobs.printed');
     Route::post('/print-jobs/{job}/failed', [PrintJobController::class, 'markFailed'])->name('print-jobs.failed');
 });

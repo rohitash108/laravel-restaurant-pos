@@ -44,6 +44,33 @@ class PrintJobController extends Controller
         ]);
     }
 
+    /**
+     * Enqueue a print job from the POS UI (manual print / reprint).
+     * Note: the Android bridge will still fetch /print-jobs/next to actually print.
+     */
+    public function enqueue(Request $request)
+    {
+        $restaurantId = $this->currentRestaurantId();
+        if (! $restaurantId) {
+            return response()->json(['error' => 'No restaurant selected.'], 403);
+        }
+
+        $validated = $request->validate([
+            'type' => 'nullable|string|max:32',
+            'payload' => 'required|array',
+        ]);
+
+        $job = PrintJob::create([
+            'restaurant_id' => $restaurantId,
+            'order_id' => null,
+            'type' => $validated['type'] ?? 'receipt',
+            'status' => 'pending',
+            'payload' => $validated['payload'],
+        ]);
+
+        return response()->json(['success' => true, 'job_id' => $job->id]);
+    }
+
     public function markPrinted(Request $request, PrintJob $job)
     {
         $restaurantId = $this->currentRestaurantId();

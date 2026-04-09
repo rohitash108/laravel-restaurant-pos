@@ -1044,7 +1044,26 @@ $(document).ready(function(){
 			if (!cart.length) return;
 			var $content = $("#pos-receipt-content");
 			if (!$content.length) return;
-			// Thermal (58mm) print CSS — works via browser print dialog
+
+			// 1) Enqueue a server print job (Android bridge will fetch and print via Bluetooth ESC/POS)
+			try {
+				var csrf = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content') || '';
+				var payload = {
+					type: "receipt",
+					generated_at: new Date().toISOString(),
+					html_preview: $content.get(0).outerHTML
+				};
+				fetch("/print-jobs/enqueue", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-CSRF-TOKEN": csrf
+					},
+					body: JSON.stringify({ type: "receipt", payload: payload })
+				}).catch(function () { /* ignore */ });
+			} catch (e) { /* ignore */ }
+
+			// 2) Fallback: browser print (thermal width) so it still works without Android bridge
 			var printCss =
 				"@page{size:58mm auto;margin:0;} " +
 				"html,body{width:58mm;margin:0;padding:0;} " +
