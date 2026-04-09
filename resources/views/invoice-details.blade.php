@@ -28,11 +28,22 @@
                 background: #fff !important;
             }
 
-            /* Hide big decorative blocks that force A4 look */
+            /* Hide big decorative blocks that force extra pages */
             img[alt="paid-invoices-img"],
-            .invoice-logo .app-brand-logo,
             [alt="Payment QR"] {
                 display: none !important;
+            }
+
+            /* Keep logo visible, but small (so it stays single-page) */
+            .invoice-logo .app-brand-logo {
+                display: inline-flex !important;
+                padding: 2px 4px !important;
+                border-radius: 10px !important;
+            }
+            .invoice-logo img {
+                width: 78px !important;
+                max-width: 78px !important;
+                height: auto !important;
             }
 
             /* Hide page header + back link + terms section (compact bill) */

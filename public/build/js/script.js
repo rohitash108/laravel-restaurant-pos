@@ -1024,6 +1024,13 @@ $(document).ready(function(){
 			if ($tableSel.length) tableName = $tableSel.find("option:selected").text().trim();
 			var orderTypeLabel = orderType.charAt(0).toUpperCase() + orderType.slice(1);
 			if (tableName) orderTypeLabel += " (Table " + tableName + ")";
+			var $meta = $("#pos-receipt-meta");
+			var brandLogo = $meta.data("logo") || "";
+			var brandName = $meta.data("restaurant") || "";
+			var receiptHeader = "<div class=\"pos-receipt-header mb-3 pb-3 border-bottom\">" +
+				(brandLogo ? "<div class=\"pos-receipt-logo\"><img src=\"" + brandLogo + "\" alt=\"\" /></div>" : "") +
+				(brandName ? "<div class=\"pos-receipt-brand\">" + String(brandName).replace(/</g, '&lt;') + "</div>" : "") +
+				"</div>";
 			var orderInfo = "<div class=\"mb-3 pb-3 border-bottom\"><h5 class=\"mb-3 fs-16\">Order Info</h5>" +
 				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">Date &amp; Time <span class=\"fw-medium text-dark\">" + dateStr + " - " + timeStr + "</span></div>" +
 				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">Order No <span class=\"fw-medium text-dark\">—</span></div>" +
@@ -1036,7 +1043,7 @@ $(document).ready(function(){
 				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">Tax (18%) <span class=\"fw-medium text-dark\">" + curR + tax.toFixed(2) + "</span></div>" +
 				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-0\">Service Charge <span class=\"fw-medium text-dark\">" + curR + "0.00</span></div></div>" +
 				"<h5 class=\"mb-0 d-flex align-items-center justify-content-between\">Total <span>" + curR + total.toFixed(2) + "</span></h5>";
-			$body.html("<div id=\"pos-receipt-content\">" + orderInfo + menusHtml + totalsHtml + "</div>");
+			$body.html("<div id=\"pos-receipt-content\">" + receiptHeader + orderInfo + menusHtml + totalsHtml + "</div>");
 			$("#pos-print-receipt-btn").prop("disabled", false);
 		});
 		$("#pos-print-receipt-btn").on("click", function () {
@@ -1068,6 +1075,9 @@ $(document).ready(function(){
 				"@page{size:58mm auto;margin:0;} " +
 				"html,body{width:58mm;margin:0;padding:0;} " +
 				"body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:6mm 4mm 6mm;font-size:12px;line-height:1.3;color:#111;} " +
+				".pos-receipt-header{text-align:center;} " +
+				".pos-receipt-logo img{max-width:26mm;max-height:26mm;display:inline-block;object-fit:contain;} " +
+				".pos-receipt-brand{font-weight:700;font-size:12px;margin-top:2mm;} " +
 				"h5{font-size:13px;margin:0 0 6px;} .fs-16{font-size:13px;} .fs-14{font-size:12px;} " +
 				".border-bottom{border-bottom:1px dashed #9ca3af;} " +
 				".d-flex{display:flex;} .justify-content-between{justify-content:space-between;} .fw-medium{font-weight:600;} .text-dark{color:#111;} " +

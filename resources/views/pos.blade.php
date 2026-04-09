@@ -6,8 +6,15 @@
         $posCouponsForJs = ($coupons ?? collect())->map(function ($c) {
             return ['id' => $c->id, 'code' => $c->code, 'discount_type' => $c->discount_type, 'discount_amount' => (float) $c->discount_amount, 'category_id' => $c->category_id];
         })->values();
+        $posReceiptLogo = auth()->user()->restaurant?->logo
+            ? asset('storage/' . auth()->user()->restaurant->logo)
+            : asset('build/img/logo-small.svg');
+        $posReceiptRestaurantName = auth()->user()->restaurant?->name ?? 'Restaurant';
     @endphp
     <script>window.posTaxRate = @json($tax_rate ?? 0); window.posTaxName = @json($tax_name ?? 'Tax'); window.posCoupons = @json($posCouponsForJs);</script>
+    <div id="pos-receipt-meta" class="d-none"
+         data-logo="{{ $posReceiptLogo }}"
+         data-restaurant="{{ $posReceiptRestaurantName }}"></div>
     <style>
         .pos-item-click { cursor: pointer; }
         /* Fix: override theme's .input-item .btn-icon absolute positioning for customer row */
