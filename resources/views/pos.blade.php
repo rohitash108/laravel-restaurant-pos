@@ -1131,4 +1131,17 @@
 </script>
 @endpush
 
+{{-- After placing an order: open thermal receipt (print dialog). Print job is already queued server-side for Bluetooth bridge. --}}
+@php
+    $autoPrintOrderId = session('print_order_id');
+@endphp
+@if($autoPrintOrderId)
+<script>
+(function () {
+    var url = @json(route('receipt-print', ['order' => $autoPrintOrderId]));
+    window.open(url, '_blank', 'noopener');
+})();
+</script>
+@endif
+
 @endsection

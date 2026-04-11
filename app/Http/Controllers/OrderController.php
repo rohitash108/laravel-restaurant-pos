@@ -187,10 +187,19 @@ class OrderController extends Controller
         }
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'order_number' => $order->order_number, 'order' => $order->load('table', 'items')]);
+            return response()->json([
+                'success' => true,
+                'order_number' => $order->order_number,
+                'order' => $order->load('table', 'items'),
+                'receipt_print_url' => route('receipt-print', $order),
+            ]);
         }
 
-        return redirect()->route('pos')->with('success', 'Order #' . $order->order_number . ' created.')->with('order_number', $order->order_number);
+        return redirect()
+            ->route('pos')
+            ->with('success', 'Order #' . $order->order_number . ' created.')
+            ->with('order_number', $order->order_number)
+            ->with('print_order_id', $order->id);
     }
 
     /**

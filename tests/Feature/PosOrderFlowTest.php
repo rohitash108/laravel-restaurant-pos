@@ -82,6 +82,7 @@ class PosOrderFlowTest extends TestCase
         ]);
         $response->assertRedirect(route('pos'));
         $response->assertSessionHas('success');
+        $response->assertSessionHas('print_order_id');
 
         $order = Order::where('restaurant_id', $this->restaurant->id)->latest()->first();
         $this->assertNotNull($order);
