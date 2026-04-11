@@ -520,7 +520,7 @@
 
                 {{-- Desktop cart panel --}}
                 <div class="col-lg-4 pos-right-desktop">
-                    <div class="pos-right" id="pos-right" data-customer-store-url="{{ route('customer.store') }}">
+                    <div class="pos-right" id="pos-right" data-customer-store-url="{{ route('customer.store') }}" data-cart-receipt-print-url="{{ route('pos.cart-receipt-print') }}">
 
                         <!-- Title (theme: Order # / date) -->
                         <div class="p-3 d-flex align-items-center justify-content-between flex-wrap border-bottom">

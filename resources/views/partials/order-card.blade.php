@@ -6,7 +6,7 @@
                     <i class="icon-shopping-bag"></i>
                 </div>
                 <div>
-                    <h6 class="mb-1 fs-14 fw-semibold"><a href="{{ route('invoice-details', $order) }}" target="_blank">#{{ $order->order_number }}</a></h6>
+                    <h6 class="mb-1 fs-14 fw-semibold"><a href="{{ route('invoice-details', $order) }}" class="order-card-receipt-link" target="_blank" rel="noopener">#{{ $order->order_number }}</a></h6>
                     <p class="mb-0 d-flex align-items-center gap-2">{{ ucfirst(str_replace('_', ' ', $order->order_type ?? 'dine_in')) }}@if($order->table)<span class="text-light">|</span> Table : {{ $order->table->name }}@endif</p>
                 </div>
             </div>
@@ -58,7 +58,8 @@
                         </form>
                     </li>
                     @endif
-                    <li><a href="{{ route('receipt-print', $order) }}" target="_blank" class="dropdown-item rounded d-flex align-items-center"><i class="icon-printer me-2"></i>Print Receipt</a></li>
+                    <li><a href="{{ route('receipt-print', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-print-link" target="_blank" rel="noopener"><i class="icon-printer me-2"></i>Print receipt</a></li>
+                    <li><a href="{{ route('invoice-details', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-receipt-link" target="_blank" rel="noopener"><i class="icon-file-spreadsheet me-2"></i>View invoice</a></li>
                 </ul>
             </div>
         </div>
@@ -86,6 +87,14 @@
                 </div>
                 @endif
             </div>
+        </div>
+        <div class="d-flex gap-2 mb-3">
+            <a href="{{ route('invoice-details', $order) }}" class="btn btn-sm btn-outline-secondary flex-fill order-card-receipt-link" target="_blank" rel="noopener">
+                <i class="icon-file-spreadsheet me-1"></i>Receipt
+            </a>
+            <a href="{{ route('receipt-print', $order) }}" class="btn btn-sm btn-primary flex-fill order-card-print-link" target="_blank" rel="noopener">
+                <i class="icon-printer me-1"></i>Print
+            </a>
         </div>
         @php $paymentStatus = $order->payment_status ?? 'unpaid'; @endphp
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">

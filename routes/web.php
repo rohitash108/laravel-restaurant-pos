@@ -94,6 +94,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::patch('/orders/{order}/payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
     Route::get('/pos', [PosController::class, 'index'])->name('pos');
+    Route::post('/pos/cart-receipt-print', [PosController::class, 'cartReceiptPrint'])->name('pos.cart-receipt-print');
     Route::get('/pos/order/{order}/edit', [PosController::class, 'editOrder'])->name('orders.edit');
     Route::get('/payments', [PaymentsController::class, 'index'])->name('payments');
     Route::get('/reservations', [ReservationsController::class, 'index'])->name('reservations');

@@ -273,6 +273,22 @@
             tab.addEventListener('shown.bs.tab', applySearch);
         });
     })();
+
+    // Mobile / touch: open receipt & thermal print in same tab (Android Chrome print preview; avoids broken pop-ups).
+    (function () {
+        function useSameTab() {
+            return (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
+                || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
+                || /Android|iPhone|iPad/i.test(navigator.userAgent || '');
+        }
+        if (!useSameTab()) return;
+        document.querySelectorAll('.order-card-print-link, .order-card-receipt-link').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = a.getAttribute('href');
+            });
+        });
+    })();
     </script>
 
 @endsection

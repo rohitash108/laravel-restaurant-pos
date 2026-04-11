@@ -1049,10 +1049,7 @@ $(document).ready(function(){
 		$("#pos-print-receipt-btn").on("click", function () {
 			var cart = window.posCartLines || [];
 			if (!cart.length) return;
-			var $content = $("#pos-receipt-content");
-			if (!$content.length) return;
 
-			// Close the Bootstrap modal first; otherwise the backdrop can make the page feel "disabled"
 			try {
 				var modalEl = document.getElementById("pos-print-receipt");
 				if (modalEl && window.bootstrap && window.bootstrap.Modal) {
@@ -1061,57 +1058,69 @@ $(document).ready(function(){
 				}
 			} catch (e) { /* ignore */ }
 
-			// 1) Enqueue a server print job (Android bridge will fetch and print via Bluetooth ESC/POS)
-			try {
-				var csrfEl = document.querySelector('meta[name=\"csrf-token\"]');
-				var csrf = (csrfEl && csrfEl.getAttribute('content')) ? csrfEl.getAttribute('content') : '';
-				var payload = {
-					type: "receipt",
-					generated_at: new Date().toISOString(),
-					html_preview: $content.get(0).outerHTML
+			var orderType = $("#pos-order-type").val() || "dine_in";
+			var tableId = "";
+			var $tableSel = $(".tab-pane.active .pos-table-select").filter(function () { return $(this).val(); });
+			if ($tableSel.length) {
+				tableId = $tableSel.val() || "";
+			}
+
+			var items = cart.map(function (row) {
+				return {
+					item_id: row.item_id,
+					quantity: row.quantity || 1,
+					unit_price: row.price != null ? parseFloat(row.price) : null
 				};
-				fetch("/print-jobs/enqueue", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						"X-CSRF-TOKEN": csrf
-					},
-					body: JSON.stringify({ type: "receipt", payload: payload })
-				}).catch(function () { /* ignore */ });
-			} catch (e) { /* ignore */ }
+			});
 
-			// 2) Fallback: browser print (thermal width) so it still works without Android bridge
-			var printCss =
-				"@page{size:58mm auto;margin:0;} " +
-				"html,body{width:58mm;margin:0;padding:0;} " +
-				"body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:6mm 4mm 6mm;font-size:12px;line-height:1.3;color:#111;} " +
-				".pos-receipt-header{text-align:center;} " +
-				".pos-receipt-logo img{max-width:26mm;max-height:26mm;display:inline-block;object-fit:contain;} " +
-				".pos-receipt-brand{font-weight:700;font-size:12px;margin-top:2mm;} " +
-				"h5{font-size:13px;margin:0 0 6px;} .fs-16{font-size:13px;} .fs-14{font-size:12px;} " +
-				".border-bottom{border-bottom:1px dashed #9ca3af;} " +
-				".d-flex{display:flex;} .justify-content-between{justify-content:space-between;} .fw-medium{font-weight:600;} .text-dark{color:#111;} " +
-				".mb-0{margin-bottom:0;} .mb-2{margin-bottom:5px;} .mb-3{margin-bottom:8px;} .pb-3{padding-bottom:8px;} " +
-				".pos-receipt-item-list .pos-receipt-item{font-size:11px;line-height:1.25;padding:2px 0;} " +
-				".pos-receipt-item-list .pos-receipt-item span:first-child{max-width:66%;} " +
-				".text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}";
-			var clone = $content.clone().get(0);
+			var csrfEl = document.querySelector('meta[name="csrf-token"]');
+			var csrf = (csrfEl && csrfEl.getAttribute("content")) ? csrfEl.getAttribute("content") : "";
+			var $posRight = $("#pos-right");
+			var printUrl = ($posRight.attr("data-cart-receipt-print-url") || "/pos/cart-receipt-print").toString();
 
-			// Give the modal a moment to finish closing before opening the print window
-			setTimeout(function () {
-				var w = window.open("", "_blank", "width=320,height=600");
-				if (!w) {
-					// Popup blocked; at least ensure UI isn't stuck
-					document.body.classList.remove("modal-open");
-					var backdrops = document.querySelectorAll(".modal-backdrop");
-					backdrops.forEach(function (b) { b.parentNode && b.parentNode.removeChild(b); });
-					return;
+			fetch(printUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "text/html",
+					"X-CSRF-TOKEN": csrf,
+					"X-Requested-With": "XMLHttpRequest"
+				},
+				body: JSON.stringify({
+					order_type: orderType,
+					restaurant_table_id: tableId ? parseInt(tableId, 10) : null,
+					items: items
+				})
+			}).then(function (r) {
+				if (!r.ok) {
+					return r.text().then(function (t) {
+						throw new Error(t || r.statusText || "Request failed");
+					});
 				}
-				w.document.write("<!DOCTYPE html><html><head><title>Receipt</title><style>" + printCss + "</style></head><body>" + clone.outerHTML + "</body></html>");
-				w.document.close();
-				w.focus();
-				setTimeout(function () { w.print(); w.close(); }, 250);
-			}, 180);
+				return r.text();
+			}).then(function (html) {
+				var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+				var blobUrl = URL.createObjectURL(blob);
+				var mobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+				var touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+				var ua = navigator.userAgent || "";
+				if (mobile || touch || /Android|iPhone|iPad/i.test(ua)) {
+					window.location.href = blobUrl;
+				} else {
+					var w = window.open(blobUrl, "_blank", "noopener");
+					if (!w) {
+						document.body.classList.remove("modal-open");
+						document.querySelectorAll(".modal-backdrop").forEach(function (b) {
+							if (b.parentNode) b.parentNode.removeChild(b);
+						});
+						alert("Allow pop-ups to print, or open POS on a phone/tablet.");
+						return;
+					}
+					w.focus();
+				}
+			}).catch(function (err) {
+				alert("Could not prepare receipt. " + (err && err.message ? err.message : "Please try again."));
+			});
 		});
 
 		// POS: Cancel – clear cart and close modal
