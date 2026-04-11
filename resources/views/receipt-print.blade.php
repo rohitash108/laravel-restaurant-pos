@@ -10,14 +10,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt {{ $order->order_number }}</title>
     <style>
-        @page { size: 58mm auto; margin: 0; }
-        html, body { width: 58mm; margin: 0; padding: 0; }
+        /*
+         * Android Chrome print preview often fails with a fixed @page size in mm and a 58mm-wide body
+         * ("There was a problem printing the page"). Screen + Save-as-PDF use friendlier layout; thermal
+         * width is applied in @media print where supported.
+         */
+        @page { size: auto; margin: 12mm; }
+        html { -webkit-text-size-adjust: 100%; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
         body {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            padding: 6mm 4mm 6mm;
+            padding: 16px 14px 88px;
             color: #111;
-            font-size: 12px;
-            line-height: 1.3;
+            font-size: 14px;
+            line-height: 1.35;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media print {
+            @page { size: 80mm auto; margin: 4mm; }
+            html, body { width: 72mm; max-width: 72mm; padding: 4mm 3mm 4mm; font-size: 12px; }
+            .no-print { display: none !important; }
         }
         .center { text-align: center; }
         .muted { color: #555; font-size: 11px; }
@@ -43,16 +63,47 @@
         .badge--success { border-color: #16a34a; color: #166534; }
         .badge--warning { border-color: #f59e0b; color: #92400e; }
         .badge--danger { border-color: #ef4444; color: #991b1b; }
+        .print-actions {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            background: rgba(255,255,255,.96);
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            z-index: 10;
+        }
+        .print-actions button {
+            flex: 1;
+            max-width: 280px;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 0;
+            border-radius: 10px;
+            background: #111;
+            color: #fff;
+        }
+        .print-actions .btn-close {
+            flex: 0;
+            max-width: none;
+            background: #f3f4f6;
+            color: #111;
+        }
     </style>
 </head>
-<body onload="setTimeout(function(){ window.print(); }, 250)">
+<body>
 
     <div class="center">
         <div class="logo">
             @if($restaurant && $restaurant->logo)
-                <img src="{{ asset('storage/' . $restaurant->logo) }}" alt="">
+                <img src="{{ asset('storage/' . $restaurant->logo) }}" alt="" width="120" height="120" decoding="async">
             @else
-                <img src="{{ asset('build/img/logo-small.svg') }}" alt="">
+                <img src="{{ asset('build/img/logo-small.svg') }}" alt="" width="120" height="48" decoding="async">
             @endif
         </div>
         <div class="title">{{ $restaurant->name ?? 'Restaurant' }}</div>
@@ -99,6 +150,40 @@
         softwar.in | info@softwar.in
     </div>
 
+    <div class="print-actions no-print">
+        <button type="button" class="btn-close" onclick="window.history.length > 1 ? history.back() : window.close()">Close</button>
+        <button type="button" id="receipt-print-btn">Print</button>
+    </div>
+
+<script>
+(function () {
+    var btn = document.getElementById('receipt-print-btn');
+    function doPrint() {
+        try { window.print(); } catch (e) {}
+    }
+    if (btn) btn.addEventListener('click', doPrint);
+
+    var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var narrow = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    var ua = navigator.userAgent || '';
+    var isAndroid = /Android/i.test(ua);
+
+    // Android / touch: do not auto-open print dialog; user taps Print after preview loads (avoids Chrome bug).
+    if (coarse || narrow || isAndroid) {
+        return;
+    }
+
+    // Desktop: auto-print shortly after load + images
+    function afterReady() {
+        setTimeout(doPrint, 500);
+    }
+    if (document.readyState === 'complete') {
+        afterReady();
+    } else {
+        window.addEventListener('load', afterReady);
+    }
+})();
+</script>
 </body>
 </html>
 

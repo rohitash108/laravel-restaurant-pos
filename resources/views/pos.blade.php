@@ -1139,7 +1139,15 @@
 <script>
 (function () {
     var url = @json(route('receipt-print', ['order' => $autoPrintOrderId]));
-    window.open(url, '_blank', 'noopener');
+    // Android Chrome: window.open after a full-page redirect is not a "user gesture" — popups fail or print preview breaks.
+    // Same-tab navigation loads the receipt reliably; user taps Print, then Back to return to POS.
+    var mobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    if (mobile || touch || /Android|iPhone|iPad/i.test(navigator.userAgent || '')) {
+        window.location.href = url;
+    } else {
+        window.open(url, '_blank', 'noopener');
+    }
 })();
 </script>
 @endif
