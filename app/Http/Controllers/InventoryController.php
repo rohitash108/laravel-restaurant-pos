@@ -10,6 +10,7 @@ use App\Models\RecipeIngredient;
 use App\Models\StockMovement;
 use App\Services\Inventory\InventoryStockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class InventoryController extends Controller
@@ -244,15 +245,33 @@ class InventoryController extends Controller
             'lines.*.quantity' => 'required|numeric|min:0.000001',
         ]);
 
-        RecipeIngredient::where('item_id', $item->id)->delete();
-
-        foreach ($request->input('lines', []) as $row) {
-            RecipeIngredient::create([
-                'item_id' => $item->id,
-                'ingredient_id' => (int) $row['ingredient_id'],
-                'quantity' => $row['quantity'],
-            ]);
+        $rawLines = $request->input('lines', []);
+        $merged = [];
+        foreach ($rawLines as $row) {
+            $iid = (int) ($row['ingredient_id'] ?? 0);
+            if ($iid < 1) {
+                continue;
+            }
+            $qty = (string) $row['quantity'];
+            if (! isset($merged[$iid])) {
+                $merged[$iid] = '0';
+            }
+            $merged[$iid] = bcadd($merged[$iid], $qty, 6);
         }
+
+        DB::transaction(function () use ($item, $merged) {
+            RecipeIngredient::where('item_id', $item->id)->delete();
+            foreach ($merged as $ingredientId => $quantity) {
+                if (bccomp($quantity, '0', 6) !== 1) {
+                    continue;
+                }
+                RecipeIngredient::create([
+                    'item_id' => $item->id,
+                    'ingredient_id' => (int) $ingredientId,
+                    'quantity' => $quantity,
+                ]);
+            }
+        });
 
         return redirect()->route('inventory.item.recipe', $item)->with('success', 'Recipe saved.');
     }
