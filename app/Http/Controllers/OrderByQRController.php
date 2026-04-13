@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantTable;
 use App\Models\PrintJob;
+use App\Services\Inventory\InventoryStockService;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Support\ReceiptPayload;
@@ -197,6 +198,13 @@ class OrderByQRController extends Controller
             'status' => 'pending',
             'payload' => ReceiptPayload::fromOrder($order),
         ]);
+
+        try {
+            $order->load('items');
+            app(InventoryStockService::class)->deductForOrder($order);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return redirect()->route('order.by-qr.success', [
             'restaurant' => $restaurant->slug,

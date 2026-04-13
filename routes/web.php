@@ -9,6 +9,7 @@ use App\Http\Controllers\CouponsController;
 use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\KanbanViewController;
@@ -80,6 +81,21 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices');
     Route::get('/invoice-details/{order}', [InvoicesController::class, 'show'])->name('invoice-details');
     Route::get('/receipt-print/{order}', [InvoicesController::class, 'receipt'])->name('receipt-print');
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/', [InventoryController::class, 'index'])->name('index');
+        Route::get('/ingredients', [InventoryController::class, 'ingredientsIndex'])->name('ingredients.index');
+        Route::get('/ingredients/create', [InventoryController::class, 'ingredientsCreate'])->name('ingredients.create');
+        Route::post('/ingredients', [InventoryController::class, 'ingredientsStore'])->name('ingredients.store');
+        Route::get('/ingredients/{ingredient}/edit', [InventoryController::class, 'ingredientsEdit'])->name('ingredients.edit');
+        Route::put('/ingredients/{ingredient}', [InventoryController::class, 'ingredientsUpdate'])->name('ingredients.update');
+        Route::get('/stock-in', [InventoryController::class, 'stockInForm'])->name('stock-in');
+        Route::post('/stock-in', [InventoryController::class, 'stockInStore'])->name('stock-in.store');
+        Route::get('/waste', [InventoryController::class, 'wasteForm'])->name('waste');
+        Route::post('/waste', [InventoryController::class, 'wasteStore'])->name('waste.store');
+        Route::get('/items/{item}/recipe', [InventoryController::class, 'itemRecipe'])->name('item.recipe');
+        Route::put('/items/{item}/recipe', [InventoryController::class, 'itemRecipeUpdate'])->name('item.recipe.update');
+    });
+
     Route::get('/items', [ItemController::class, 'index'])->name('items');
     Route::post('/items', [ItemController::class, 'store'])->name('items.store');
     Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');

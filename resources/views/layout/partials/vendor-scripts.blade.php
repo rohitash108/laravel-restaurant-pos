@@ -15,7 +15,7 @@
     <script src="{{URL::asset('build/plugins/daterangepicker/daterangepicker.js')}}"></script>
 @endif
 
-@if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'integrations-settings', 'invoices', 'items', 'notifications-settings', 'order-report', 'payment-settings', 'payments', 'print-settings', 'role-permission', 'sales-report', 'store-settings', 'table', 'users']) || request()->routeIs('admin.restaurants.*'))
+@if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'integrations-settings', 'invoices', 'items', 'notifications-settings', 'order-report', 'payment-settings', 'payments', 'print-settings', 'role-permission', 'sales-report', 'store-settings', 'table', 'users']) || request()->routeIs('admin.restaurants.*') || request()->routeIs('inventory.*'))
 	<!-- Datatable JS -->
     <script src="{{URL::asset('build/plugins/datatables/js/jquery.dataTables.min.js')}}"></script>
 	<script src="{{URL::asset('build/plugins/datatables/dataTables.bootstrap5.min.js')}}"></script>
@@ -53,7 +53,7 @@
 	<script src="{{URL::asset('build/js/otp.js')}}"></script>
 @endif
 
-@if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'dashboard', '/', 'integrations-settings', 'invoices', 'items', 'kitchen', 'pos', 'notifications-settings', 'order-report', 'orders', 'payment-settings', 'payments', 'print-settings', 'reservations', 'role-permission', 'sales-report', 'store-settings', 'table', 'tax-settings', 'users']) || request()->routeIs('admin.*'))
+@if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'dashboard', '/', 'integrations-settings', 'invoices', 'items', 'kitchen', 'pos', 'notifications-settings', 'order-report', 'orders', 'payment-settings', 'payments', 'print-settings', 'reservations', 'role-permission', 'sales-report', 'store-settings', 'table', 'tax-settings', 'users']) || request()->routeIs('admin.*') || request()->routeIs('inventory.*'))
     <!-- Select2 Js -->
     <script src="{{URL::asset('build/plugins/select2/js/select2.min.js')}}"></script>
 @endif

@@ -69,6 +69,7 @@
                                     <i class="icon-ellipsis-vertical"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-split">
+                                    <li><a href="{{ route('inventory.item.recipe', $item) }}" class="dropdown-item"><i class="icon-layers me-2"></i>Stock recipe</a></li>
                                     <li><a href="#" class="dropdown-item edit-item-btn"><i class="icon-pencil-line me-2"></i>Edit Item</a></li>
                                     <li><a href="#" class="dropdown-item hide-item-btn" data-bs-toggle="modal" data-bs-target="#hide_item" data-id="{{ $item->id }}"><i class="icon-eye-off me-2"></i>Hide Item</a></li>
                                     <li>

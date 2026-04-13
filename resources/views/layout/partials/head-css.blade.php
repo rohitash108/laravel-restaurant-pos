@@ -25,7 +25,7 @@
 	<link rel="stylesheet" href="{{URL::asset('build/plugins/daterangepicker/daterangepicker.css')}}">
 @endif
 
-@if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'integrations-settings', 'invoices', 'items', 'notifications-settings', 'order-report', 'payment-settings', 'payments', 'print-settings', 'role-permission', 'sales-report', 'store-settings', 'table', 'users']))
+@if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'integrations-settings', 'invoices', 'items', 'notifications-settings', 'order-report', 'payment-settings', 'payments', 'print-settings', 'role-permission', 'sales-report', 'store-settings', 'table', 'users']) || request()->routeIs('inventory.*'))
     <!-- Datatable CSS -->
 	<link rel="stylesheet" href="{{URL::asset('build/plugins/datatables/dataTables.bootstrap5.min.css')}}">
 @endif
@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="{{URL::asset('build/plugins/slick/slick-theme.css')}}">
 @endif
 
- @if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'index', '/', 'integrations-settings', 'invoices', 'items', 'kitchen', 'pos', 'notifications-settings', 'order-report', 'orders', 'payment-settings', 'payments', 'print-settings', 'reservations', 'role-permission', 'sales-report', 'store-settings', 'table', 'tax-settings', 'users']) || request()->routeIs('admin.*'))
+ @if (Route::is(['addons', 'audit-report', 'categories', 'coupons', 'customer-report', 'customer', 'delivery-settings', 'earning-report', 'index', '/', 'integrations-settings', 'invoices', 'items', 'kitchen', 'pos', 'notifications-settings', 'order-report', 'orders', 'payment-settings', 'payments', 'print-settings', 'reservations', 'role-permission', 'sales-report', 'store-settings', 'table', 'tax-settings', 'users']) || request()->routeIs('admin.*') || request()->routeIs('inventory.*'))
     <!-- Select2 CSS -->
     <link rel="stylesheet" href="{{URL::asset('build/plugins/select2/css/select2.min.css')}}">
 @endif

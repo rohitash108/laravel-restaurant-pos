@@ -9,6 +9,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\RestaurantTable;
 use App\Models\PrintJob;
+use App\Services\Inventory\InventoryStockService;
 use App\Support\ReceiptPayload;
 use Illuminate\Http\Request;
 
@@ -176,6 +177,13 @@ class OrderController extends Controller
             'status' => 'pending',
             'payload' => ReceiptPayload::fromOrder($order),
         ]);
+
+        try {
+            $order->load('items');
+            app(InventoryStockService::class)->deductForOrder($order);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         if ($customerId) {
             $customer = Customer::where('restaurant_id', $restaurantId)->find($customerId);

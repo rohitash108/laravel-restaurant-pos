@@ -61,6 +61,16 @@ class Restaurant extends Model
         return $this->hasMany(Order::class, 'restaurant_id');
     }
 
+    public function branches(): HasMany
+    {
+        return $this->hasMany(Branch::class);
+    }
+
+    public function ingredients(): HasMany
+    {
+        return $this->hasMany(Ingredient::class);
+    }
+
     public function taxes(): HasMany
     {
         return $this->hasMany(Tax::class, 'restaurant_id');

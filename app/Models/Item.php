@@ -58,4 +58,9 @@ class Item extends Model
     {
         return $this->belongsTo(Tax::class);
     }
+
+    public function recipeIngredients(): HasMany
+    {
+        return $this->hasMany(RecipeIngredient::class);
+    }
 }
