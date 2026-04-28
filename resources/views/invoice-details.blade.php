@@ -151,8 +151,8 @@
                             </div>
                             <div class="col-md-6">
                                     <div class="mb-2 invoice-logo d-flex align-items-center justify-content-md-end justify-content-start">
-                                        <span class="app-brand-logo app-brand-logo--invoice"><img src="{{URL::asset('build/img/logo.svg')}}" width="130" class="img-fluid logo" alt="logo"></span>
-                                        <span class="app-brand-logo app-brand-logo--invoice"><img src="{{URL::asset('build/img/logo-white.svg')}}" width="130" class="img-fluid logo-white d-none" alt="logo"></span>
+                                        <span class="app-brand-logo app-brand-logo--invoice"><img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" width="130" class="img-fluid logo" alt="Global Tea Cafe" style="object-fit:contain;"></span>
+                                        <span class="app-brand-logo app-brand-logo--invoice"><img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" width="130" class="img-fluid logo-white d-none" alt="Global Tea Cafe" style="object-fit:contain;"></span>
                                     </div>
                                 </div>
                                 </div>

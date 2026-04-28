@@ -8,7 +8,7 @@
         })->values();
         $posReceiptLogo = auth()->user()->restaurant?->logo
             ? asset('storage/' . auth()->user()->restaurant->logo)
-            : asset('build/img/logo-small.svg');
+            : asset('build/img/global-tea-cafe-logo.png');
         $posReceiptRestaurantName = auth()->user()->restaurant?->name ?? 'Restaurant';
     @endphp
     <script>window.posTaxRate = @json($tax_rate ?? 0); window.posTaxName = @json($tax_name ?? 'Tax'); window.posCoupons = @json($posCouponsForJs);</script>

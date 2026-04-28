@@ -3,7 +3,7 @@
     <div class="sidebar sidebar-twocol" id="sidebar">
         <div class="twocol-mini">
             <a href="{{ route('admin.dashboard') }}" class="logo-small">
-                <span class="app-brand-logo app-brand-logo--sm"><img src="{{ asset('build/img/logo-small.svg') }}" alt="Logo"></span>
+                <span class="app-brand-logo app-brand-logo--sm"><img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="Global Tea Cafe" style="max-height:32px;width:auto;object-fit:contain;"></span>
             </a>
             <div class="sidebar-left">
                 <div class="nav flex-column align-items-center sidebar-nav" id="sidebar-tabs" role="tablist" data-simplebar>

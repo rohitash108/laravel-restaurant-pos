@@ -9,7 +9,7 @@
         <div class="twocol-mini">
             <a href="{{ route('dashboard') }}" class="logo-small" title="IT Software">
                 {{-- Always platform logo; restaurant logo is shown in the expanded sidebar header dropdown --}}
-                <span class="app-brand-logo app-brand-logo--sm"><img src="{{ URL::asset('build/img/logo-small.svg') }}" alt="IT Software"></span>
+                <span class="app-brand-logo app-brand-logo--sm"><img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="Global Tea Cafe" style="max-height:32px;width:auto;object-fit:contain;"></span>
             </a>
             <div class="sidebar-left">
                 <div class="nav flex-column align-items-center sidebar-nav" id="sidebar-tabs" role="tablist" aria-orientation="vertical" data-simplebar>
@@ -481,9 +481,9 @@
                     <a href="javascript:void(0);" class="d-inline-flex align-items-center fw-medium"  data-bs-toggle="dropdown">
                         <div class="avatar avatar-xs avatar-rounded me-1">
                             @if($currentRestaurant && $currentRestaurant->logo)
-                                <img src="{{ asset('storage/' . $currentRestaurant->logo) }}" alt="store" class="img-fluid">
+                                <img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="store" class="img-fluid" style="object-fit:contain;">
                             @else
-                                <div class="avatar avatar-xs avatar-rounded bg-primary text-white d-flex align-items-center justify-content-center"><i class="icon-warehouse" style="font-size:12px"></i></div>
+                                <img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="store" class="img-fluid" style="object-fit:contain;">
                             @endif
                         </div>
                         {{ $currentRestaurant->name ?? 'Select Restaurant' }} <i class="icon-chevrons-up-down ms-2"></i>
@@ -494,9 +494,9 @@
                             <a class="dropdown-item d-flex align-items-center {{ (int)session('current_restaurant_id') === $rest->id ? 'active' : '' }}" href="{{ url('/?switch_restaurant=' . $rest->id) }}">
                                 <div class="avatar avatar-xs avatar-rounded me-2">
                                     @if($rest->logo)
-                                        <img src="{{ asset('storage/' . $rest->logo) }}" alt="store" class="img-fluid">
+                                        <img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="store" class="img-fluid" style="object-fit:contain;">
                                     @else
-                                        <div class="avatar avatar-xs avatar-rounded bg-light text-dark d-flex align-items-center justify-content-center"><i class="icon-warehouse" style="font-size:12px"></i></div>
+                                        <img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="store" class="img-fluid" style="object-fit:contain;">
                                     @endif
                                 </div>
                                 {{ $rest->name }}

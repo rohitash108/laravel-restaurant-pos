@@ -25,7 +25,7 @@
 
                                 <div class="d-flex flex-column justify-content-between">
                                     <div class="mb-5">
-                                        <a href="{{ route('dashboard') }}"><span class="app-brand-logo app-brand-logo--lg"><img src="{{URL::asset('build/img/logo.svg')}}" class="img-fluid" alt="Logo"></span></a>
+                                        <a href="{{ route('dashboard') }}"><span class="app-brand-logo app-brand-logo--lg"><img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" class="img-fluid" alt="Global Tea Cafe" style="max-height:80px;object-fit:contain;"></span></a>
                                     </div>
 
                                     <div>

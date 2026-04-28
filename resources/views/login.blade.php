@@ -18,7 +18,7 @@
                                     <header class="auth-brand mb-4 mb-xl-5">
                                         <a href="{{ route('dashboard') }}" class="auth-brand__mark link-body-emphasis d-inline-flex flex-column align-items-center align-items-lg-start text-decoration-none">
                                             <span class="auth-brand__logo-wrap">
-                                                <img src="{{ asset('build/img/logo.svg') }}" class="auth-brand__logo img-fluid" width="220" alt="IT Software">
+                                                <img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" class="auth-brand__logo img-fluid" width="220" alt="Global Tea Cafe" style="object-fit:contain;">
                                             </span>
                                             <span class="auth-brand__rule" aria-hidden="true"></span>
                                         </a>

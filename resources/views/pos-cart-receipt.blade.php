@@ -94,7 +94,7 @@
             @if($restaurant && $restaurant->logo)
                 <img src="{{ asset('storage/' . $restaurant->logo) }}" alt="" width="120" height="120" decoding="async">
             @else
-                <img src="{{ asset('build/img/logo-small.svg') }}" alt="" width="120" height="48" decoding="async">
+                <img src="{{ asset('build/img/global-tea-cafe-logo.png') }}" alt="Global Tea Cafe" width="120" height="120" decoding="async" style="object-fit:contain;">
             @endif
         </div>
         <div class="title">{{ $restaurant->name ?? 'Restaurant' }}</div>
