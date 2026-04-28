@@ -583,13 +583,35 @@ $(document).ready(function(){
 				$(".tab-pane.active .pos-customer-name").val(o.customer_name || "");
 			}, 150);
 		}
+		window.posAppliedCoupon = window.posAppliedCoupon || null;
+
 		window.updatePosCart = function () {
 			const cart = window.posCartLines || [];
 			const totalMenus = cart.reduce(function (s, r) { return s + (r.quantity || 1); }, 0);
 			const subtotal = cart.reduce(function (s, r) { return s + (r.price || 0) * (r.quantity || 1); }, 0);
-			const taxRate = 0.18;
+			const taxRate = (typeof window.posTaxRate !== "undefined" ? parseFloat(window.posTaxRate) : 0) / 100;
 			const tax = subtotal * taxRate;
-			const total = subtotal + tax;
+
+			// Manual discount (direct input)
+			var manualDiscount = parseFloat($("#pos-discount-input").val()) || 0;
+			if (manualDiscount < 0) manualDiscount = 0;
+
+			// Coupon discount
+			var couponDiscount = 0;
+			if (window.posAppliedCoupon) {
+				var c = window.posAppliedCoupon;
+				if (c.discount_type === "percentage") {
+					couponDiscount = (subtotal + tax) * (c.discount_amount / 100);
+				} else {
+					couponDiscount = c.discount_amount;
+				}
+				if (couponDiscount < 0) couponDiscount = 0;
+			}
+
+			var totalDiscount = manualDiscount + couponDiscount;
+			var total = subtotal + tax - totalDiscount;
+			if (total < 0) total = 0;
+
 			const $empty = $("#pos-cart-empty");
 			const $container = $("#pos-cart-items");
 			const $summary = $("#pos-cart-summary");
@@ -597,7 +619,18 @@ $(document).ready(function(){
 			var cur = (typeof window.currencySymbol !== "undefined" ? window.currencySymbol : "₹");
 			$("#pos-subtotal").text(cur + subtotal.toFixed(2));
 			if ($("#pos-tax").length) $("#pos-tax").text(cur + tax.toFixed(2));
+			if ($("#pos-discount").length) $("#pos-discount").text(cur + totalDiscount.toFixed(2));
 			$("#pos-amount-paid").text(cur + total.toFixed(2));
+			// Update hidden form fields
+			$("#pos-form-discount").val(totalDiscount.toFixed(2));
+			// Recalculate change
+			var received = parseFloat($("#pos-received-input").val()) || 0;
+			var change = received - total;
+			var $changeEl = $("#pos-change");
+			if ($changeEl.length) {
+				$changeEl.text(cur + Math.abs(change).toFixed(2));
+				$changeEl.toggleClass("text-danger", change < 0).toggleClass("text-success", change >= 0);
+			}
 			document.querySelectorAll(".pos-item-card").forEach(function (card) {
 				const itemId = card.getAttribute("data-item-id");
 				const sum = (window.posCartLines || []).reduce(function (s, r) {
@@ -655,6 +688,49 @@ $(document).ready(function(){
 				});
 			}
 		};
+
+		// Received amount → recalculate change
+		$(document).on("input change", "#pos-received-input", function () {
+			if (typeof window.updatePosCart === "function") window.updatePosCart();
+			var received = parseFloat($(this).val()) || 0;
+			$("#pos-form-received").val(received > 0 ? received.toFixed(2) : "");
+		});
+
+		// Discount input → recalculate totals
+		$(document).on("input change", "#pos-discount-input", function () {
+			if (typeof window.updatePosCart === "function") window.updatePosCart();
+		});
+
+		// Coupon apply
+		$(document).on("click", "#pos-coupon-apply", function () {
+			var code = ($("#pos-coupon-code").val() || "").trim().toUpperCase();
+			var $err = $("#pos-coupon-error");
+			var $wrap = $("#pos-coupon-applied-wrap");
+			$err.addClass("d-none").text("");
+			if (!code) { $err.text("Enter a coupon code.").removeClass("d-none"); return; }
+			var coupons = window.posCoupons || [];
+			var found = null;
+			for (var i = 0; i < coupons.length; i++) {
+				if ((coupons[i].code || "").toUpperCase() === code) { found = coupons[i]; break; }
+			}
+			if (!found) { $err.text("Invalid coupon code.").removeClass("d-none"); return; }
+			window.posAppliedCoupon = found;
+			$("#pos-form-coupon-id").val(found.id);
+			$("#pos-coupon-applied-label").text("Applied: " + found.code);
+			$wrap.removeClass("d-none");
+			$("#pos-coupon-apply-wrap").addClass("d-none");
+			if (typeof window.updatePosCart === "function") window.updatePosCart();
+		});
+
+		// Coupon remove
+		$(document).on("click", "#pos-coupon-remove", function () {
+			window.posAppliedCoupon = null;
+			$("#pos-form-coupon-id").val("");
+			$("#pos-coupon-applied-wrap").addClass("d-none");
+			$("#pos-coupon-apply-wrap").removeClass("d-none");
+			$("#pos-coupon-code").val("");
+			if (typeof window.updatePosCart === "function") window.updatePosCart();
+		});
 
 		// POS cart: quantity +/- and remove (delegated)
 		$(document).on("click", "#pos-cart-items .pos-cart-minus", function () {
@@ -753,6 +829,24 @@ $(document).ready(function(){
 			$form.find("#pos-order-type").val(orderType);
 			$form.find("#pos-form-table-id").val(tableId);
 			$form.find("#pos-form-customer-name").val(customerName);
+			// Discount & coupon
+			var discountVal = parseFloat($("#pos-discount-input").val()) || 0;
+			var couponDiscount = 0;
+			if (window.posAppliedCoupon) {
+				var c = window.posAppliedCoupon;
+				var subtotalForCoupon = cart.reduce(function (s, r) { return s + (r.price || 0) * (r.quantity || 1); }, 0);
+				var taxRateForCoupon = (typeof window.posTaxRate !== "undefined" ? parseFloat(window.posTaxRate) : 0) / 100;
+				if (c.discount_type === "percentage") {
+					couponDiscount = (subtotalForCoupon + subtotalForCoupon * taxRateForCoupon) * (c.discount_amount / 100);
+				} else {
+					couponDiscount = c.discount_amount;
+				}
+			}
+			$form.find("#pos-form-discount").val((discountVal + couponDiscount).toFixed(2));
+			$form.find("#pos-form-coupon-id").val(window.posAppliedCoupon ? window.posAppliedCoupon.id : "");
+			// Received amount
+			var receivedAmt = parseFloat($("#pos-received-input").val()) || 0;
+			$form.find("#pos-form-received").val(receivedAmt > 0 ? receivedAmt.toFixed(2) : "");
 			$form.find("[name^='items']").remove();
 			cart.forEach(function (row, i) {
 				$form.append('<input type="hidden" name="items[' + i + '][item_id]" value="' + row.item_id + '">');
@@ -1001,9 +1095,17 @@ $(document).ready(function(){
 				var name = (row.name || "Item").replace(/</g, "&lt;");
 				itemLines.push("<div class=\"pos-receipt-item d-flex align-items-center justify-content-between py-1\"><span class=\"text-truncate me-2\">" + name + " &times;" + qty + "</span><span class=\"fw-medium text-dark flex-shrink-0\">" + (window.currencySymbol || "₹") + amount.toFixed(2) + "</span></div>");
 			});
-			var taxRate = 0.18;
+			var taxRate = (typeof window.posTaxRate !== "undefined" ? parseFloat(window.posTaxRate) : 0) / 100;
 			var tax = subtotal * taxRate;
-			var total = subtotal + tax;
+			var manualDisc = parseFloat($("#pos-discount-input").val()) || 0;
+			var couponDisc = 0;
+			if (window.posAppliedCoupon) {
+				var cp = window.posAppliedCoupon;
+				couponDisc = cp.discount_type === "percentage" ? (subtotal + tax) * (cp.discount_amount / 100) : cp.discount_amount;
+				if (couponDisc < 0) couponDisc = 0;
+			}
+			var totalDisc = manualDisc + couponDisc;
+			var total = Math.max(0, subtotal + tax - totalDisc);
 			var now = new Date();
 			var dateStr = now.getDate() + "/" + (now.getMonth() + 1) + "/" + now.getFullYear();
 			var timeStr = now.getHours() % 12 || 12;
@@ -1039,9 +1141,11 @@ $(document).ready(function(){
 				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-0\">Order Type <span class=\"fw-medium text-dark\">" + orderTypeLabel + "</span></div></div>";
 			var menusHtml = "<div class=\"mb-3 pb-3 border-bottom pos-receipt-menus\"><h5 class=\"mb-2 fs-16\">Ordered Menus</h5><div class=\"pos-receipt-item-list\">" + itemLines.join("") + "</div></div>";
 			var curR = window.currencySymbol || "₹";
+			var taxLabel = (window.posTaxName || "Tax") + " (" + (window.posTaxRate || 0) + "%)";
 			var totalsHtml = "<div class=\"mb-3 pb-3 border-bottom\"><div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">Sub Total <span class=\"fw-medium text-dark\">" + curR + subtotal.toFixed(2) + "</span></div>" +
-				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">Tax (18%) <span class=\"fw-medium text-dark\">" + curR + tax.toFixed(2) + "</span></div>" +
-				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-0\">Service Charge <span class=\"fw-medium text-dark\">" + curR + "0.00</span></div></div>" +
+				"<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">" + taxLabel + " <span class=\"fw-medium text-dark\">" + curR + tax.toFixed(2) + "</span></div>" +
+				(totalDisc > 0 ? "<div class=\"fs-14 fw-normal d-flex align-items-center justify-content-between mb-2\">Discount <span class=\"fw-medium text-dark\">- " + curR + totalDisc.toFixed(2) + "</span></div>" : "") +
+				"</div>" +
 				"<h5 class=\"mb-0 d-flex align-items-center justify-content-between\">Total <span>" + curR + total.toFixed(2) + "</span></h5>";
 			$body.html("<div id=\"pos-receipt-content\">" + receiptHeader + orderInfo + menusHtml + totalsHtml + "</div>");
 			$("#pos-print-receipt-btn").prop("disabled", false);
