@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantTable;
 use App\Models\PrintJob;
+use App\Models\Tax;
 use App\Services\Inventory\InventoryStockService;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -72,15 +73,7 @@ class OrderByQRController extends Controller
             ])
             ->get();
 
-        // QR order page always uses INR (₹) for India; USD is treated as INR
-        $currencySymbol = match ($restaurant->currency ?? 'INR') {
-            'INR' => '₹',
-            'USD' => '₹',   // show INR on QR menu (India use)
-            'EUR' => '€',
-            'GBP' => '£',
-            'AED' => 'AED ',
-            default => '₹',
-        };
+        $currencySymbol = $restaurant->currencySymbol();
 
         $coupons = Coupon::where('restaurant_id', $restaurant->id)
             ->where('is_active', true)
@@ -169,21 +162,26 @@ class OrderByQRController extends Controller
             }
         }
 
-        $total = round(max(0, $subtotal - $discountAmount), 2);
+        // C3: fetch restaurant tax from DB (same as POS orders)
+        $tax      = Tax::where('restaurant_id', $restaurant->id)->where('is_active', true)->first();
+        $taxRate  = $tax ? ((float) $tax->rate / 100) : 0;
+        $taxAmount = round($subtotal * $taxRate, 2);
+
+        $total = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
 
         $order = Order::create([
-            'restaurant_id' => $restaurant->id,
+            'restaurant_id'       => $restaurant->id,
             'restaurant_table_id' => $table->id,
-            'order_number' => Order::generateOrderNumber(),
-            'order_type' => Order::TYPE_QR_ORDER,
-            'status' => Order::STATUS_PENDING,
-            'subtotal' => $subtotal,
-            'tax_amount' => 0,
-            'discount_amount' => $discountAmount,
-            'total' => $total,
-            'coupon_id' => $couponId,
-            'customer_name' => $request->customer_name,
-            'notes' => $request->notes,
+            'order_number'        => Order::generateOrderNumber(),
+            'order_type'          => Order::TYPE_QR_ORDER,
+            'status'              => Order::STATUS_PENDING,
+            'subtotal'            => $subtotal,
+            'tax_amount'          => $taxAmount,
+            'discount_amount'     => $discountAmount,
+            'total'               => $total,
+            'coupon_id'           => $couponId,
+            'customer_name'       => $request->customer_name,
+            'notes'               => $request->notes,
         ]);
 
         foreach ($orderItemsData as $data) {
@@ -228,7 +226,7 @@ class OrderByQRController extends Controller
             ->where('order_number', $orderNumber)
             ->first();
 
-        $currencySymbol = ($restaurant->currency ?? 'INR') === 'INR' ? '₹' : ($restaurant->currency ?? '₹');
+        $currencySymbol = $restaurant->currencySymbol();
 
         return view('order-by-qr.success', [
             'restaurant' => $restaurant,

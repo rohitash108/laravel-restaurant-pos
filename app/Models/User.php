@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'admin_level',
         'restaurant_id',
         'phone',
         'status',
@@ -60,8 +61,26 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function isOwner(): bool
+    {
+        return $this->role === 'super_admin' && $this->admin_level === 'owner';
+    }
+
     public function isRestaurantAdmin(): bool
     {
         return $this->role === 'restaurant_admin';
+    }
+
+    public function hasPermission(string $module, string $action): bool
+    {
+        if ($this->isSuperAdmin() || $this->isRestaurantAdmin()) {
+            return true;
+        }
+
+        $role = Role::where('restaurant_id', $this->restaurant_id)
+            ->where('name', $this->role)
+            ->first();
+
+        return $role ? $role->hasPermission($module, $action) : false;
     }
 }

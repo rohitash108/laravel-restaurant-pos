@@ -109,6 +109,9 @@
         <div class="title">{{ $restaurant->name ?? 'Restaurant' }}</div>
         <div class="muted">{{ $restaurant->address ?? '' }}</div>
         <div class="muted">{{ $restaurant->phone ? ('Phone: ' . $restaurant->phone) : '' }}</div>
+        @if($restaurant->gst_number)
+        <div class="muted">GST: {{ $restaurant->gst_number }}</div>
+        @endif
     </div>
 
     <div class="hr"></div>

@@ -26,6 +26,7 @@ class Restaurant extends Model
         'phone',
         'email',
         'currency',
+        'gst_number',
         'is_active',
     ];
 
@@ -108,5 +109,20 @@ class Restaurant extends Model
     public function hasActiveSubscription(): bool
     {
         return $this->activeSubscription()->exists();
+    }
+
+    /**
+     * Single source of truth for the currency symbol.
+     */
+    public function currencySymbol(): string
+    {
+        return match ($this->currency ?? 'INR') {
+            'INR' => '₹',
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            'AED' => 'AED ',
+            default => $this->currency ?? '₹',
+        };
     }
 }

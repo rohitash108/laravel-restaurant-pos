@@ -12,6 +12,7 @@ class RolePermissionController extends Controller
 
     public function index()
     {
+        $this->requirePermission('settings', 'view');
         $restaurantId = $this->currentRestaurantId();
         $roles = $restaurantId
             ? Role::where('restaurant_id', $restaurantId)->orderBy('name')->get()

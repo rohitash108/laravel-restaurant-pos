@@ -69,20 +69,9 @@
 
                 </div> <!-- end col -->
 
-                <div class="col-lg-6">
-                    <div class="position-relative d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 p-4 ps-0">
-                        <div class="w-100 rounded-3 position-relative h-100 bg-primary z-1 overflow-hidden">
-                            <img src="{{URL::asset('build/img/authentication/authentication-bg-01.png')}}" class="img-fluid position-absolute bottom-0 end-0 z-n1 auth-bg-01" alt="bg">
-                            <img src="{{URL::asset('build/img/authentication/authentication-bg-02.png')}}" class="img-fluid position-absolute top-0 end-0 z-n1 auth-bg-02" alt="bg">
-                            <div class="px-4 rounded-3 h-100 d-flex flex-column align-items-center auth-wrap">
-                                <div class="text-center z-2">
-                                    <h1 class="text-white mb-2">Complete Control of Your Cafe & Restaurant with Ease</h1>
-                                    <p class="text-white mb-0">From billing to inventory access everything you need in a single powerful dashboard, Analyze sales, track your best-selling dishes.</p>
-                                </div>
-                                <div class="text-center auth-img position-absolute bottom-0">
-                                    <img src="{{URL::asset('build/img/authentication/login.png')}}" class="img-fluid position-relative z-1" alt="user">
-                                </div>
-                            </div>
+                <div class="col-lg-6 d-none d-lg-block p-0">
+                    <div class="position-relative d-flex align-items-center justify-content-center flex-wrap vh-100 overflow-hidden">
+                        <div class="w-100 h-100 position-relative rounded-start-3 overflow-hidden" style="background-image: url('{{ asset('build/img/gtc-interior.jpg') }}'); background-size: cover; background-position: center;">
                         </div>
                     </div>
                 </div> <!-- end col -->

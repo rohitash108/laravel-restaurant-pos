@@ -1320,7 +1320,7 @@
                             var span = document.createElement("span");
                             span.className = "badge bg-light text-dark border px-3 py-2";
                             var p = v.price != null && v.price !== "" ? parseFloat(v.price) : 0;
-                            span.textContent = (v.name || "") + (isNaN(p) ? "" : " $" + p.toFixed(2));
+                            span.textContent = (v.name || "") + (isNaN(p) ? "" : " INR " + p.toFixed(2));
                             sizesEl.appendChild(span);
                         });
                     } else {
@@ -1341,7 +1341,7 @@
                             var col = document.createElement("div");
                             col.className = "col-lg-6";
                             var p = a.price != null && a.price !== "" ? parseFloat(a.price) : 0;
-                            col.innerHTML = '<div class="border p-2 rounded"><div class="d-flex align-items-center gap-2"><span class="avatar rounded-circle border bg-light flex-shrink-0" style="width:40px;height:40px;"></span><h6 class="fs-12 fw-medium mb-0">' + (a.addon_name || a.name || "").replace(/</g, "&lt;") + '</h6><span class="ms-auto small">$' + (isNaN(p) ? "0.00" : p.toFixed(2)) + '</span></div></div>';
+                            col.innerHTML = '<div class="border p-2 rounded"><div class="d-flex align-items-center gap-2"><span class="avatar rounded-circle border bg-light flex-shrink-0" style="width:40px;height:40px;"></span><h6 class="fs-12 fw-medium mb-0">' + (a.addon_name || a.name || "").replace(/</g, "&lt;") + '</h6><span class="ms-auto small">INR ' + (isNaN(p) ? "0.00" : p.toFixed(2)) + '</span></div></div>';
                             addonsEl.appendChild(col);
                         });
                     } else {
@@ -1465,7 +1465,7 @@
                                 <div id="add-item-variations">
                                     <div class="row g-2 mb-2 variation-row">
                                         <div class="col-5"><input type="text" name="variations[name][]" class="form-control form-control-sm" placeholder="Size"></div>
-                                        <div class="col-4"><input type="number" name="variations[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price"></div>
+                                        <div class="col-4"><input type="number" name="variations[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price(INR)"></div>
                                         <div class="col-3"><button type="button" class="btn btn-sm btn-outline-primary btn-add-variation">Add</button></div>
                                     </div>
                                 </div>
@@ -1476,7 +1476,7 @@
                                 <div id="add-item-addons">
                                     <div class="row g-2 mb-2 addon-row">
                                         <div class="col-5"><input type="text" name="addons[name][]" class="form-control form-control-sm" placeholder="Name"></div>
-                                        <div class="col-4"><input type="number" name="addons[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price($)"></div>
+                                        <div class="col-4"><input type="number" name="addons[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price(INR)"></div>
                                         <div class="col-3"><button type="button" class="btn btn-sm btn-outline-primary btn-add-addon">Add</button></div>
                                     </div>
                                 </div>
@@ -1616,7 +1616,7 @@
             var nameVal = String(name || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             var priceNum = price !== undefined && price !== null && price !== '' ? parseFloat(price) : '';
             var priceVal = priceNum === '' || isNaN(priceNum) ? '' : priceNum;
-            row.innerHTML = '<div class="col-4"><input type="text" name="variations[' + idx + '][name]" class="form-control form-control-sm" placeholder="Size" value="' + nameVal + '"></div><div class="col-3"><input type="number" name="variations[' + idx + '][price]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price" value="' + priceVal + '"></div><div class="col-2"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-edit-row">Remove</button></div>';
+            row.innerHTML = '<div class="col-4"><input type="text" name="variations[' + idx + '][name]" class="form-control form-control-sm" placeholder="Size" value="' + nameVal + '"></div><div class="col-3"><input type="number" name="variations[' + idx + '][price]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price(INR)" value="' + priceVal + '"></div><div class="col-2"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-edit-row">Remove</button></div>';
             editVariationsContainer.appendChild(row);
         }
         function editAddonRow(name, price, idx) {
@@ -1626,7 +1626,7 @@
             var nameVal = String(name || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             var priceNum = price !== undefined && price !== null && price !== '' ? parseFloat(price) : '';
             var priceVal = priceNum === '' || isNaN(priceNum) ? '' : priceNum;
-            row.innerHTML = '<div class="col-4"><input type="text" name="addons[' + idx + '][name]" class="form-control form-control-sm" placeholder="Name" value="' + nameVal + '"></div><div class="col-3"><input type="number" name="addons[' + idx + '][price]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price($)" value="' + priceVal + '"></div><div class="col-2"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-edit-row">Remove</button></div>';
+            row.innerHTML = '<div class="col-4"><input type="text" name="addons[' + idx + '][name]" class="form-control form-control-sm" placeholder="Name" value="' + nameVal + '"></div><div class="col-3"><input type="number" name="addons[' + idx + '][price]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price(INR)" value="' + priceVal + '"></div><div class="col-2"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-edit-row">Remove</button></div>';
             editAddonsContainer.appendChild(row);
         }
         function reindexEditRows() {
@@ -1701,7 +1701,7 @@
             if (t) {
                 var row = document.createElement('div');
                 row.className = 'row g-2 mb-2 variation-row';
-                row.innerHTML = '<div class="col-5"><input type="text" name="variations[name][]" class="form-control form-control-sm" placeholder="Size"></div><div class="col-4"><input type="number" name="variations[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price"></div><div class="col-3"><button type="button" class="btn btn-sm btn-outline-primary btn-add-variation">Add</button></div>';
+                row.innerHTML = '<div class="col-5"><input type="text" name="variations[name][]" class="form-control form-control-sm" placeholder="Size"></div><div class="col-4"><input type="number" name="variations[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price(INR)"></div><div class="col-3"><button type="button" class="btn btn-sm btn-outline-primary btn-add-variation">Add</button></div>';
                 t.appendChild(row);
             }
         }
@@ -1710,7 +1710,7 @@
             if (t) {
                 var row = document.createElement('div');
                 row.className = 'row g-2 mb-2 addon-row';
-                row.innerHTML = '<div class="col-5"><input type="text" name="addons[name][]" class="form-control form-control-sm" placeholder="Name"></div><div class="col-4"><input type="number" name="addons[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price($)"></div><div class="col-3"><button type="button" class="btn btn-sm btn-outline-primary btn-add-addon">Add</button></div>';
+                row.innerHTML = '<div class="col-5"><input type="text" name="addons[name][]" class="form-control form-control-sm" placeholder="Name"></div><div class="col-4"><input type="number" name="addons[price][]" class="form-control form-control-sm" step="0.01" min="0" placeholder="Price(INR)"></div><div class="col-3"><button type="button" class="btn btn-sm btn-outline-primary btn-add-addon">Add</button></div>';
                 t.appendChild(row);
             }
         }

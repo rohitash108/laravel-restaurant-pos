@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'owner_admin'  => \App\Http\Middleware\EnsureOwnerAdmin::class,
             'restaurant' => \App\Http\Middleware\EnsureRestaurantContext::class,
             'redirect_super_admin_to_admin' => \App\Http\Middleware\RedirectSuperAdminToAdmin::class,
             'subscription' => \App\Http\Middleware\CheckSubscription::class,

@@ -31,12 +31,14 @@ use Illuminate\Support\Facades\Route;
 
 // ——— Public: Auth ———
 Route::get('login', [CustomAuthController::class, 'login'])->name('login');
-Route::post('login', [CustomAuthController::class, 'authenticate'])->name('login.submit');
+Route::post('login', [CustomAuthController::class, 'authenticate'])->name('login.submit')->middleware('throttle:5,1');
 Route::post('logout', [CustomAuthController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'show'])->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.submit');
 Route::get('/forgot-password', function () { return view('forgot-password'); })->name('forgot-password');
+Route::post('/forgot-password', [CustomAuthController::class, 'sendResetLink'])->name('forgot-password.submit')->middleware('throttle:3,1');
 Route::get('/reset-password', function () { return view('reset-password'); })->name('reset-password');
+Route::post('/reset-password', [CustomAuthController::class, 'resetPassword'])->name('reset-password.submit');
 Route::get('/otp', function () { return view('otp'); })->name('otp');
 Route::get('/email-verification', function () { return view('email-verification'); })->name('email-verification');
 
@@ -55,7 +57,15 @@ Route::get('/order/{restaurant:slug}/{table}/order-status', [OrderByQRController
 
 // ——— Authenticated app (restaurant staff only; super admin is redirected to admin/restaurants) ———
 Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subscription'])->group(function () {
-    Route::get('/', fn () => redirect()->route('dashboard'));
+    Route::get('/', function () {
+        if (request()->filled('switch_restaurant')) {
+            $id = (int) request('switch_restaurant');
+            if (auth()->user()->restaurant_id === $id) {
+                session(['current_restaurant_id' => $id]);
+            }
+        }
+        return redirect()->route('dashboard');
+    });
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/addons', [AddonsController::class, 'index'])->name('addons');
@@ -171,7 +181,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     Route::post('/print-jobs/{job}/failed', [PrintJobController::class, 'markFailed'])->name('print-jobs.failed');
 });
 
-// ——— Super Admin only: Dashboard & Restaurant management ———
+// ——— Super Admin: Dashboard, Restaurants, Profile ———
 Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
@@ -181,18 +191,19 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
     Route::resource('restaurants', RestaurantsController::class)->except(['show']);
     Route::get('restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurants.show');
 
-    // ——— Subscription Plans ———
-    Route::get('subscription-plans', [SubscriptionController::class, 'plans'])->name('subscription-plans');
-    Route::post('subscription-plans', [SubscriptionController::class, 'storePlan'])->name('subscription-plans.store');
-    Route::put('subscription-plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('subscription-plans.update');
-    Route::delete('subscription-plans/{plan}', [SubscriptionController::class, 'destroyPlan'])->name('subscription-plans.destroy');
+    // ——— Owner only: Subscription Plans & Subscriptions ———
+    Route::middleware('owner_admin')->group(function () {
+        Route::get('subscription-plans', [SubscriptionController::class, 'plans'])->name('subscription-plans');
+        Route::post('subscription-plans', [SubscriptionController::class, 'storePlan'])->name('subscription-plans.store');
+        Route::put('subscription-plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('subscription-plans.update');
+        Route::delete('subscription-plans/{plan}', [SubscriptionController::class, 'destroyPlan'])->name('subscription-plans.destroy');
 
-    // ——— Subscriptions ———
-    Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
-    Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
-    Route::get('subscriptions/{subscription}/balance-history', [SubscriptionController::class, 'balanceHistory'])->name('subscriptions.balance-history');
-    Route::post('subscriptions/{subscription}/debit-balance', [SubscriptionController::class, 'debitBalance'])->name('subscriptions.debit-balance');
-    Route::post('subscriptions/{subscription}/record-payment', [SubscriptionController::class, 'recordPayment'])->name('subscriptions.record-payment');
-    Route::delete('subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
+        Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+        Route::get('subscriptions/{subscription}/balance-history', [SubscriptionController::class, 'balanceHistory'])->name('subscriptions.balance-history');
+        Route::post('subscriptions/{subscription}/debit-balance', [SubscriptionController::class, 'debitBalance'])->name('subscriptions.debit-balance');
+        Route::post('subscriptions/{subscription}/record-payment', [SubscriptionController::class, 'recordPayment'])->name('subscriptions.record-payment');
+        Route::delete('subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+    });
 });
 

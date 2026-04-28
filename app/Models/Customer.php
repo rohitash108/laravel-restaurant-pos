@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'restaurant_id',
         'name',
@@ -29,5 +32,10 @@ class Customer extends Model
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
+    }
+
+    public function balanceTransactions(): HasMany
+    {
+        return $this->hasMany(CustomerBalanceTransaction::class)->latest();
     }
 }

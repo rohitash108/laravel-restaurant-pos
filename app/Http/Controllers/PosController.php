@@ -68,7 +68,7 @@ class PosController extends Controller
                 ->get(['id', 'name'])
             : collect();
 
-        $tax = $restaurantId ? Tax::where('restaurant_id', $restaurantId)->first() : null;
+        $tax = $restaurantId ? Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first() : null;
         $tax_rate = $tax ? (float) $tax->rate : 0;
         $tax_name = $tax ? $tax->name : 'Tax';
 
@@ -121,7 +121,7 @@ class PosController extends Controller
         $customers = Customer::where('restaurant_id', $restaurantId)->orderBy('name')->get(['id', 'name']);
         $waiters = User::where('restaurant_id', $restaurantId)->where('status', 'active')->orderBy('name')->get(['id', 'name']);
 
-        $tax = Tax::where('restaurant_id', $restaurantId)->first();
+        $tax = Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first();
         $tax_rate = $tax ? (float) $tax->rate : 0;
         $tax_name = $tax ? $tax->name : 'Tax';
 
@@ -199,8 +199,8 @@ class PosController extends Controller
             abort(422, 'No valid items in cart.');
         }
 
-        $tax = Tax::where('restaurant_id', $restaurantId)->first();
-        $taxRateFraction = $tax ? ((float) $tax->rate / 100) : 0.18;
+        $tax = Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first();
+        $taxRateFraction = $tax ? ((float) $tax->rate / 100) : 0;
         $taxAmount = round($subtotal * $taxRateFraction, 2);
         $total = round($subtotal + $taxAmount, 2);
         $taxName = $tax ? $tax->name : 'Tax';
@@ -223,8 +223,6 @@ class PosController extends Controller
             'payload' => $payload,
         ]);
 
-        $currency_symbol = config('app.currency_symbol', '₹');
-
         return response()
             ->view('pos-cart-receipt', [
                 'restaurant' => $restaurant,
@@ -235,7 +233,7 @@ class PosController extends Controller
                 'total' => $total,
                 'order_type' => $validated['order_type'],
                 'table_label' => $tableLabel,
-                'currency_symbol' => $currency_symbol,
+                'currency_symbol' => $restaurant->currencySymbol(),
             ])
             ->header('Content-Type', 'text/html; charset=UTF-8');
     }

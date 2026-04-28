@@ -17,6 +17,7 @@ class SettingsController extends Controller
      */
     public function storeSettings()
     {
+        $this->requirePermission('settings', 'view');
         $restaurantId = $this->currentRestaurantId();
         $restaurant = $restaurantId ? Restaurant::find($restaurantId) : null;
         $settings = $restaurantId ? Setting::getGroup($restaurantId, 'store') : [];
@@ -91,6 +92,7 @@ class SettingsController extends Controller
             'email' => $request->input('email', $restaurant->email),
             'phone' => $request->input('phone', $restaurant->phone),
             'currency' => $currency,
+            'gst_number' => $request->input('gst_number') ?: null,
             'logo' => $logoPath,
             'payment_qr' => $paymentQrPath,
         ]);

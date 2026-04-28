@@ -21,13 +21,13 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'name.required' => 'Full name is required.',
             'email.required' => 'Email address is required.',
             'email.unique' => 'This email is already registered.',
             'password.required' => 'Password is required.',
-            'password.min' => 'Password must be at least 6 characters.',
+            'password.min' => 'Password must be at least 8 characters.',
             'password.confirmed' => 'Passwords do not match.',
         ]);
 

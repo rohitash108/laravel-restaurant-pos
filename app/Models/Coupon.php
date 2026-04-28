@@ -16,6 +16,8 @@ class Coupon extends Model
         'valid_from',
         'valid_to',
         'is_active',
+        'max_uses',
+        'times_used',
     ];
 
     protected function casts(): array

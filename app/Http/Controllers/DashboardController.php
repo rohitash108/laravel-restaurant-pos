@@ -87,16 +87,24 @@ class DashboardController extends Controller
                 ->all();
         }
 
-        // Last 7 days revenue and order count for charts (dynamic)
+        // Last 7 days revenue and order count for charts — single query
+        $startDate = now()->subDays(6)->startOfDay();
+        $dailyStats = (clone $ordersQuery)
+            ->where('created_at', '>=', $startDate)
+            ->selectRaw('DATE(created_at) as day, SUM(total) as revenue, COUNT(*) as orders')
+            ->groupBy('day')
+            ->get()
+            ->keyBy('day');
+
         $revenueByDay = [];
-        $ordersByDay = [];
-        $dayNames = [];
+        $ordersByDay  = [];
+        $dayNames     = [];
         for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
-            $dayNames[] = $date->format('D');
-            $dayQuery = (clone $ordersQuery)->whereDate('created_at', $date->toDateString());
-            $revenueByDay[] = (float) (clone $dayQuery)->sum('total');
-            $ordersByDay[] = (clone $dayQuery)->count();
+            $date      = now()->subDays($i);
+            $key       = $date->toDateString();
+            $dayNames[]    = $date->format('D');
+            $revenueByDay[] = (float) ($dailyStats[$key]->revenue ?? 0);
+            $ordersByDay[]  = (int) ($dailyStats[$key]->orders ?? 0);
         }
 
         // Order type counts for donut (already have $ordersByType); ensure labels/series order

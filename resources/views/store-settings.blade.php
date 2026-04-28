@@ -164,6 +164,13 @@
                                     </div>
                                 </div> <!-- end col -->
 
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">GST Number</label>
+                                        <input type="text" class="form-control" name="gst_number" placeholder="e.g. 29ABCDE1234F1Z5" value="{{ $restaurant->gst_number ?? '' }}">
+                                    </div>
+                                </div> <!-- end col -->
+
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Currency<span class="text-danger ms-1">*</span></label>

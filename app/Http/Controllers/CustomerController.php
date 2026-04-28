@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesRestaurant;
 use App\Models\Customer;
+use App\Models\CustomerBalanceTransaction;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -154,9 +155,21 @@ class CustomerController extends Controller
         ]);
 
         $amount = round((float) $request->amount, 2);
+        $symbol = $customer->restaurant ? $customer->restaurant->currencySymbol() : '₹';
         $previousBalance = (float) $customer->balance;
         $customer->balance = $previousBalance + $amount;
         $customer->save();
+
+        CustomerBalanceTransaction::create([
+            'customer_id'   => $customer->id,
+            'restaurant_id' => $restaurantId,
+            'type'          => CustomerBalanceTransaction::TYPE_PAYMENT,
+            'amount'        => $amount,
+            'balance_after' => $customer->balance,
+            'order_id'      => null,
+            'user_id'       => auth()->id(),
+            'notes'         => $request->notes,
+        ]);
 
         $newBalance = (float) $customer->balance;
         $message = $newBalance >= 0

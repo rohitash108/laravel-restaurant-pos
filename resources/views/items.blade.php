@@ -83,7 +83,7 @@
                             </div>
                             <h6 class="fs-14 fw-semibold"><a href="#" class="item-details-trigger" data-bs-toggle="modal" data-bs-target="#items_details">{{ $item->name }}</a></h6>
                             <div class="d-flex align-items-center justify-content-between">
-                                <p class="mb-0">{{ $item->restaurant->currency ?? '$' }}{{ number_format($item->price, 2) }}</p>
+                                <p class="mb-0">{{ $item->restaurant->currency ?? 'INR ' }}{{ number_format($item->price, 2) }}</p>
                                 <div>
                                     <span class="d-flex align-items-center">
                                         @if(($item->food_type ?? 'veg') === 'non_veg')

@@ -302,17 +302,21 @@ class InventoryStockService
      */
     public function lowStockAlerts(int $restaurantId, int $branchId): array
     {
-        $out = [];
         $ingredients = Ingredient::where('restaurant_id', $restaurantId)
             ->where('is_active', true)
+            ->withSum(
+                ['batches' => fn ($q) => $q->where('branch_id', $branchId)],
+                'quantity_remaining'
+            )
             ->get();
 
+        $out = [];
         foreach ($ingredients as $ing) {
             $th = $this->decimal((string) $ing->low_stock_threshold);
             if (bccomp($th, '0', 6) <= 0) {
                 continue;
             }
-            $onHand = $this->availableQuantity((int) $ing->id, $branchId);
+            $onHand = $this->decimal((string) ($ing->batches_sum_quantity_remaining ?? 0));
             if (bccomp($onHand, $th, 6) < 0) {
                 $out[] = [
                     'ingredient' => $ing,

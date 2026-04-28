@@ -68,12 +68,7 @@
                 </div>
                 <div class="col-lg-6 d-none d-lg-block p-0">
                     <div class="position-relative d-flex align-items-center justify-content-center flex-wrap vh-100 overflow-hidden">
-                        <div class="w-100 h-100 position-relative rounded-start-3 overflow-hidden" style="background: linear-gradient(135deg, #0D76E1 0%, #0a5bb5 100%); background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80'); background-size: cover; background-position: center;">
-                            <div class="position-absolute inset-0 rounded-start-3" style="background: linear-gradient(135deg, rgba(13,118,225,0.85) 0%, rgba(10,91,181,0.75) 100%);"></div>
-                            <div class="position-relative px-4 py-5 rounded-start-3 h-100 d-flex flex-column align-items-center justify-content-center auth-wrap text-white text-center">
-                                <h1 class="h3 fw-bold mb-3">Complete Control of Your Cafe & Restaurant with Ease</h1>
-                                <p class="mb-0 opacity-90">From billing to inventory — access everything you need in one powerful dashboard. Analyze sales, track your best-selling dishes.</p>
-                            </div>
+                        <div class="w-100 h-100 position-relative rounded-start-3 overflow-hidden" style="background-image: url('{{ asset('build/img/gtc-interior.jpg') }}'); background-size: cover; background-position: center;">
                         </div>
                     </div>
                 </div>

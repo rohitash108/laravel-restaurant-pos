@@ -14,6 +14,7 @@ class ReportController extends Controller
 
     public function sales(Request $request)
     {
+        $this->requirePermission('reports', 'view');
         $restaurantId = $this->currentRestaurantId();
         $from = $request->get('from', Carbon::now()->startOfMonth()->toDateString());
         $to = $request->get('to', Carbon::now()->toDateString());
@@ -34,6 +35,7 @@ class ReportController extends Controller
 
     public function earning(Request $request)
     {
+        $this->requirePermission('reports', 'view');
         $restaurantId = $this->currentRestaurantId();
         $from = $request->get('from', Carbon::now()->startOfMonth()->toDateString());
         $to = $request->get('to', Carbon::now()->toDateString());
@@ -54,6 +56,7 @@ class ReportController extends Controller
 
     public function order(Request $request)
     {
+        $this->requirePermission('reports', 'view');
         $restaurantId = $this->currentRestaurantId();
         $orders = $restaurantId
             ? Order::where('restaurant_id', $restaurantId)->with(['table', 'items'])->latest()->paginate(20)
@@ -64,6 +67,7 @@ class ReportController extends Controller
 
     public function customer()
     {
+        $this->requirePermission('reports', 'view');
         $restaurantId = $this->currentRestaurantId();
         $customers = collect();
 
@@ -81,6 +85,7 @@ class ReportController extends Controller
 
     public function audit()
     {
+        $this->requirePermission('reports', 'view');
         $restaurantId = $this->currentRestaurantId();
         $orders = $restaurantId
             ? Order::where('restaurant_id', $restaurantId)->with(['table'])->latest()->take(50)->get()

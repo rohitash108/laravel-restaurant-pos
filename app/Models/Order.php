@@ -126,12 +126,10 @@ class Order extends Model
 
     public static function generateOrderNumber(): string
     {
-        $prefix = 'ORD';
-        $random = strtoupper(substr(uniqid(), -6));
-        $number = $prefix . $random;
-        while (static::where('order_number', $number)->exists()) {
-            $number = $prefix . strtoupper(substr(uniqid(), -6));
-        }
+        do {
+            $number = 'ORD' . strtoupper(\Illuminate\Support\Str::random(8));
+        } while (static::where('order_number', $number)->exists());
+
         return $number;
     }
 }

@@ -12,6 +12,7 @@ class UserController extends Controller
 
     public function index()
     {
+        $this->requirePermission('users', 'view');
         $restaurantId = $this->currentRestaurantId();
         $users = $restaurantId
             ? User::where('restaurant_id', $restaurantId)->orderBy('name')->get()
@@ -22,6 +23,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $this->requirePermission('users', 'create');
         $restaurantId = $this->currentRestaurantId();
         if (!$restaurantId) {
             return redirect()->route('users')->with('error', 'Restaurant not selected.');
@@ -30,7 +32,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
             'role' => 'required|string|max:50',
             'phone' => 'nullable|string|max:50',
             'status' => 'nullable|in:active,inactive',
@@ -51,6 +53,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        $this->requirePermission('users', 'edit');
         $restaurantId = $this->currentRestaurantId();
         if (!$restaurantId || (int) $user->restaurant_id !== (int) $restaurantId) {
             abort(403, 'Unauthorized.');
@@ -83,6 +86,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        $this->requirePermission('users', 'delete');
         $restaurantId = $this->currentRestaurantId();
         if (!$restaurantId || (int) $user->restaurant_id !== (int) $restaurantId) {
             abort(403, 'Unauthorized.');

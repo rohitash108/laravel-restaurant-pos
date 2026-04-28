@@ -16,9 +16,11 @@
                     <a href="#" class="nav-link {{ Request::is('admin/restaurants*') ? 'active' : '' }}" title="Restaurants" data-bs-toggle="tab" data-bs-target="#admin-restaurants-tab">
                         <i class="icon-warehouse"></i>
                     </a>
+                    @if(auth()->user()->isOwner())
                     <a href="#" class="nav-link {{ Request::is('admin/subscription*') ? 'active' : '' }}" title="Subscriptions" data-bs-toggle="tab" data-bs-target="#admin-subscriptions-tab">
                         <i class="icon-credit-card"></i>
                     </a>
+                    @endif
                 </div>
                 <div class="sidebar-profile">
                     @if(false) {{-- Notifications: hidden for now --}}
@@ -93,6 +95,7 @@
                                     <i class="icon-warehouse"></i><span>Restaurants</span>
                                 </a>
                             </li>
+                            @if(auth()->user()->isOwner())
                             <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
                             <li>
                                 <a href="{{ route('admin.subscription-plans') }}" class="{{ Request::is('admin/subscription-plans*') ? 'active' : '' }}">
@@ -104,6 +107,7 @@
                                     <i class="icon-list"></i><span>Subscriptions</span>
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                     <div class="tab-pane fade {{ Request::is('admin/restaurants*') ? 'show active' : '' }}" id="admin-restaurants-tab">
@@ -116,6 +120,7 @@
                             </li>
                         </ul>
                     </div>
+                    @if(auth()->user()->isOwner())
                     <div class="tab-pane fade {{ Request::is('admin/subscription*') ? 'show active' : '' }}" id="admin-subscriptions-tab">
                         <ul>
                             <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
@@ -131,6 +136,7 @@
                             </li>
                         </ul>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

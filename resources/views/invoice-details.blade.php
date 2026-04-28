@@ -164,6 +164,9 @@
                                     <p class="text-dark fw-semibold mb-2">{{ $order->restaurant->name ?? 'Restaurant' }}</p>
                                     <p class="mb-0">{{ $order->restaurant->address ?? '–' }}</p>
                                     <p class="mb-0">Phone : {{ $order->restaurant->phone ?? '–' }}</p>
+                                    @if($order->restaurant->gst_number)
+                                    <p class="mb-0">GST No : {{ $order->restaurant->gst_number }}</p>
+                                    @endif
                                 </div>
                                 <div class="col-md-4">
                                     <h6 class="mb-2">Bill To </h6>
