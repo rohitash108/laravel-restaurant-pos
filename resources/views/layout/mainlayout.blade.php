@@ -43,7 +43,7 @@
 
     @include('components.modal-popup')
 
-    <script>window.currencySymbol = @json(config('app.currency_symbol', '₹'));</script>
+    <script>window.currencySymbol = @json($currency_symbol ?? '₹');</script>
 @include('layout.partials.vendor-scripts')
 @stack('scripts')
 

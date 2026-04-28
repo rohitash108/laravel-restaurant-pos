@@ -37,7 +37,7 @@
         <p style="color:var(--qr-text-muted);font-size:0.875rem;margin:0 0 1rem;">Your order has been sent to the kitchen.</p>
         <div class="success-order-num">#{{ $order_number }}</div>
         @if($orderTotal > 0)
-            <p style="font-size:1rem;font-weight:700;margin:0 0 1rem;">Total: {{ $currency_symbol ?? '₹' }}{{ number_format($orderTotal, 2) }}</p>
+            <p style="font-size:1rem;font-weight:700;margin:0 0 1rem;">Total: {{ $currency_symbol }}{{ number_format($orderTotal, 2) }}</p>
         @endif
         <p style="color:var(--qr-text-muted);font-size:0.8125rem;margin:0 0 1.25rem;">Show this screen to your server. After you pay, staff will mark payment and you’ll see <strong>Payment complete</strong> here.</p>
         <a href="{{ route('order.by-qr', ['restaurant' => $restaurant->slug, 'table' => $table->slug ?? $table->id]) }}" class="order-again-btn">Order More →</a>
@@ -56,7 +56,7 @@
             </div>
             <div>
                 @if($orderTotal > 0)
-                    <p style="font-size:1.1rem;font-weight:700;margin:0;color:#0f172a;">Pay {{ $currency_symbol ?? '₹' }}{{ number_format($orderTotal, 2) }}</p>
+                    <p style="font-size:1.1rem;font-weight:700;margin:0;color:#0f172a;">Pay {{ $currency_symbol }}{{ number_format($orderTotal, 2) }}</p>
                 @endif
                 <p style="font-size:0.75rem;color:#64748b;margin:0.25rem 0 0;">Order #{{ $order_number }}</p>
             </div>

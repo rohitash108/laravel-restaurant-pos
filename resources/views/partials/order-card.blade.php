@@ -59,6 +59,7 @@
                     </li>
                     @endif
                     <li><a href="{{ route('receipt-print', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-print-link" target="_blank" rel="noopener"><i class="icon-printer me-2"></i>Print receipt</a></li>
+                    <li><a href="{{ route('kot-print', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-kot-link" target="_blank" rel="noopener"><i class="icon-chef-hat me-2"></i>Print KOT</a></li>
                     <li><a href="{{ route('invoice-details', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-receipt-link" target="_blank" rel="noopener"><i class="icon-file-spreadsheet me-2"></i>View invoice</a></li>
                 </ul>
             </div>
@@ -94,6 +95,9 @@
             </a>
             <a href="{{ route('receipt-print', $order) }}" class="btn btn-sm btn-primary flex-fill order-card-print-link" target="_blank" rel="noopener">
                 <i class="icon-printer me-1"></i>Print
+            </a>
+            <a href="{{ route('kot-print', $order) }}" class="btn btn-sm btn-outline-dark flex-fill order-card-kot-link" target="_blank" rel="noopener">
+                <i class="icon-chef-hat me-1"></i>KOT
             </a>
         </div>
         @php $paymentStatus = $order->payment_status ?? 'unpaid'; @endphp

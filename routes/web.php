@@ -91,6 +91,7 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices');
     Route::get('/invoice-details/{order}', [InvoicesController::class, 'show'])->name('invoice-details');
     Route::get('/receipt-print/{order}', [InvoicesController::class, 'receipt'])->name('receipt-print');
+    Route::get('/kot-print/{order}', [InvoicesController::class, 'kot'])->name('kot-print');
     Route::prefix('inventory')->name('inventory.')->group(function () {
         Route::get('/', [InventoryController::class, 'index'])->name('index');
         Route::get('/ingredients', [InventoryController::class, 'ingredientsIndex'])->name('ingredients.index');

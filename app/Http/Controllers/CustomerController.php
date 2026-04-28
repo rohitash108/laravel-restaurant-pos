@@ -173,8 +173,8 @@ class CustomerController extends Controller
 
         $newBalance = (float) $customer->balance;
         $message = $newBalance >= 0
-            ? 'Payment of ' . $request->input('currency_symbol', '₹') . number_format($amount, 2) . ' recorded. Customer balance: Credit ' . number_format($newBalance, 2)
-            : 'Payment of ' . $request->input('currency_symbol', '₹') . number_format($amount, 2) . ' recorded. Remaining due: ' . $request->input('currency_symbol', '₹') . number_format(-$newBalance, 2);
+            ? 'Payment of ' . $symbol . number_format($amount, 2) . ' recorded. Customer balance: Credit ' . $symbol . number_format($newBalance, 2)
+            : 'Payment of ' . $symbol . number_format($amount, 2) . ' recorded. Remaining due: ' . $symbol . number_format(-$newBalance, 2);
 
         return redirect()->route('customer')->with('success', $message);
     }

@@ -47,7 +47,7 @@ class DashboardController extends Controller
             ? round((($thisMonthSales - $lastMonthSales) / $lastMonthSales) * 100, 1)
             : ($thisMonthSales > 0 ? 100 : 0);
 
-        $currencySymbol = config('app.currency_symbol', '₹');
+        $currencySymbol = '₹'; // Platform billing currency
 
         // Subscription stats
         $activeSubscriptions = Subscription::active()->count();

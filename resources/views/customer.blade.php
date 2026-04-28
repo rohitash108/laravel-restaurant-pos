@@ -99,11 +99,11 @@
                                     <span class="d-flex align-items-center"><i class="icon-wallet text-dark me-2"></i> Balance </span>
                                     @php $bal = (float) ($c->balance ?? 0); @endphp
                                     @if($bal > 0)
-                                        <span class="fw-semibold text-success">Credit {{ $currency_symbol ?? '₹' }}{{ number_format($bal, 2) }}</span>
+                                        <span class="fw-semibold text-success">Credit {{ $currency_symbol }}{{ number_format($bal, 2) }}</span>
                                     @elseif($bal < 0)
-                                        <span class="fw-semibold text-danger">Due {{ $currency_symbol ?? '₹' }}{{ number_format(-$bal, 2) }}</span>
+                                        <span class="fw-semibold text-danger">Due {{ $currency_symbol }}{{ number_format(-$bal, 2) }}</span>
                                     @else
-                                        <span class="fw-medium text-muted">{{ $currency_symbol ?? '₹' }}0.00</span>
+                                        <span class="fw-medium text-muted">{{ $currency_symbol }}0.00</span>
                                     @endif
                                 </div>
                                 @endif
@@ -143,7 +143,6 @@
             <div class="modal-content">
                 <form id="receive_payment_form" method="POST" action="">
                     @csrf
-                    <input type="hidden" name="currency_symbol" value="{{ $currency_symbol ?? '₹' }}">
                     <div class="modal-header">
                         <h5 class="modal-title">Receive payment</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -152,7 +151,7 @@
                         <p class="mb-2">Customer: <strong id="receive_payment_customer_name"></strong></p>
                         <p class="mb-3 text-muted small">Current balance: <span id="receive_payment_balance_display"></span></p>
                         <div class="mb-3">
-                            <label class="form-label">Amount received ({{ $currency_symbol ?? '₹' }}) <span class="text-danger">*</span></label>
+                            <label class="form-label">Amount received ({{ $currency_symbol }}) <span class="text-danger">*</span></label>
                             <input type="number" name="amount" class="form-control" step="0.01" min="0.01" placeholder="e.g. 100" required>
                             <div class="form-text">Recording a payment reduces the amount due. E.g. due 500, pay 100 → remaining due 400.</div>
                         </div>
@@ -190,7 +189,7 @@ document.getElementById('customer-search') && document.getElementById('customer-
     var form = document.getElementById('receive_payment_form');
     var nameEl = document.getElementById('receive_payment_customer_name');
     var balanceEl = document.getElementById('receive_payment_balance_display');
-    var currency = '{{ $currency_symbol ?? "₹" }}';
+    var currency = '{{ $currency_symbol }}';
     if (modal && form) {
         modal.addEventListener('show.bs.modal', function(e) {
             var btn = e.relatedTarget;

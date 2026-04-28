@@ -1,5 +1,5 @@
 @php
-    $currency_symbol = $currency_symbol ?? (config('app.currency_symbol', '₹'));
+    $currency_symbol = $currency_symbol ?? ($restaurant ? $restaurant->currencySymbol() : '₹');
 @endphp
 <!DOCTYPE html>
 <html lang="en">

@@ -118,7 +118,7 @@
                                 <div class="menu-item-variations">
                                     <span class="menu-item-options-label">Variations:</span>
                                     @foreach($itemVariations as $v)
-                                        <span class="menu-item-option-pill">{{ $v->name }}{{ (float)$v->price != 0 ? ' ' . ($currency_symbol ?? '₹') . number_format($v->price, 2) : '' }}</span>
+                                        <span class="menu-item-option-pill">{{ $v->name }}{{ (float)$v->price != 0 ? ' ' . ($currency_symbol) . number_format($v->price, 2) : '' }}</span>
                                     @endforeach
                                 </div>
                             @endif
@@ -126,12 +126,12 @@
                                 <div class="menu-item-addons">
                                     <span class="menu-item-options-label">Add-ons:</span>
                                     @foreach($itemAddons as $a)
-                                        <span class="menu-item-option-pill">{{ $a->addon_name }}{{ (float)$a->price != 0 ? ' +' . ($currency_symbol ?? '₹') . number_format($a->price, 2) : '' }}</span>
+                                        <span class="menu-item-option-pill">{{ $a->addon_name }}{{ (float)$a->price != 0 ? ' +' . ($currency_symbol) . number_format($a->price, 2) : '' }}</span>
                                     @endforeach
                                 </div>
                             @endif
                             <div class="menu-item-bottom">
-                                <span class="menu-item-price">{{ $currency_symbol ?? '₹' }}{{ number_format($item->price, 2) }}</span>
+                                <span class="menu-item-price">{{ $currency_symbol }}{{ number_format($item->price, 2) }}</span>
 
                                 {{-- ADD / QTY CONTROL --}}
                                 <button type="button" class="add-btn {{ $hasOptions ? 'add-btn-options' : '' }}" id="add-btn-{{ $item->id }}"
@@ -173,7 +173,7 @@
 <div class="cart-bar" id="cart-bar">
     <div class="cart-bar-left">
         <span class="cart-badge" id="cart-count">0 items</span>
-        <span class="cart-bar-total" id="cart-total">{{ $currency_symbol ?? '₹' }}0.00</span>
+        <span class="cart-bar-total" id="cart-total">{{ $currency_symbol }}0.00</span>
     </div>
     <button type="button" class="cart-bar-btn" id="view-cart-btn">View Cart →</button>
 </div>
@@ -233,7 +233,7 @@
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.75rem;border-top:1px solid var(--qr-border);">
             <span style="font-weight:700;font-size:1rem;">Total</span>
-            <span id="options-sheet-total" style="font-weight:800;font-size:1.1rem;color:var(--qr-primary);">₹0.00</span>
+            <span id="options-sheet-total" style="font-weight:800;font-size:1.1rem;color:var(--qr-primary);">{{ $currency_symbol }}0.00</span>
         </div>
     </div>
     <div class="cart-sheet-footer">
@@ -248,7 +248,7 @@
 (function () {
     'use strict';
 
-    const currency = '{{ $currency_symbol ?? "₹" }}';
+    const currency = '{{ $currency_symbol }}';
     const qrCoupons = @json($coupons ?? []);
     const cart = {};
     let optionsLineIndex = 0;

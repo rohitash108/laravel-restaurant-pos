@@ -282,7 +282,7 @@
                 || /Android|iPhone|iPad/i.test(navigator.userAgent || '');
         }
         if (!useSameTab()) return;
-        document.querySelectorAll('.order-card-print-link, .order-card-receipt-link').forEach(function (a) {
+        document.querySelectorAll('.order-card-print-link, .order-card-receipt-link, .order-card-kot-link').forEach(function (a) {
             a.addEventListener('click', function (e) {
                 e.preventDefault();
                 window.location.href = a.getAttribute('href');
