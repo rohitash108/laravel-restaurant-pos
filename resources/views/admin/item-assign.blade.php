@@ -11,7 +11,7 @@
                     <i class="icon-chevron-left me-1"></i> Back to Items
                 </a>
                 <h3 class="mb-0">Assign: {{ $item->name }}</h3>
-                <p class="text-muted mb-0 small">Choose which restaurants can see and sell this item, and set its category in each restaurant's POS.</p>
+                <p class="text-muted mb-0 small">Choose which restaurants can see and sell this item.</p>
             </div>
         </div>
 
@@ -34,6 +34,9 @@
                         @endif
                         <h5 class="fw-semibold mb-1">{{ $item->name }}</h5>
                         <p class="mb-1 fw-medium">₹{{ number_format($item->price, 2) }}</p>
+                        @if($item->category)
+                            <p class="small text-muted mb-1"><i class="icon-tag me-1"></i>{{ $item->category->name }}</p>
+                        @endif
                         @if($item->description)
                             <p class="small text-muted mb-0">{{ Str::limit($item->description, 80) }}</p>
                         @endif
@@ -47,7 +50,7 @@
                 </div>
             </div>
 
-            {{-- Restaurant + Category selection --}}
+            {{-- Restaurant selection --}}
             <div class="col-lg-9 col-md-8">
                 <div class="card">
                     <div class="card-header border-0 py-3">
@@ -68,10 +71,7 @@
                             <div class="mb-4" id="restaurant-list">
                                 @foreach($restaurants as $restaurant)
                                 @php
-                                    $isAssigned    = in_array($restaurant->id, $assignedIds);
-                                    $assignment    = $assignments->get($restaurant->id);
-                                    $currentCatId  = $assignment?->category_id;
-                                    $restaurantCats = $categoriesByRestaurant->get($restaurant->id, collect());
+                                    $isAssigned = in_array($restaurant->id, $assignedIds);
                                 @endphp
                                 <div class="border rounded p-3 mb-3 restaurant-row {{ $isAssigned ? 'border-primary' : '' }}"
                                      data-restaurant-id="{{ $restaurant->id }}">
@@ -89,32 +89,6 @@
                                                 <span class="badge badge-soft-success ms-1 fs-11">Assigned</span>
                                             @endif
                                         </label>
-                                    </div>
-
-                                    {{-- Category picker — only visible when checked --}}
-                                    <div class="cat-picker mt-3 ps-4 {{ $isAssigned ? '' : 'd-none' }}">
-                                        <label class="form-label small fw-medium mb-1">
-                                            <i class="icon-tag me-1"></i>Category in POS <span class="text-danger">*</span>
-                                        </label>
-                                        @if($restaurantCats->isEmpty())
-                                            <p class="small text-warning mb-0">
-                                                <i class="icon-alert-triangle me-1"></i>
-                                                No categories for this restaurant.
-                                                <a href="{{ route('admin.categories.index', ['restaurant_id' => $restaurant->id]) }}" class="alert-link" target="_blank">Add one first</a>.
-                                            </p>
-                                        @else
-                                            <select name="category_ids[{{ $restaurant->id }}]"
-                                                    class="form-select form-select-sm"
-                                                    style="max-width:280px;"
-                                                    {{ $isAssigned ? 'required' : '' }}>
-                                                <option value="">— Select category —</option>
-                                                @foreach($restaurantCats as $cat)
-                                                    <option value="{{ $cat->id }}" {{ $currentCatId == $cat->id ? 'selected' : '' }}>
-                                                        {{ $cat->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        @endif
                                     </div>
                                 </div>
                                 @endforeach
@@ -143,16 +117,10 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     function updateRow(row, checked) {
-        var picker = row.querySelector('.cat-picker');
-        var selects = picker ? picker.querySelectorAll('select') : [];
         if (checked) {
             row.classList.add('border-primary');
-            if (picker) picker.classList.remove('d-none');
-            selects.forEach(function(s){ s.setAttribute('required',''); });
         } else {
             row.classList.remove('border-primary');
-            if (picker) picker.classList.add('d-none');
-            selects.forEach(function(s){ s.removeAttribute('required'); });
         }
     }
 

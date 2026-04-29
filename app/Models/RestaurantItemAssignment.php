@@ -14,6 +14,8 @@ class RestaurantItemAssignment extends Model
         'price_override',
         'is_available',
         'assigned_by',
+        'plan_id',
+        'source',
     ];
 
     protected function casts(): array
@@ -34,5 +36,10 @@ class RestaurantItemAssignment extends Model
     public function assignedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPlan::class, 'plan_id');
     }
 }

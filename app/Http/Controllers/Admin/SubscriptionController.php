@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Item;
 use App\Models\Restaurant;
 use App\Models\Subscription;
 use App\Models\SubscriptionBalanceTransaction;
 use App\Models\SubscriptionPlan;
+use App\Services\PlanItemSyncService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -214,8 +216,15 @@ class SubscriptionController extends Controller
             ]);
         }
 
+        // Auto-assign all items bundled with this plan to the restaurant
+        $restaurant = Restaurant::findOrFail($request->restaurant_id);
+        $syncResult = app(PlanItemSyncService::class)->syncPlanToRestaurant($plan, $restaurant);
+        $syncMsg = $syncResult['added'] > 0
+            ? ' ' . $syncResult['added'] . ' menu item(s) auto-assigned from plan.'
+            : '';
+
         return redirect()->route('admin.subscriptions')
-            ->with('success', 'Subscription assigned successfully. Expires on ' . $endsAt->format('d M Y') . '.' . ($initialBalance > 0 ? ' Balance: ₹' . number_format($initialBalance, 2) : ''));
+            ->with('success', 'Subscription assigned successfully. Expires on ' . $endsAt->format('d M Y') . '.' . ($initialBalance > 0 ? ' Balance: ₹' . number_format($initialBalance, 2) . '.' : '') . $syncMsg);
     }
 
     /**
@@ -304,5 +313,74 @@ class SubscriptionController extends Controller
 
         return redirect()->back()
             ->with('success', '₹' . number_format($amount, 2) . ' deducted. Remaining balance: ₹' . number_format($balanceAfter, 2));
+    }
+
+    // ═══════════════════════════════════════════
+    //  PLAN → ITEM MANAGEMENT
+    // ═══════════════════════════════════════════
+
+    /**
+     * Show plan detail page with its current items and all available master items.
+     */
+    public function planItems(SubscriptionPlan $plan)
+    {
+        $plan->load('items');
+        $allMasterItems = Item::master()->with('category')->orderBy('name')->get();
+
+        return response()
+            ->view('admin.plan-items', compact('plan', 'allMasterItems'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+
+    /**
+     * Sync item list for a plan (checkbox form POST).
+     * After saving, propagate any newly-added items to active-plan restaurants.
+     */
+    public function syncPlanItems(Request $request, SubscriptionPlan $plan)
+    {
+        $request->validate([
+            'item_ids'   => 'nullable|array',
+            'item_ids.*' => 'exists:items,id',
+        ]);
+
+        $newIds     = collect($request->input('item_ids', []))->map('intval');
+        $currentIds = $plan->items()->pluck('items.id');
+
+        $added   = $newIds->diff($currentIds);
+        $removed = $currentIds->diff($newIds);
+
+        $plan->items()->sync($newIds->all());
+
+        $service     = app(PlanItemSyncService::class);
+        $addedCount  = 0;
+        $removedCount = 0;
+
+        foreach ($added as $itemId) {
+            $item = Item::find($itemId);
+            if ($item) $addedCount += $service->propagateItemToActivePlanRestaurants($item, $plan);
+        }
+
+        foreach ($removed as $itemId) {
+            $item = Item::find($itemId);
+            if ($item) $removedCount += $service->retractItemFromPlanRestaurants($item, $plan);
+        }
+
+        $msg = 'Plan items updated.';
+        if ($addedCount)   $msg .= " {$addedCount} assignment(s) added to active restaurants.";
+        if ($removedCount) $msg .= " {$removedCount} plan-sourced assignment(s) removed.";
+
+        return redirect()->route('admin.plan-items', $plan)->with('success', $msg);
+    }
+
+    /**
+     * Force-push ALL plan items to every restaurant with an active subscription.
+     * Useful for backfill after adding items to an existing plan.
+     */
+    public function forceSyncPlan(SubscriptionPlan $plan)
+    {
+        $result = app(PlanItemSyncService::class)->syncPlanToAllActiveRestaurants($plan);
+
+        return redirect()->route('admin.plan-items', $plan)
+            ->with('success', "Synced {$result['items_added']} item assignment(s) across {$result['restaurants']} restaurant(s).");
     }
 }

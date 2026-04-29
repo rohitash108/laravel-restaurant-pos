@@ -85,7 +85,8 @@
                          data-item-category-id="{{ $item->category_id ?? '' }}"
                          data-item-food-type="{{ $item->food_type ?? 'veg' }}"
                          data-item-variations="{{ e(($item->variations ?? collect())->map(fn($v)=>['name'=>$v->name,'price'=>(float)$v->price])->values()->toJson()) }}"
-                         data-item-addons="{{ e(($item->addons ?? collect())->map(fn($a)=>['addon_name'=>$a->addon_name,'price'=>(float)$a->price])->values()->toJson()) }}">
+                         data-item-addons="{{ e(($item->addons ?? collect())->map(fn($a)=>['addon_name'=>$a->addon_name,'price'=>(float)$a->price])->values()->toJson()) }}"
+                         data-item-plan-ids="{{ e($item->plans->pluck('id')->values()->toJson()) }}">
                         <div class="card h-100">
                             <div class="card-body">
                                 {{-- Image --}}
@@ -113,10 +114,24 @@
                                     </span>
                                 </div>
 
+                                {{-- Plans this item belongs to --}}
+                                @if($item->plans->isNotEmpty())
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        @foreach($item->plans as $plan)
+                                            <a href="{{ route('admin.plan-items', $plan) }}"
+                                               class="badge badge-soft-info text-decoration-none fs-11">
+                                                <i class="icon-tag me-1"></i>{{ $plan->name }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="small text-warning mb-2"><i class="icon-alert-triangle me-1"></i>Not in any plan</p>
+                                @endif
+
                                 {{-- Assigned restaurants --}}
                                 @php $assigned = $item->assignedRestaurants; @endphp
                                 @if($assigned->isEmpty())
-                                    <p class="small text-warning mb-2"><i class="icon-alert-triangle me-1"></i>Not assigned to any restaurant</p>
+                                    <p class="small text-muted mb-2">Not assigned to any restaurant</p>
                                 @else
                                     <p class="small text-muted mb-1">Assigned to:</p>
                                     <div class="d-flex flex-wrap gap-1 mb-2">
@@ -171,7 +186,7 @@
                     @if($selectedRestaurantId)
                     <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center"
                             data-bs-toggle="modal" data-bs-target="#add_restaurant_item_modal"
-                            @if($categories->isEmpty()) disabled title="Add a category for this restaurant first" @endif>
+                            @if($globalCategories->isEmpty()) disabled title="Add a global category first" @endif>
                         <i class="icon-circle-plus me-1"></i>Add Item
                     </button>
                     @endif
@@ -184,10 +199,10 @@
                         <p class="text-muted mb-0">Select a restaurant above to view and manage its items.</p>
                     </div>
                 </div>
-                @elseif($categories->isEmpty())
+                @elseif($globalCategories->isEmpty())
                 <div class="alert alert-info border-0">
-                    No categories for this restaurant yet.
-                    <a href="{{ route('admin.categories.index', ['restaurant_id' => $selectedRestaurantId]) }}" class="alert-link">Add a category first</a>.
+                    No global categories yet.
+                    <a href="{{ route('admin.categories.index') }}" class="alert-link">Add a category first</a>.
                 </div>
                 @else
                 <div class="row">
@@ -303,15 +318,11 @@
                             <input type="number" name="net_price" class="form-control" step="0.01" min="0" value="{{ old('net_price') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Category <span class="text-muted fw-normal small">(optional)</span></label>
-                            <select name="category_id" class="form-select">
-                                <option value="">— No category —</option>
-                                @foreach($allCategories as $restaurantName => $cats)
-                                    <optgroup label="{{ $restaurantName }}">
-                                        @foreach($cats as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                        @endforeach
-                                    </optgroup>
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select name="category_id" class="form-select" required>
+                                <option value="">— Select category —</option>
+                                @foreach($globalCategories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -333,6 +344,20 @@
                                 </div>
                             </div>
                         </div>
+                        @if($plans->isNotEmpty())
+                        <div class="col-12">
+                            <label class="form-label">Assign to Plans <span class="text-muted fw-normal small">(optional)</span></label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($plans as $plan)
+                                <label class="d-flex align-items-center gap-2 border rounded px-3 py-2 cursor-pointer plan-check-label">
+                                    <input type="checkbox" name="plan_ids[]" value="{{ $plan->id }}" class="form-check-input mt-0">
+                                    <span class="small fw-medium">{{ $plan->name }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                            <small class="text-muted">Item will be auto-assigned to all restaurants with an active subscription for the selected plan(s).</small>
+                        </div>
+                        @endif
                         <div class="col-12">
                             <div class="alert alert-info border-0 py-2 small mb-0">
                                 <i class="icon-info me-1"></i>
@@ -391,7 +416,7 @@
                             <label class="form-label">Category <span class="text-danger">*</span></label>
                             <select name="category_id" class="form-select" required>
                                 <option value="">Select</option>
-                                @foreach($categories as $cat)
+                                @foreach($globalCategories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
@@ -451,18 +476,13 @@
                             <input type="number" name="net_price" id="adm_edit_net_price" class="form-control" step="0.01" min="0">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Category</label>
-                            <select name="category_id" id="adm_edit_cat" class="form-select">
-                                <option value="">— No category —</option>
-                                @foreach($allCategories as $restaurantName => $cats)
-                                    <optgroup label="{{ $restaurantName }}">
-                                        @foreach($cats as $cat)
-                                            <option value="{{ $cat->id }}" data-restaurant="{{ $cat->restaurant_id }}">{{ $cat->name }}</option>
-                                        @endforeach
-                                    </optgroup>
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select name="category_id" id="adm_edit_cat" class="form-select" required>
+                                <option value="">— Select category —</option>
+                                @foreach($globalCategories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
-                            <p class="small text-muted mt-1 mb-0" id="adm_edit_cat_hint"></p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Food Type</label>
@@ -486,6 +506,21 @@
                                 <a href="{{ route('admin.addons.index') }}" class="alert-link">Admin → Addons</a>.
                             </div>
                         </div>
+                        @if($plans->isNotEmpty())
+                        <div class="col-12" id="adm-edit-plans-section">
+                            <label class="form-label">Plans <span class="text-muted fw-normal small">(optional)</span></label>
+                            <div class="d-flex flex-wrap gap-2" id="adm-edit-plans-checks">
+                                @foreach($plans as $plan)
+                                <label class="d-flex align-items-center gap-2 border rounded px-3 py-2 cursor-pointer plan-check-label">
+                                    <input type="checkbox" name="plan_ids[]" value="{{ $plan->id }}"
+                                           class="form-check-input mt-0 adm-edit-plan-check"
+                                           data-plan-id="{{ $plan->id }}">
+                                    <span class="small fw-medium">{{ $plan->name }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer border-0">
@@ -557,6 +592,7 @@
         var card = btn.closest('.item-card');
         if (!card) return;
         var id = card.getAttribute('data-item-id');
+        var isMasterItem = !card.getAttribute('data-item-restaurant-id');
         editForm.action = '{{ url("admin/items") }}/' + id;
         document.getElementById('adm_edit_name').value       = card.getAttribute('data-item-name') || '';
         document.getElementById('adm_edit_desc').value       = card.getAttribute('data-item-description') || '';
@@ -564,16 +600,8 @@
         document.getElementById('adm_edit_net_price').value  = card.getAttribute('data-item-net-price') || '';
         document.getElementById('adm_edit_food_type').value  = card.getAttribute('data-item-food-type') || 'veg';
 
-        // Filter category dropdown: only show categories for this item's restaurant
-        var isMasterItem = !!card.closest('#tab-master');
-        var itemRestaurantId = card.getAttribute('data-item-restaurant-id') || '';
+        // Categories are global — no filtering needed
         var catSelect = document.getElementById('adm_edit_cat');
-        var catHint   = document.getElementById('adm_edit_cat_hint');
-        Array.from(catSelect.options).forEach(function (opt) {
-            if (!opt.value) { opt.hidden = false; return; }
-            opt.hidden = !isMasterItem && itemRestaurantId && opt.dataset.restaurant !== itemRestaurantId;
-        });
-        catHint.textContent = isMasterItem ? 'Showing all restaurant categories.' : '';
         catSelect.value = card.getAttribute('data-item-category-id') || '';
         document.getElementById('adm_edit_image').value      = '';
         varWrap.innerHTML = '';
@@ -595,6 +623,17 @@
             addons.forEach(function (a, i) { makeRow(addonWrap, a.addon_name||a.name, a.price, i, 'addons', 'addons'); });
             if (!addons.length) makeRow(addonWrap, '', '', 0, 'addons', 'addons');
         }
+        // Populate plan checkboxes for master items
+        var plansSection = document.getElementById('adm-edit-plans-section');
+        if (plansSection) {
+            var itemPlanIds = [];
+            try { itemPlanIds = JSON.parse(card.getAttribute('data-item-plan-ids') || '[]'); } catch(e){}
+            plansSection.style.display = isMasterItem ? '' : 'none';
+            plansSection.querySelectorAll('.adm-edit-plan-check').forEach(function(chk) {
+                chk.checked = itemPlanIds.indexOf(parseInt(chk.getAttribute('data-plan-id'))) !== -1;
+            });
+        }
+
         bootstrap.Modal.getOrCreateInstance(document.getElementById('edit_item_modal')).show();
     });
 

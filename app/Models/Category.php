@@ -14,6 +14,7 @@ class Category extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'created_by_super_admin_id',
         'is_master',
         'name',
         'image',

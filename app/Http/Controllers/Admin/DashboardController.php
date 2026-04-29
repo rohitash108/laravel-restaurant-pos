@@ -3,16 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Item;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\Subscription;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        // Users with restaurants access see the full dashboard; catalog-only managers see limited stats
+        if (! auth()->user()->canAccessAdminModule('restaurants')) {
+            return view('admin.dashboard', [
+                'is_limited_admin'   => true,
+                'total_categories'   => Category::whereNull('restaurant_id')->count(),
+                'total_products'     => Item::master()->count(),
+                'total_addons'       => \App\Models\Addon::whereNull('restaurant_id')->count(),
+                'total_my_users'     => User::where('created_by_super_admin_id', auth()->id())->count(),
+                // Required by the chart script block in the view
+                'admin_chart_data'   => ['categories' => [], 'data' => []],
+                'recent_restaurants' => collect(),
+            ]);
+        }
+
         $totalRestaurants = Restaurant::count();
         $activeRestaurants = Restaurant::where('is_active', true)->count();
         $totalOrders = Order::count();
@@ -59,6 +74,7 @@ class DashboardController extends Controller
         ];
 
         return view('admin.dashboard', [
+            'is_limited_admin' => false,
             'total_restaurants' => $totalRestaurants,
             'active_restaurants' => $activeRestaurants,
             'total_orders' => $totalOrders,

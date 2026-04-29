@@ -15,6 +15,7 @@ class Item extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'created_by_super_admin_id',
         'category_id',
         'is_master',
         'name',
@@ -86,6 +87,11 @@ class Item extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(RestaurantItemAssignment::class);
+    }
+
+    public function plans(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(SubscriptionPlan::class, 'plan_items')->withTimestamps();
     }
 
     public function assignedRestaurants()

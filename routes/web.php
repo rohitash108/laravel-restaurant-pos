@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ItemController as AdminItemController;
 use App\Http\Controllers\Admin\RestaurantsController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponsController;
 use App\Http\Controllers\CustomAuthController;
@@ -187,34 +188,53 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::resource('restaurants', RestaurantsController::class)->except(['show']);
-    Route::get('restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurants.show');
+    Route::middleware('admin_module:restaurants')->group(function () {
+        Route::resource('restaurants', RestaurantsController::class)->except(['show']);
+        Route::get('restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurants.show');
+    });
 
     // ——— Product Catalog (Super Admin manages items & categories for any restaurant) ———
-    Route::get('items', [AdminItemController::class, 'index'])->name('items.index');
-    Route::post('items', [AdminItemController::class, 'store'])->name('items.store');
-    Route::put('items/{item}', [AdminItemController::class, 'update'])->name('items.update');
-    Route::delete('items/{item}', [AdminItemController::class, 'destroy'])->name('items.destroy');
-    Route::get('items/{item}/assign', [AdminItemController::class, 'assignPage'])->name('items.assign');
-    Route::post('items/{item}/assign', [AdminItemController::class, 'assignSave'])->name('items.assign.save');
+    Route::middleware('admin_module:items')->group(function () {
+        Route::get('items', [AdminItemController::class, 'index'])->name('items.index');
+        Route::post('items', [AdminItemController::class, 'store'])->name('items.store');
+        Route::put('items/{item}', [AdminItemController::class, 'update'])->name('items.update');
+        Route::delete('items/{item}', [AdminItemController::class, 'destroy'])->name('items.destroy');
+        Route::get('items/{item}/assign', [AdminItemController::class, 'assignPage'])->name('items.assign');
+        Route::post('items/{item}/assign', [AdminItemController::class, 'assignSave'])->name('items.assign.save');
+    });
 
-    Route::get('categories', [AdminCategoryController::class, 'index'])->name('categories.index');
-    Route::post('categories', [AdminCategoryController::class, 'store'])->name('categories.store');
-    Route::put('categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
-    Route::delete('categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::middleware('admin_module:categories')->group(function () {
+        Route::get('categories', [AdminCategoryController::class, 'index'])->name('categories.index');
+        Route::post('categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+        Route::put('categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
+    });
 
-    Route::get('addons', [AdminAddonController::class, 'index'])->name('addons.index');
-    Route::post('addons', [AdminAddonController::class, 'store'])->name('addons.store');
-    Route::put('addons/{addon}', [AdminAddonController::class, 'update'])->name('addons.update');
-    Route::delete('addons/{addon}', [AdminAddonController::class, 'destroy'])->name('addons.destroy');
+    Route::middleware('admin_module:addons')->group(function () {
+        Route::get('addons', [AdminAddonController::class, 'index'])->name('addons.index');
+        Route::post('addons', [AdminAddonController::class, 'store'])->name('addons.store');
+        Route::put('addons/{addon}', [AdminAddonController::class, 'update'])->name('addons.update');
+        Route::delete('addons/{addon}', [AdminAddonController::class, 'destroy'])->name('addons.destroy');
+    });
 
-    // ——— Owner only: Subscription Plans & Subscriptions ———
+    // ——— Owner only: User management + Subscription Plans ———
     Route::middleware('owner_admin')->group(function () {
+        Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::put('users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
         Route::get('subscription-plans', [SubscriptionController::class, 'plans'])->name('subscription-plans');
         Route::post('subscription-plans', [SubscriptionController::class, 'storePlan'])->name('subscription-plans.store');
         Route::put('subscription-plans/{plan}', [SubscriptionController::class, 'updatePlan'])->name('subscription-plans.update');
         Route::delete('subscription-plans/{plan}', [SubscriptionController::class, 'destroyPlan'])->name('subscription-plans.destroy');
+        Route::get('subscription-plans/{plan}/items', [SubscriptionController::class, 'planItems'])->name('plan-items');
+        Route::post('subscription-plans/{plan}/items', [SubscriptionController::class, 'syncPlanItems'])->name('plan-items.sync');
+        Route::post('subscription-plans/{plan}/force-sync', [SubscriptionController::class, 'forceSyncPlan'])->name('plan-items.force-sync');
+    });
 
+    // ——— Subscriptions: owner + any user with 'subscriptions' module ———
+    Route::middleware('admin_module:subscriptions')->group(function () {
         Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
         Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
         Route::get('subscriptions/{subscription}/balance-history', [SubscriptionController::class, 'balanceHistory'])->name('subscriptions.balance-history');

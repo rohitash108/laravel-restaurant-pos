@@ -4,38 +4,28 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $restaurants = Restaurant::orderBy('name')->get(['id', 'name']);
-        $selectedRestaurantId = $request->input('restaurant_id')
-            ? (int) $request->input('restaurant_id')
-            : $restaurants->first()?->id;
+        $query = Category::whereNull('restaurant_id')
+            ->withCount('items')
+            ->orderBy('sort_order')
+            ->orderBy('name');
 
-        $categories = collect();
-
-        if ($selectedRestaurantId) {
-            $categories = Category::where('restaurant_id', $selectedRestaurantId)
-                ->where('is_master', true)
-                ->withCount('items')
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get();
+        $visibleIds = auth()->user()->visibleSuperAdminIds();
+        if ($visibleIds !== null) {
+            $query->whereIn('created_by_super_admin_id', $visibleIds);
         }
 
-        return view('admin.categories', compact('categories', 'restaurants', 'selectedRestaurantId'));
+        return view('admin.categories', ['categories' => $query->get()]);
     }
 
     public function store(Request $request)
     {
-        $restaurantId = (int) $request->input('restaurant_id');
-        abort_unless($restaurantId && Restaurant::where('id', $restaurantId)->exists(), 422, 'Select a restaurant.');
-
         $request->validate([
             'name'  => 'required|string|max:255',
             'image' => 'nullable|image|max:5120',
@@ -47,7 +37,8 @@ class CategoryController extends Controller
         }
 
         Category::create([
-            'restaurant_id' => $restaurantId,
+            'restaurant_id' => null,
+            'created_by_super_admin_id' => auth()->id(),
             'is_master'     => true,
             'name'          => $request->name,
             'image'         => $path,
@@ -55,7 +46,7 @@ class CategoryController extends Controller
             'is_active'     => $request->boolean('is_active', true),
         ]);
 
-        return redirect()->route('admin.categories.index', ['restaurant_id' => $restaurantId])
+        return redirect()->route('admin.categories.index')
             ->with('success', 'Category added successfully.');
     }
 
@@ -79,17 +70,16 @@ class CategoryController extends Controller
             'is_active'  => $request->boolean('is_active', true),
         ]);
 
-        return redirect()->route('admin.categories.index', ['restaurant_id' => $category->restaurant_id])
+        return redirect()->route('admin.categories.index')
             ->with('success', 'Category updated successfully.');
     }
 
     public function destroy(Category $category)
     {
-        $restaurantId = $category->restaurant_id;
         if ($category->image) Storage::disk('public')->delete($category->image);
         $category->delete();
 
-        return redirect()->route('admin.categories.index', ['restaurant_id' => $restaurantId])
+        return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted.');
     }
 }

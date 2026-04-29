@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
 
 class SubscriptionPlan extends Model
@@ -46,6 +47,27 @@ class SubscriptionPlan extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function items(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Item::class, 'plan_items')->withTimestamps();
+    }
+
+    /**
+     * Restaurants that currently hold an active subscription to this plan.
+     */
+    public function activeRestaurants(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Restaurant::class,
+            Subscription::class,
+            'subscription_plan_id',
+            'id',
+            'id',
+            'restaurant_id'
+        )->where('subscriptions.status', 'active')
+         ->where('subscriptions.ends_at', '>=', now()->toDateString());
     }
 
     /**

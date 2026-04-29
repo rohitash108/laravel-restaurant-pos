@@ -139,21 +139,41 @@ class PosController extends Controller
      */
     private function buildPosCategories(int $restaurantId): \Illuminate\Support\Collection
     {
-        // 1. Load categories with restaurant-specific items
-        $categories = Category::where('restaurant_id', $restaurantId)
+        // 1. Load global categories (restaurant_id IS NULL)
+        $categories = Category::whereNull('restaurant_id')
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->with(['items' => function ($q) use ($restaurantId) {
-                $q->where('restaurant_id', $restaurantId)
-                  ->where('is_master', false)
-                  ->where('is_available', true)
-                  ->orderBy('sort_order')->orderBy('name')
-                  ->with(['addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'), 'variations']);
-            }])
             ->get();
 
-        // 2. Load all master item assignments for this restaurant
+        // Initialise empty items relation on each category
+        foreach ($categories as $cat) {
+            $cat->setRelation('items', collect());
+        }
+
+        // 2. Load restaurant-specific items and place them under matching global categories
+        $restaurantItems = Item::where('restaurant_id', $restaurantId)
+            ->where('is_master', false)
+            ->where('is_available', true)
+            ->orderBy('sort_order')->orderBy('name')
+            ->with(['addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'), 'variations'])
+            ->get();
+
+        foreach ($restaurantItems as $item) {
+            $category = $item->category_id
+                ? $categories->firstWhere('id', $item->category_id)
+                : null;
+
+            if (! $category && $categories->isNotEmpty()) {
+                $category = $categories->first();
+            }
+
+            if ($category) {
+                $category->items->push($item);
+            }
+        }
+
+        // 3. Load all master item assignments for this restaurant
         $assignments = RestaurantItemAssignment::where('restaurant_id', $restaurantId)
             ->where('is_available', true)
             ->with(['item' => function ($q) {
@@ -164,47 +184,32 @@ class PosController extends Controller
             ->get()
             ->filter(fn ($a) => $a->item);
 
-        if ($assignments->isEmpty()) {
-            return $categories;
-        }
-
-        // 3. Inject each master item into the best matching category
+        // 4. Inject each master item into the matching global category
         foreach ($assignments as $assignment) {
             $item = $assignment->item;
 
-            // Priority 1: explicit category_id set in assignment (belongs to this restaurant)
-            $category = $assignment->category_id
-                ? $categories->firstWhere('id', $assignment->category_id)
-                : null;
+            // Use assignment's category_id or item's own category_id
+            $catId = $assignment->category_id ?? $item->category_id;
+            $category = $catId ? $categories->firstWhere('id', $catId) : null;
 
-            // Priority 2: match by item's original category name in this restaurant's categories
+            // Fallback: match by name
             if (! $category && $item->category) {
                 $name = strtolower($item->category->name);
                 $category = $categories->first(fn ($c) => strtolower($c->name) === $name);
             }
 
-            // Priority 3: fallback to first available category
+            // Fallback: first category
             if (! $category && $categories->isNotEmpty()) {
                 $category = $categories->first();
             }
 
-            // Priority 4: restaurant has NO categories at all — use item's own category as a virtual group
-            if (! $category && $item->category) {
-                $virtual = clone $item->category;
-                $virtual->setRelation('items', collect());
-                $categories->push($virtual);
-                $category = $virtual;
-            }
-
             if ($category) {
-                if (! $category->relationLoaded('items')) {
-                    $category->setRelation('items', collect());
-                }
                 $category->items->push($item);
             }
         }
 
-        return $categories;
+        // 5. Remove categories with no items
+        return $categories->filter(fn ($c) => $c->items->isNotEmpty())->values();
     }
 
     /**

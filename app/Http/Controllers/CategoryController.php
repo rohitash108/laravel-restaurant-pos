@@ -12,16 +12,11 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $restaurantId = $this->currentRestaurantId();
-        if (! $restaurantId) {
-            $categories = collect();
-        } else {
-            $categories = Category::where('restaurant_id', $restaurantId)
-                ->withCount('items')
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get();
-        }
+        $categories = Category::whereNull('restaurant_id')
+            ->withCount('items')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
         return view('categories', compact('categories'));
     }

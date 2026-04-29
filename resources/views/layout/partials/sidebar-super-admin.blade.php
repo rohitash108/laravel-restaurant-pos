@@ -13,13 +13,22 @@
                     <a href="{{ route('admin.profile.edit') }}" class="nav-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" title="Account">
                         <i class="icon-user-cog"></i>
                     </a>
-                    <a href="#" class="nav-link {{ Request::is('admin/restaurants*') ? 'active' : '' }}" title="Restaurants" data-bs-toggle="tab" data-bs-target="#admin-restaurants-tab">
-                        <i class="icon-warehouse"></i>
-                    </a>
-                    <a href="#" class="nav-link {{ Request::is('admin/items*') || Request::is('admin/categories*') || Request::is('admin/addons*') ? 'active' : '' }}" title="Products" data-bs-toggle="tab" data-bs-target="#admin-products-tab">
-                        <i class="icon-layout-list"></i>
-                    </a>
-                    @if(auth()->user()->isOwner())
+                    @if(auth()->user()->canAccessAdminModule('restaurants'))
+                        <a href="#" class="nav-link {{ Request::is('admin/restaurants*') ? 'active' : '' }}" title="Restaurants" data-bs-toggle="tab" data-bs-target="#admin-restaurants-tab">
+                            <i class="icon-warehouse"></i>
+                        </a>
+                    @endif
+                    @if(auth()->user()->canAccessAdminModule('categories') || auth()->user()->canAccessAdminModule('items') || auth()->user()->canAccessAdminModule('addons'))
+                        <a href="#" class="nav-link {{ Request::is('admin/items*') || Request::is('admin/categories*') || Request::is('admin/addons*') ? 'active' : '' }}" title="Products" data-bs-toggle="tab" data-bs-target="#admin-products-tab">
+                            <i class="icon-layout-list"></i>
+                        </a>
+                    @endif
+                    @if(auth()->user()->canAccessAdminModule('users'))
+                        <a href="#" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" title="Users" data-bs-toggle="tab" data-bs-target="#admin-users-tab">
+                            <i class="icon-users"></i>
+                        </a>
+                    @endif
+                    @if(auth()->user()->canAccessAdminModule('subscriptions'))
                     <a href="#" class="nav-link {{ Request::is('admin/subscription*') ? 'active' : '' }}" title="Subscriptions" data-bs-toggle="tab" data-bs-target="#admin-subscriptions-tab">
                         <i class="icon-credit-card"></i>
                     </a>
@@ -92,35 +101,55 @@
                                     <i class="icon-user-cog"></i><span>Account</span>
                                 </a>
                             </li>
-                            <li class="menu-title"><span>RESTAURANTS</span></li>
-                            <li>
-                                <a href="{{ route('admin.restaurants.index') }}" class="{{ Request::is('admin/restaurants*') ? 'active' : '' }}">
-                                    <i class="icon-warehouse"></i><span>Restaurants</span>
-                                </a>
-                            </li>
-                            <li class="menu-title"><span>CATALOG</span></li>
-                            <li>
-                                <a href="{{ route('admin.categories.index') }}" class="{{ Request::is('admin/categories*') ? 'active' : '' }}">
-                                    <i class="icon-tag"></i><span>Categories</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.items.index') }}" class="{{ Request::is('admin/items*') ? 'active' : '' }}">
-                                    <i class="icon-layout-list"></i><span>Items</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.addons.index') }}" class="{{ Request::is('admin/addons*') ? 'active' : '' }}">
-                                    <i class="icon-text-select"></i><span>Addons</span>
-                                </a>
-                            </li>
-                            @if(auth()->user()->isOwner())
+                            @if(auth()->user()->canAccessAdminModule('restaurants'))
+                                <li class="menu-title"><span>RESTAURANTS</span></li>
+                                <li>
+                                    <a href="{{ route('admin.restaurants.index') }}" class="{{ Request::is('admin/restaurants*') ? 'active' : '' }}">
+                                        <i class="icon-warehouse"></i><span>Restaurants</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if(auth()->user()->canAccessAdminModule('categories') || auth()->user()->canAccessAdminModule('items') || auth()->user()->canAccessAdminModule('addons'))
+                                <li class="menu-title"><span>CATALOG</span></li>
+                                @if(auth()->user()->canAccessAdminModule('categories'))
+                                <li>
+                                    <a href="{{ route('admin.categories.index') }}" class="{{ Request::is('admin/categories*') ? 'active' : '' }}">
+                                        <i class="icon-tag"></i><span>Categories</span>
+                                    </a>
+                                </li>
+                                @endif
+                                @if(auth()->user()->canAccessAdminModule('items'))
+                                <li>
+                                    <a href="{{ route('admin.items.index') }}" class="{{ Request::is('admin/items*') ? 'active' : '' }}">
+                                        <i class="icon-layout-list"></i><span>Items</span>
+                                    </a>
+                                </li>
+                                @endif
+                                @if(auth()->user()->canAccessAdminModule('addons'))
+                                <li>
+                                    <a href="{{ route('admin.addons.index') }}" class="{{ Request::is('admin/addons*') ? 'active' : '' }}">
+                                        <i class="icon-text-select"></i><span>Addons</span>
+                                    </a>
+                                </li>
+                                @endif
+                            @endif
+                            @if(auth()->user()->canAccessAdminModule('users'))
+                                <li class="menu-title"><span>TEAM</span></li>
+                                <li>
+                                    <a href="{{ route('admin.users.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
+                                        <i class="icon-users"></i><span>Users</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if(auth()->user()->canAccessAdminModule('subscriptions'))
                             <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
+                            @if(auth()->user()->isOwner())
                             <li>
                                 <a href="{{ route('admin.subscription-plans') }}" class="{{ Request::is('admin/subscription-plans*') ? 'active' : '' }}">
                                     <i class="icon-credit-card"></i><span>Plans</span>
                                 </a>
                             </li>
+                            @endif
                             <li>
                                 <a href="{{ route('admin.subscriptions') }}" class="{{ Request::is('admin/subscriptions*') ? 'active' : '' }}">
                                     <i class="icon-list"></i><span>Subscriptions</span>
@@ -132,42 +161,64 @@
                     <div class="tab-pane fade {{ Request::is('admin/restaurants*') ? 'show active' : '' }}" id="admin-restaurants-tab">
                         <ul>
                             <li class="menu-title"><span>RESTAURANTS</span></li>
-                            <li>
-                                <a href="{{ route('admin.restaurants.index') }}" class="{{ Request::is('admin/restaurants*') ? 'active' : '' }}">
-                                    <i class="icon-warehouse"></i><span>Restaurants</span>
-                                </a>
-                            </li>
+                            @if(auth()->user()->canAccessAdminModule('restaurants'))
+                                <li>
+                                    <a href="{{ route('admin.restaurants.index') }}" class="{{ Request::is('admin/restaurants*') ? 'active' : '' }}">
+                                        <i class="icon-warehouse"></i><span>Restaurants</span>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                     <div class="tab-pane fade {{ Request::is('admin/items*') || Request::is('admin/categories*') || Request::is('admin/addons*') ? 'show active' : '' }}" id="admin-products-tab">
                         <ul>
                             <li class="menu-title"><span>PRODUCT CATALOG</span></li>
-                            <li>
-                                <a href="{{ route('admin.categories.index') }}" class="{{ Request::is('admin/categories*') ? 'active' : '' }}">
-                                    <i class="icon-tag"></i><span>Categories</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.items.index') }}" class="{{ Request::is('admin/items*') ? 'active' : '' }}">
-                                    <i class="icon-layout-list"></i><span>Items</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.addons.index') }}" class="{{ Request::is('admin/addons*') ? 'active' : '' }}">
-                                    <i class="icon-text-select"></i><span>Addons</span>
-                                </a>
-                            </li>
+                            @if(auth()->user()->canAccessAdminModule('categories'))
+                                <li>
+                                    <a href="{{ route('admin.categories.index') }}" class="{{ Request::is('admin/categories*') ? 'active' : '' }}">
+                                        <i class="icon-tag"></i><span>Categories</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if(auth()->user()->canAccessAdminModule('items'))
+                                <li>
+                                    <a href="{{ route('admin.items.index') }}" class="{{ Request::is('admin/items*') ? 'active' : '' }}">
+                                        <i class="icon-layout-list"></i><span>Items</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if(auth()->user()->canAccessAdminModule('addons'))
+                                <li>
+                                    <a href="{{ route('admin.addons.index') }}" class="{{ Request::is('admin/addons*') ? 'active' : '' }}">
+                                        <i class="icon-text-select"></i><span>Addons</span>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
-                    @if(auth()->user()->isOwner())
+                    <div class="tab-pane fade {{ Request::is('admin/users*') ? 'show active' : '' }}" id="admin-users-tab">
+                        <ul>
+                            <li class="menu-title"><span>TEAM</span></li>
+                            @if(auth()->user()->canAccessAdminModule('users'))
+                                <li>
+                                    <a href="{{ route('admin.users.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
+                                        <i class="icon-users"></i><span>Users</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                    @if(auth()->user()->canAccessAdminModule('subscriptions'))
                     <div class="tab-pane fade {{ Request::is('admin/subscription*') ? 'show active' : '' }}" id="admin-subscriptions-tab">
                         <ul>
                             <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
+                            @if(auth()->user()->isOwner())
                             <li>
                                 <a href="{{ route('admin.subscription-plans') }}" class="{{ Request::is('admin/subscription-plans*') ? 'active' : '' }}">
                                     <i class="icon-credit-card"></i><span>Plans</span>
                                 </a>
                             </li>
+                            @endif
                             <li>
                                 <a href="{{ route('admin.subscriptions') }}" class="{{ Request::is('admin/subscriptions*') ? 'active' : '' }}">
                                     <i class="icon-list"></i><span>Subscriptions</span>

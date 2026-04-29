@@ -9,6 +9,7 @@ class Addon extends Model
 {
     protected $fillable = [
         'restaurant_id',
+        'created_by_super_admin_id',
         'item_id',
         'addon_name',
         'price',

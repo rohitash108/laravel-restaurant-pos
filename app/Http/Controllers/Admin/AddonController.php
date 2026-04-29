@@ -54,6 +54,7 @@ class AddonController extends Controller
 
         Addon::create([
             'restaurant_id' => $restaurantId,
+            'created_by_super_admin_id' => auth()->id(),
             'item_id'       => $request->item_id,
             'addon_name'    => $request->addon_name,
             'price'         => $request->price,

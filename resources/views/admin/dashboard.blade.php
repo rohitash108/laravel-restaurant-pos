@@ -13,11 +13,15 @@
             <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-3 mb-4">
                 <div class="flex-grow-1">
                     <h3 class="mb-1">Super Admin Dashboard</h3>
-                    <p class="text-muted mb-0">Overview of all restaurants and platform activity.</p>
+                    <p class="text-muted mb-0">
+                        {{ ($is_limited_admin ?? false) ? 'Overview of your added products, categories, addons and users.' : 'Overview of all restaurants and platform activity.' }}
+                    </p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-white btn-icon rounded-circle" title="Refresh"><i class="icon-refresh-ccw"></i></a>
+                    @if(!($is_limited_admin ?? false))
                     <a href="{{ route('admin.restaurants.create') }}" class="btn btn-secondary d-inline-flex align-items-center"><i class="icon-circle-plus me-1"></i>Add Restaurant</a>
+                    @endif
                 </div>
             </div>
 
@@ -28,12 +32,14 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Total Restaurants</p>
-                                    <h3 class="mb-0 fw-bold">{{ number_format($total_restaurants ?? 0) }}</h3>
-                                    <small class="text-success">{{ $active_restaurants ?? 0 }} active</small>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">{{ ($is_limited_admin ?? false) ? 'Total Categories' : 'Total Restaurants' }}</p>
+                                    <h3 class="mb-0 fw-bold">{{ number_format(($is_limited_admin ?? false) ? ($total_categories ?? 0) : ($total_restaurants ?? 0)) }}</h3>
+                                    @if(!($is_limited_admin ?? false))
+                                        <small class="text-success">{{ $active_restaurants ?? 0 }} active</small>
+                                    @endif
                                 </div>
                                 <div class="avatar avatar-lg avatar-rounded bg-secondary text-white">
-                                    <i class="icon-warehouse fs-28"></i>
+                                    <i class="{{ ($is_limited_admin ?? false) ? 'icon-tag' : 'icon-warehouse' }} fs-28"></i>
                                 </div>
                             </div>
                         </div>
@@ -44,11 +50,11 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Total Orders</p>
-                                    <h3 class="mb-0 fw-bold">{{ number_format($total_orders ?? 0) }}</h3>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">{{ ($is_limited_admin ?? false) ? 'Total Products' : 'Total Orders' }}</p>
+                                    <h3 class="mb-0 fw-bold">{{ number_format(($is_limited_admin ?? false) ? ($total_products ?? 0) : ($total_orders ?? 0)) }}</h3>
                                 </div>
                                 <div class="avatar avatar-lg avatar-rounded bg-purple text-white">
-                                    <i class="icon-box fs-28"></i>
+                                    <i class="{{ ($is_limited_admin ?? false) ? 'icon-layout-list' : 'icon-box' }} fs-28"></i>
                                 </div>
                             </div>
                         </div>
@@ -59,11 +65,17 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Total Sales</p>
-                                    <h3 class="mb-0 fw-bold">{{ $currency_symbol }}{{ number_format($total_sales ?? 0, 2) }}</h3>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">{{ ($is_limited_admin ?? false) ? 'Total Addons' : 'Total Sales' }}</p>
+                                    <h3 class="mb-0 fw-bold">
+                                        @if($is_limited_admin ?? false)
+                                            {{ number_format($total_addons ?? 0) }}
+                                        @else
+                                            {{ $currency_symbol }}{{ number_format($total_sales ?? 0, 2) }}
+                                        @endif
+                                    </h3>
                                 </div>
                                 <div class="avatar avatar-lg avatar-rounded bg-success text-white">
-                                    <i class="icon-badge-dollar-sign fs-28"></i>
+                                    <i class="{{ ($is_limited_admin ?? false) ? 'icon-text-select' : 'icon-badge-dollar-sign' }} fs-28"></i>
                                 </div>
                             </div>
                         </div>
@@ -74,14 +86,19 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">Sales growth</p>
-                                    <h3 class="mb-0 fw-bold {{ ($sales_growth_percent ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
-                                        {{ ($sales_growth_percent ?? 0) >= 0 ? '+' : '' }}{{ $sales_growth_percent ?? 0 }}%
-                                    </h3>
-                                    <small class="text-muted">vs last month</small>
+                                    <p class="text-muted text-uppercase fs-12 fw-medium mb-1">{{ ($is_limited_admin ?? false) ? 'My Users' : 'Sales growth' }}</p>
+                                    @if($is_limited_admin ?? false)
+                                        <h3 class="mb-0 fw-bold">{{ number_format($total_my_users ?? 0) }}</h3>
+                                        <small class="text-muted">Created by you</small>
+                                    @else
+                                        <h3 class="mb-0 fw-bold {{ ($sales_growth_percent ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ ($sales_growth_percent ?? 0) >= 0 ? '+' : '' }}{{ $sales_growth_percent ?? 0 }}%
+                                        </h3>
+                                        <small class="text-muted">vs last month</small>
+                                    @endif
                                 </div>
                                 <div class="avatar avatar-lg avatar-rounded bg-orange text-white">
-                                    <i class="icon-trending-up fs-28"></i>
+                                    <i class="{{ ($is_limited_admin ?? false) ? 'icon-users' : 'icon-trending-up' }} fs-28"></i>
                                 </div>
                             </div>
                         </div>
@@ -94,8 +111,10 @@
                 <div class="col-xxl-8 col-lg-7">
                     <div class="card border-0 shadow-sm">
                         <div class="card-header border-0 bg-transparent d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <h5 class="mb-0 card-title">Orders (Last 7 Days)</h5>
-                            <a href="{{ route('admin.restaurants.index') }}" class="btn btn-sm btn-secondary">View restaurants</a>
+                            <h5 class="mb-0 card-title">{{ ($is_limited_admin ?? false) ? 'Your Module Totals' : 'Orders (Last 7 Days)' }}</h5>
+                            @if(!($is_limited_admin ?? false))
+                                <a href="{{ route('admin.restaurants.index') }}" class="btn btn-sm btn-secondary">View restaurants</a>
+                            @endif
                         </div>
                         <div class="card-body pt-0">
                             <div id="admin-statistic-chart" style="min-height: 260px;"></div>
@@ -108,11 +127,22 @@
                         <div class="card-body">
                             <h5 class="card-title mb-3">Quick actions</h5>
                             <div class="d-grid gap-2">
+                                @if(!($is_limited_admin ?? false))
                                 <a href="{{ route('admin.restaurants.create') }}" class="btn btn-secondary d-inline-flex align-items-center justify-content-center">
                                     <i class="icon-circle-plus me-2"></i>Add new restaurant
                                 </a>
                                 <a href="{{ route('admin.restaurants.index') }}" class="btn btn-soft-secondary d-inline-flex align-items-center justify-content-center">
                                     <i class="icon-warehouse me-2"></i>Manage restaurants
+                                </a>
+                                @endif
+                                <a href="{{ route('admin.categories.index') }}" class="btn btn-soft-secondary d-inline-flex align-items-center justify-content-center">
+                                    <i class="icon-tag me-2"></i>Manage categories
+                                </a>
+                                <a href="{{ route('admin.items.index') }}" class="btn btn-soft-secondary d-inline-flex align-items-center justify-content-center">
+                                    <i class="icon-layout-list me-2"></i>Manage items
+                                </a>
+                                <a href="{{ route('admin.addons.index') }}" class="btn btn-soft-secondary d-inline-flex align-items-center justify-content-center">
+                                    <i class="icon-text-select me-2"></i>Manage addons
                                 </a>
                                 @if(auth()->user()->isOwner())
                                 <a href="{{ route('admin.subscriptions') }}" class="btn btn-soft-primary d-inline-flex align-items-center justify-content-center">
@@ -127,10 +157,15 @@
                     </div>
                     <div class="card border-0 shadow-sm">
                         <div class="card-header border-0 bg-transparent d-flex align-items-center justify-content-between">
-                            <h5 class="mb-0 card-title">Recent Restaurants</h5>
-                            <a href="{{ route('admin.restaurants.index') }}" class="btn btn-sm btn-link p-0">View all</a>
+                            <h5 class="mb-0 card-title">{{ ($is_limited_admin ?? false) ? 'Recent Restaurants' : 'Recent Restaurants' }}</h5>
+                            @if(!($is_limited_admin ?? false))
+                                <a href="{{ route('admin.restaurants.index') }}" class="btn btn-sm btn-link p-0">View all</a>
+                            @endif
                         </div>
                         <div class="card-body pt-0">
+                            @if($is_limited_admin ?? false)
+                                <p class="text-muted small mb-0 py-2">Restaurant overview is available only for owner super admin.</p>
+                            @else
                             @forelse($recent_restaurants ?? [] as $r)
                                 <a href="{{ route('admin.restaurants.show', $r) }}" class="d-flex align-items-center gap-3 py-3 {{ $loop->last ? '' : 'border-bottom border-light' }} text-body text-decoration-none">
                                     <div class="flex-shrink-0 rounded overflow-hidden bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
@@ -149,6 +184,7 @@
                             @empty
                                 <p class="text-muted small mb-0 py-2">No restaurants yet. <a href="{{ route('admin.restaurants.create') }}">Add one</a>.</p>
                             @endforelse
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -166,8 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var chartData = @json($admin_chart_data);
         var categories = chartData.categories && chartData.categories.length ? chartData.categories : ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
         var data = chartData.data && chartData.data.length ? chartData.data : [0,0,0,0,0,0,0];
+        var seriesName = @json(($is_limited_admin ?? false) ? 'Count' : 'Orders');
         new ApexCharts(document.querySelector('#admin-statistic-chart'), {
-            series: [{ name: 'Orders', data: data }],
+            series: [{ name: seriesName, data: data }],
             chart: { height: 260, type: 'area', toolbar: { show: false } },
             dataLabels: { enabled: false },
             stroke: { curve: 'smooth', width: 2 },

@@ -87,6 +87,9 @@
                                         </td>
                                         <td>{{ $plan->subscriptions_count }}</td>
                                         <td class="text-end">
+                                            <a href="{{ route('admin.plan-items', $plan) }}" class="btn btn-sm btn-soft-success me-1" title="Manage Items">
+                                                <i class="icon-layers"></i>
+                                            </a>
                                             <button class="btn btn-sm btn-soft-primary me-1" onclick="editPlan({{ json_encode($plan) }})">
                                                 <i class="icon-pencil-line"></i>
                                             </button>

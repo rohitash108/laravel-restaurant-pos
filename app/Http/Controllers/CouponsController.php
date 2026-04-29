@@ -23,7 +23,7 @@ class CouponsController extends Controller
             ->orderBy('code')
             ->get();
 
-        $categories = Category::where('restaurant_id', $restaurantId)->orderBy('name')->get();
+        $categories = Category::whereNull('restaurant_id')->orderBy('name')->get();
 
         return view('coupons', compact('coupons', 'categories'));
     }
@@ -37,9 +37,9 @@ class CouponsController extends Controller
 
         $validated = $request->validate([
             'code' => ['required', 'string', 'max:64', 'unique:coupons,code,NULL,id,restaurant_id,' . $restaurantId],
-            'category_id' => ['nullable', 'exists:categories,id', function ($attr, $value, $fail) use ($restaurantId) {
-                if ($value && Category::where('id', $value)->where('restaurant_id', $restaurantId)->doesntExist()) {
-                    $fail('The selected category does not belong to your restaurant.');
+            'category_id' => ['nullable', 'exists:categories,id', function ($attr, $value, $fail) {
+                if ($value && Category::where('id', $value)->whereNull('restaurant_id')->doesntExist()) {
+                    $fail('The selected category is not valid.');
                 }
             }],
             'discount_type' => ['required', 'string', 'in:percentage,fixed'],
@@ -71,9 +71,9 @@ class CouponsController extends Controller
 
         $validated = $request->validate([
             'code' => ['required', 'string', 'max:64', 'unique:coupons,code,' . $coupon->id . ',id,restaurant_id,' . $restaurantId],
-            'category_id' => ['nullable', 'exists:categories,id', function ($attr, $value, $fail) use ($restaurantId) {
-                if ($value && Category::where('id', $value)->where('restaurant_id', $restaurantId)->doesntExist()) {
-                    $fail('The selected category does not belong to your restaurant.');
+            'category_id' => ['nullable', 'exists:categories,id', function ($attr, $value, $fail) {
+                if ($value && Category::where('id', $value)->whereNull('restaurant_id')->doesntExist()) {
+                    $fail('The selected category is not valid.');
                 }
             }],
             'discount_type' => ['required', 'string', 'in:percentage,fixed'],
