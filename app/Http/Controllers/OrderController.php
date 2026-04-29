@@ -408,7 +408,7 @@ class OrderController extends Controller
         $this->requirePermission('orders', 'edit');
 
         $restaurantId = $this->currentRestaurantId();
-        if (! $restaurantId || (int) $order->restaurant_id !== (int) $restaurantId) {
+        if ($restaurantId && (int) $order->restaurant_id !== (int) $restaurantId) {
             abort(403);
         }
         $request->validate(['status' => 'required|in:pending,confirmed,preparing,ready,completed,cancelled']);
@@ -422,12 +422,27 @@ class OrderController extends Controller
         $this->requirePermission('orders', 'edit');
 
         $restaurantId = $this->currentRestaurantId();
-        if (! $restaurantId || (int) $order->restaurant_id !== (int) $restaurantId) {
+        if ($restaurantId && (int) $order->restaurant_id !== (int) $restaurantId) {
             abort(403);
         }
         $request->validate(['payment_status' => 'required|in:paid,unpaid']);
         $order->update(['payment_status' => $request->payment_status]);
 
         return redirect()->route('orders')->with('success', 'Payment status updated to ' . $request->payment_status . '.');
+    }
+
+    public function destroy(Order $order)
+    {
+        $this->requirePermission('orders', 'delete');
+
+        $restaurantId = $this->currentRestaurantId();
+        if ($restaurantId && (int) $order->restaurant_id !== (int) $restaurantId) {
+            abort(403);
+        }
+
+        $order->items()->delete();
+        $order->delete();
+
+        return redirect()->route('orders')->with('success', 'Order #' . $order->order_number . ' deleted.');
     }
 }

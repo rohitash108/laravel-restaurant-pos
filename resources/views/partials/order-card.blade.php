@@ -38,16 +38,6 @@
                         </form>
                     </li>
                     @endif
-                    @if($order->status !== 'cancelled')
-                    <li>
-                        <form action="{{ route('orders.update-status', $order) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="cancelled">
-                            <button type="submit" class="dropdown-item rounded d-flex align-items-center w-100 border-0 bg-transparent text-start"><i class="icon-x me-2"></i>Cancel</button>
-                        </form>
-                    </li>
-                    @endif
                     @if($order->status !== 'completed')
                     <li>
                         <form action="{{ route('orders.update-status', $order) }}" method="POST" class="d-inline">
@@ -61,6 +51,16 @@
                     <li><a href="{{ route('receipt-print', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-print-link" target="_blank" rel="noopener"><i class="icon-printer me-2"></i>Print receipt</a></li>
                     <li><a href="{{ route('kot-print', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-kot-link" target="_blank" rel="noopener"><i class="icon-chef-hat me-2"></i>Print KOT</a></li>
                     <li><a href="{{ route('invoice-details', $order) }}" class="dropdown-item rounded d-flex align-items-center order-card-receipt-link" target="_blank" rel="noopener"><i class="icon-file-spreadsheet me-2"></i>View invoice</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <form action="{{ route('orders.destroy', $order) }}" method="POST" class="d-inline"
+                              onsubmit="return confirm('Delete order #{{ $order->order_number }}? This cannot be undone.');">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="dropdown-item rounded d-flex align-items-center w-100 border-0 bg-transparent text-start text-danger">
+                                <i class="icon-trash-2 me-2"></i>Delete Order
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -124,7 +124,7 @@
                 <div class="dropdown">
                     <button type="button" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">{{ ucfirst($order->status) }}</button>
                     <ul class="dropdown-menu dropdown-menu-end p-3">
-                        @foreach(['pending','confirmed','preparing','ready','completed','cancelled'] as $s)
+                        @foreach(['pending','confirmed','preparing','ready','completed'] as $s)
                         <li><button type="submit" name="status" value="{{ $s }}" form="order-status-form-{{ $order->id }}" class="dropdown-item rounded w-100 text-start">{{ ucfirst($s) }}</button></li>
                         @endforeach
                     </ul>
