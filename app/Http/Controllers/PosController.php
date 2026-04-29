@@ -67,6 +67,7 @@ class PosController extends Controller
         $tax = $restaurantId ? Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first() : null;
         $tax_rate = $tax ? (float) $tax->rate : 0;
         $tax_name = $tax ? $tax->name : 'Tax';
+        $tax_type = $tax ? $tax->type : 'exclusive';
 
         $coupons = collect();
         if ($restaurantId) {
@@ -82,7 +83,7 @@ class PosController extends Controller
                 ->get(['id', 'code', 'discount_type', 'discount_amount', 'category_id']);
         }
 
-        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'tax_rate', 'tax_name', 'coupons'));
+        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'tax_rate', 'tax_name', 'tax_type', 'coupons'));
     }
 
     /**
@@ -115,6 +116,7 @@ class PosController extends Controller
         $tax = Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first();
         $tax_rate = $tax ? (float) $tax->rate : 0;
         $tax_name = $tax ? $tax->name : 'Tax';
+        $tax_type = $tax ? $tax->type : 'exclusive';
 
         $today = now()->toDateString();
         $coupons = Coupon::where('restaurant_id', $restaurantId)
@@ -128,7 +130,7 @@ class PosController extends Controller
             ->get(['id', 'code', 'discount_type', 'discount_amount', 'category_id']);
 
         $editOrder = $order;
-        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'editOrder', 'tax_rate', 'tax_name', 'coupons'));
+        return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'editOrder', 'tax_rate', 'tax_name', 'tax_type', 'coupons'));
     }
 
     /**
@@ -273,8 +275,14 @@ class PosController extends Controller
 
         $tax = Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first();
         $taxRateFraction = $tax ? ((float) $tax->rate / 100) : 0;
-        $taxAmount = round($subtotal * $taxRateFraction, 2);
-        $total = round($subtotal + $taxAmount, 2);
+        $taxType = $tax ? $tax->type : 'exclusive';
+        if ($taxType === 'inclusive') {
+            $taxAmount = $taxRateFraction > 0 ? round($subtotal * $taxRateFraction / (1 + $taxRateFraction), 2) : 0;
+            $total = round($subtotal, 2);
+        } else {
+            $taxAmount = round($subtotal * $taxRateFraction, 2);
+            $total = round($subtotal + $taxAmount, 2);
+        }
         $taxName = $tax ? $tax->name : 'Tax';
 
         $payload = ReceiptPayload::fromCartPreview(

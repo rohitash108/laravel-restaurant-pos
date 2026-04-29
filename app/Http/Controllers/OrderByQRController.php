@@ -55,23 +55,29 @@ class OrderByQRController extends Controller
             ->where(fn ($q) => $q->where('slug', $table)->orWhere('id', (int) $table))
             ->firstOrFail();
 
-        // Load categories with items; each item with variations and addons from database so customer can choose when ordering
-        $categories = $restaurant->categories()
+        // Load global categories, then attach only items assigned/available for this restaurant
+        $restaurantId = $restaurant->id;
+        $categories = \App\Models\Category::whereNull('restaurant_id')
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->with([
-                'items' => function ($q) {
-                    $q->where('is_available', true)
+            ->get()
+            ->each(function ($category) use ($restaurantId) {
+                $category->setRelation('items',
+                    \App\Models\Item::forRestaurant($restaurantId)
+                        ->where('category_id', $category->id)
+                        ->where('is_available', true)
                         ->orderBy('sort_order')
                         ->orderBy('name')
                         ->with([
-                            'addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'),
-                            'variations' => fn ($vq) => $vq->orderBy('sort_order')->orderBy('name'),
-                        ]);
-                },
-            ])
-            ->get();
+                            'addons'     => fn ($q) => $q->where('status', 'active')->orderBy('id'),
+                            'variations' => fn ($q) => $q->orderBy('sort_order')->orderBy('name'),
+                        ])
+                        ->get()
+                );
+            })
+            ->filter(fn ($cat) => $cat->items->isNotEmpty())
+            ->values();
 
         $currencySymbol = $restaurant->currencySymbol();
 
@@ -162,12 +168,17 @@ class OrderByQRController extends Controller
             }
         }
 
-        // C3: fetch restaurant tax from DB (same as POS orders)
         $tax      = Tax::where('restaurant_id', $restaurant->id)->where('is_active', true)->first();
         $taxRate  = $tax ? ((float) $tax->rate / 100) : 0;
-        $taxAmount = round($subtotal * $taxRate, 2);
+        $taxType  = $tax ? $tax->type : 'exclusive';
 
-        $total = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
+        if ($taxType === 'inclusive') {
+            $taxAmount = $taxRate > 0 ? round($subtotal * $taxRate / (1 + $taxRate), 2) : 0;
+            $total     = round(max(0, $subtotal - $discountAmount), 2);
+        } else {
+            $taxAmount = round($subtotal * $taxRate, 2);
+            $total     = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
+        }
 
         $order = Order::create([
             'restaurant_id'       => $restaurant->id,

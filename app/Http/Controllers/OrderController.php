@@ -117,10 +117,12 @@ class OrderController extends Controller
             return back()->with('error', 'Please add at least one valid item.')->withInput();
         }
 
-        // C2: fetch tax rate from DB instead of hardcoding
         $tax      = Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first();
         $taxRate  = $tax ? ((float) $tax->rate / 100) : 0;
-        $taxAmount = round($subtotal * $taxRate, 2);
+        $taxType  = $tax ? $tax->type : 'exclusive';
+        $taxAmount = $taxType === 'inclusive' && $taxRate > 0
+            ? round($subtotal * $taxRate / (1 + $taxRate), 2)
+            : round($subtotal * $taxRate, 2);
 
         $couponId = $request->filled('coupon_id') ? (int) $request->coupon_id : null;
         $coupon   = null;
@@ -149,7 +151,9 @@ class OrderController extends Controller
             $discountAmount = round((float) $request->discount_amount, 2);
         }
 
-        $total          = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
+        $total = $taxType === 'inclusive'
+            ? round(max(0, $subtotal - $discountAmount), 2)
+            : round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
         $receivedAmount = $request->filled('received_amount') ? round((float) $request->received_amount, 2) : null;
 
         $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;
@@ -310,10 +314,12 @@ class OrderController extends Controller
             return back()->with('error', 'Please add at least one valid item.')->withInput();
         }
 
-        // C2: fetch tax rate from DB
         $tax      = Tax::where('restaurant_id', $restaurantId)->where('is_active', true)->first();
         $taxRate  = $tax ? ((float) $tax->rate / 100) : 0;
-        $taxAmount = round($subtotal * $taxRate, 2);
+        $taxType  = $tax ? $tax->type : 'exclusive';
+        $taxAmount = $taxType === 'inclusive' && $taxRate > 0
+            ? round($subtotal * $taxRate / (1 + $taxRate), 2)
+            : round($subtotal * $taxRate, 2);
 
         $couponId = $request->filled('coupon_id') ? (int) $request->coupon_id : null;
         $coupon   = null;
@@ -341,7 +347,9 @@ class OrderController extends Controller
             $discountAmount = round((float) $request->discount_amount, 2);
         }
 
-        $total          = round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
+        $total = $taxType === 'inclusive'
+            ? round(max(0, $subtotal - $discountAmount), 2)
+            : round(max(0, $subtotal + $taxAmount - $discountAmount), 2);
         $receivedAmount = $request->filled('received_amount') ? round((float) $request->received_amount, 2) : null;
 
         $customerId = $request->filled('customer_id') ? (int) $request->customer_id : null;

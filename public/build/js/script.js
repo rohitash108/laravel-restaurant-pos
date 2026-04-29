@@ -590,7 +590,13 @@ $(document).ready(function(){
 			const totalMenus = cart.reduce(function (s, r) { return s + (r.quantity || 1); }, 0);
 			const subtotal = cart.reduce(function (s, r) { return s + (r.price || 0) * (r.quantity || 1); }, 0);
 			const taxRate = (typeof window.posTaxRate !== "undefined" ? parseFloat(window.posTaxRate) : 0) / 100;
-			const tax = subtotal * taxRate;
+			const taxType = (typeof window.posTaxType !== "undefined" ? window.posTaxType : "exclusive");
+			var tax = 0;
+			if (taxType === "inclusive") {
+				tax = taxRate > 0 ? subtotal * taxRate / (1 + taxRate) : 0;
+			} else {
+				tax = subtotal * taxRate;
+			}
 
 			// Manual discount (direct input)
 			var manualDiscount = parseFloat($("#pos-discount-input").val()) || 0;
@@ -600,8 +606,9 @@ $(document).ready(function(){
 			var couponDiscount = 0;
 			if (window.posAppliedCoupon) {
 				var c = window.posAppliedCoupon;
+				var taxableBase = taxType === "inclusive" ? subtotal : subtotal + tax;
 				if (c.discount_type === "percentage") {
-					couponDiscount = (subtotal + tax) * (c.discount_amount / 100);
+					couponDiscount = taxableBase * (c.discount_amount / 100);
 				} else {
 					couponDiscount = c.discount_amount;
 				}
@@ -609,7 +616,7 @@ $(document).ready(function(){
 			}
 
 			var totalDiscount = manualDiscount + couponDiscount;
-			var total = subtotal + tax - totalDiscount;
+			var total = taxType === "inclusive" ? subtotal - totalDiscount : subtotal + tax - totalDiscount;
 			if (total < 0) total = 0;
 
 			const $empty = $("#pos-cart-empty");
@@ -836,8 +843,10 @@ $(document).ready(function(){
 				var c = window.posAppliedCoupon;
 				var subtotalForCoupon = cart.reduce(function (s, r) { return s + (r.price || 0) * (r.quantity || 1); }, 0);
 				var taxRateForCoupon = (typeof window.posTaxRate !== "undefined" ? parseFloat(window.posTaxRate) : 0) / 100;
+				var taxTypeForCoupon = (typeof window.posTaxType !== "undefined" ? window.posTaxType : "exclusive");
 				if (c.discount_type === "percentage") {
-					couponDiscount = (subtotalForCoupon + subtotalForCoupon * taxRateForCoupon) * (c.discount_amount / 100);
+					var baseForCoupon = taxTypeForCoupon === "inclusive" ? subtotalForCoupon : subtotalForCoupon + subtotalForCoupon * taxRateForCoupon;
+					couponDiscount = baseForCoupon * (c.discount_amount / 100);
 				} else {
 					couponDiscount = c.discount_amount;
 				}
@@ -1096,7 +1105,8 @@ $(document).ready(function(){
 				itemLines.push("<div class=\"pos-receipt-item d-flex align-items-center justify-content-between py-1\"><span class=\"text-truncate me-2\">" + name + " &times;" + qty + "</span><span class=\"fw-medium text-dark flex-shrink-0\">" + (window.currencySymbol || "₹") + amount.toFixed(2) + "</span></div>");
 			});
 			var taxRate = (typeof window.posTaxRate !== "undefined" ? parseFloat(window.posTaxRate) : 0) / 100;
-			var tax = subtotal * taxRate;
+			var taxType = (typeof window.posTaxType !== "undefined" ? window.posTaxType : "exclusive");
+			var tax = taxType === "inclusive" && taxRate > 0 ? subtotal * taxRate / (1 + taxRate) : subtotal * taxRate;
 			var manualDisc = parseFloat($("#pos-discount-input").val()) || 0;
 			var couponDisc = 0;
 			if (window.posAppliedCoupon) {

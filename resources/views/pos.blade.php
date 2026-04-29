@@ -11,7 +11,7 @@
             : asset('build/img/global-tea-cafe-logo.png');
         $posReceiptRestaurantName = auth()->user()->restaurant?->name ?? 'Restaurant';
     @endphp
-    <script>window.posTaxRate = @json($tax_rate ?? 0); window.posTaxName = @json($tax_name ?? 'Tax'); window.posCoupons = @json($posCouponsForJs);</script>
+    <script>window.posTaxRate = @json($tax_rate ?? 0); window.posTaxName = @json($tax_name ?? 'Tax'); window.posTaxType = @json($tax_type ?? 'exclusive'); window.posCoupons = @json($posCouponsForJs);</script>
     <div id="pos-receipt-meta" class="d-none"
          data-logo="{{ $posReceiptLogo }}"
          data-restaurant="{{ $posReceiptRestaurantName }}"></div>

@@ -128,21 +128,6 @@
                                     <p class="small text-warning mb-2"><i class="icon-alert-triangle me-1"></i>Not in any plan</p>
                                 @endif
 
-                                {{-- Assigned restaurants --}}
-                                @php $assigned = $item->assignedRestaurants; @endphp
-                                @if($assigned->isEmpty())
-                                    <p class="small text-muted mb-2">Not assigned to any restaurant</p>
-                                @else
-                                    <p class="small text-muted mb-1">Assigned to:</p>
-                                    <div class="d-flex flex-wrap gap-1 mb-2">
-                                        @foreach($assigned->take(3) as $r)
-                                            <span class="badge badge-soft-success fs-11">{{ $r->name }}</span>
-                                        @endforeach
-                                        @if($assigned->count() > 3)
-                                            <span class="badge bg-secondary fs-11">+{{ $assigned->count() - 3 }} more</span>
-                                        @endif
-                                    </div>
-                                @endif
 
                                 {{-- Actions --}}
                                 <div class="d-flex gap-2 mt-auto pt-1">
