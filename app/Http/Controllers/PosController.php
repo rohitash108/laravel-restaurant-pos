@@ -10,6 +10,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\PrintJob;
 use App\Models\Restaurant;
+use App\Models\RestaurantItemAssignment;
 use App\Models\RestaurantTable;
 use App\Models\Tax;
 use App\Models\User;
@@ -31,12 +32,7 @@ class PosController extends Controller
         $transactionOrders = collect();
 
         if ($restaurantId) {
-            $categories = Category::where('restaurant_id', $restaurantId)
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->with(['items' => fn ($q) => $q->where('is_available', true)->orderBy('sort_order')->orderBy('name')->with(['addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'), 'variations'])])
-                ->get();
+            $categories = $this->buildPosCategories($restaurantId);
             $tables = RestaurantTable::where('restaurant_id', $restaurantId)->get();
             $recentOrders = Order::where('restaurant_id', $restaurantId)
                 ->with(['table', 'items'])
@@ -104,12 +100,7 @@ class PosController extends Controller
 
         $order->load(['table', 'items']);
 
-        $categories = Category::where('restaurant_id', $restaurantId)
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->with(['items' => fn ($q) => $q->where('is_available', true)->orderBy('sort_order')->orderBy('name')->with(['addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'), 'variations'])])
-            ->get();
+        $categories = $this->buildPosCategories($restaurantId);
         $tables = RestaurantTable::where('restaurant_id', $restaurantId)->get();
         $recentOrders = Order::where('restaurant_id', $restaurantId)->with(['table', 'items'])->latest()->take(20)->get();
         $draftOrders = Order::where('restaurant_id', $restaurantId)
@@ -138,6 +129,82 @@ class PosController extends Controller
 
         $editOrder = $order;
         return view('pos', compact('categories', 'tables', 'recentOrders', 'draftOrders', 'transactionOrders', 'customers', 'waiters', 'editOrder', 'tax_rate', 'tax_name', 'coupons'));
+    }
+
+    /**
+     * Build the POS category+items collection for a restaurant.
+     * Restaurant-specific items are loaded via the category HasMany.
+     * Master items are loaded separately using the assignment category_id
+     * (so they appear under the correct category in THIS restaurant).
+     */
+    private function buildPosCategories(int $restaurantId): \Illuminate\Support\Collection
+    {
+        // 1. Load categories with restaurant-specific items
+        $categories = Category::where('restaurant_id', $restaurantId)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->with(['items' => function ($q) use ($restaurantId) {
+                $q->where('restaurant_id', $restaurantId)
+                  ->where('is_master', false)
+                  ->where('is_available', true)
+                  ->orderBy('sort_order')->orderBy('name')
+                  ->with(['addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'), 'variations']);
+            }])
+            ->get();
+
+        // 2. Load all master item assignments for this restaurant
+        $assignments = RestaurantItemAssignment::where('restaurant_id', $restaurantId)
+            ->where('is_available', true)
+            ->with(['item' => function ($q) {
+                $q->where('is_master', true)
+                  ->where('is_available', true)
+                  ->with(['category', 'addons' => fn ($aq) => $aq->where('status', 'active')->orderBy('id'), 'variations']);
+            }])
+            ->get()
+            ->filter(fn ($a) => $a->item);
+
+        if ($assignments->isEmpty()) {
+            return $categories;
+        }
+
+        // 3. Inject each master item into the best matching category
+        foreach ($assignments as $assignment) {
+            $item = $assignment->item;
+
+            // Priority 1: explicit category_id set in assignment (belongs to this restaurant)
+            $category = $assignment->category_id
+                ? $categories->firstWhere('id', $assignment->category_id)
+                : null;
+
+            // Priority 2: match by item's original category name in this restaurant's categories
+            if (! $category && $item->category) {
+                $name = strtolower($item->category->name);
+                $category = $categories->first(fn ($c) => strtolower($c->name) === $name);
+            }
+
+            // Priority 3: fallback to first available category
+            if (! $category && $categories->isNotEmpty()) {
+                $category = $categories->first();
+            }
+
+            // Priority 4: restaurant has NO categories at all — use item's own category as a virtual group
+            if (! $category && $item->category) {
+                $virtual = clone $item->category;
+                $virtual->setRelation('items', collect());
+                $categories->push($virtual);
+                $category = $virtual;
+            }
+
+            if ($category) {
+                if (! $category->relationLoaded('items')) {
+                    $category->setRelation('items', collect());
+                }
+                $category->items->push($item);
+            }
+        }
+
+        return $categories;
     }
 
     /**
@@ -175,7 +242,7 @@ class PosController extends Controller
         $subtotal = 0.0;
 
         foreach ($validated['items'] as $row) {
-            $item = Item::where('restaurant_id', $restaurantId)
+            $item = Item::forRestaurant($restaurantId)
                 ->where('id', (int) $row['item_id'])
                 ->where('is_available', true)
                 ->first();

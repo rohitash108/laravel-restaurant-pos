@@ -14,6 +14,7 @@ class Category extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'is_master',
         'name',
         'image',
         'sort_order',
@@ -24,6 +25,7 @@ class Category extends Model
     {
         return [
             'is_active' => 'boolean',
+            'is_master' => 'boolean',
         ];
     }
 

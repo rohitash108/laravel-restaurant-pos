@@ -95,12 +95,12 @@ class OrderController extends Controller
         $orderItemsData = [];
 
         foreach ($request->items as $row) {
-            $item = Item::where('restaurant_id', $restaurantId)->where('id', $row['item_id'])->first();
+            $item = Item::forRestaurant($restaurantId)->where('id', $row['item_id'])->first();
             if (! $item || ! $item->is_available) {
                 continue;
             }
             $qty       = (int) $row['quantity'];
-            $unitPrice = (float) $item->price; // C6: always use authoritative DB price
+            $unitPrice = (float) $item->price;
             $lineTotal = round($unitPrice * $qty, 2);
             $subtotal += $lineTotal;
             $orderItemsData[] = [
@@ -288,7 +288,7 @@ class OrderController extends Controller
         $orderItemsData = [];
 
         foreach ($request->items as $row) {
-            $item = Item::where('restaurant_id', $restaurantId)->where('id', $row['item_id'])->first();
+            $item = Item::forRestaurant($restaurantId)->where('id', $row['item_id'])->first();
             if (! $item || ! $item->is_available) {
                 continue;
             }

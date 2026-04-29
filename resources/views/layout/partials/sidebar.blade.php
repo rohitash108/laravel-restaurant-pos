@@ -164,13 +164,12 @@
                             <li><a href="{{ url('reservations') }}" class="{{Request::is(['reservations']) ? 'active' : '' }}"><i class="icon-file-clock"></i><span>Reservation</span></a></li>
                         </ul>
                     </div>
-                    <div class="tab-pane fade {{ Request::is(['categories', 'items', 'addons', 'coupons', 'inventory', 'inventory/*']) ? 'show active' : '' }}" id="menu-management">
+                    <div class="tab-pane fade {{ Request::is(['categories', 'items', 'coupons', 'inventory', 'inventory/*']) ? 'show active' : '' }}" id="menu-management">
                         <ul>
                             <li class="menu-title"><span>MENU MANAGEMENT</span></li>
                             <li><a href="{{ url('categories') }}" class="{{Request::is(['categories']) ? 'active' : '' }}"><i class="icon-layers"></i><span>Categories</span></a></li>
                             <li><a href="{{ url('items') }}" class="{{Request::is(['items']) ? 'active' : '' }}"><i class="icon-layout-list"></i><span>Items</span></a></li>
                             <li><a href="{{ route('inventory.index') }}" class="{{ Request::is(['inventory', 'inventory/*']) ? 'active' : '' }}"><i class="icon-warehouse"></i><span>Inventory</span></a></li>
-                            <li><a href="{{ url('addons') }}" class="{{Request::is(['addons']) ? 'active' : '' }}"><i class="icon-text-select"></i><span>Addons</span></a></li>
                             <li><a href="{{ url('coupons') }}" class="{{Request::is(['coupons']) ? 'active' : '' }}"><i class="icon-badge-percent"></i><span>Coupons</span></a></li>
                         </ul>
                     </div>

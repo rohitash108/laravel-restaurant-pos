@@ -23,20 +23,14 @@ class ItemController extends Controller
             $categories = collect();
             $taxes = collect();
         } else {
-            $items = Item::where('restaurant_id', $restaurantId)
-                ->with(['category', 'restaurant', 'variations', 'addons', 'tax'])
+            $items = Item::forRestaurant($restaurantId)
+                ->with(['category', 'variations', 'addons', 'tax'])
                 ->orderBy('category_id')
                 ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get();
-            $categories = Category::where('restaurant_id', $restaurantId)
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get();
-            $taxes = Tax::where('restaurant_id', $restaurantId)
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->get();
+            $categories = collect();
+            $taxes = collect();
         }
 
         return view('items', compact('items', 'categories', 'taxes'));
@@ -44,6 +38,7 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
+        abort(403, 'Items are managed by Super Admin.');
         $restaurantId = $this->currentRestaurantId();
         if (! $restaurantId) {
             return redirect()->route('items')->with('error', 'No restaurant selected.');
@@ -101,9 +96,7 @@ class ItemController extends Controller
 
     public function update(Request $request, Item $item)
     {
-        if ($item->restaurant_id !== $this->currentRestaurantId()) {
-            abort(403);
-        }
+        abort(403, 'Items are managed by Super Admin.');
 
         $request->merge([
             'variations' => $this->filterFilledVariations($this->normalizeVariationsAddons($request->input('variations', []))),
@@ -163,24 +156,12 @@ class ItemController extends Controller
 
     public function destroy(Item $item)
     {
-        if ($item->restaurant_id !== $this->currentRestaurantId()) {
-            abort(403);
-        }
-        if ($item->image) {
-            Storage::disk('public')->delete($item->image);
-        }
-        $item->delete();
-        return redirect()->route('items')->with('success', 'Item deleted successfully.');
+        abort(403, 'Items are managed by Super Admin.');
     }
 
     public function hide(Item $item)
     {
-        if ($item->restaurant_id !== $this->currentRestaurantId()) {
-            abort(403);
-        }
-        $item->update(['is_available' => ! $item->is_available]);
-        $message = $item->is_available ? 'Item is now visible.' : 'Item is now hidden.';
-        return redirect()->route('items')->with('success', $message);
+        abort(403, 'Items are managed by Super Admin.');
     }
 
     /**

@@ -119,7 +119,7 @@ class OrderByQRController extends Controller
         $orderItemsData = [];
 
         foreach ($request->items as $row) {
-            $item = Item::where('restaurant_id', $restaurant->id)->where('id', $row['item_id'])->first();
+            $item = Item::forRestaurant($restaurant->id)->where('id', $row['item_id'])->first();
             if (! $item || ! $item->is_available) {
                 continue;
             }

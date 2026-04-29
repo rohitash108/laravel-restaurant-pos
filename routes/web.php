@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\AddonsController;
+use App\Http\Controllers\Admin\AddonController as AdminAddonController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\ItemController as AdminItemController;
 use App\Http\Controllers\Admin\RestaurantsController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SubscriptionController;
@@ -68,10 +70,6 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
     });
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/addons', [AddonsController::class, 'index'])->name('addons');
-    Route::post('/addons', [AddonsController::class, 'store'])->name('addons.store');
-    Route::put('/addons/{addon}', [AddonsController::class, 'update'])->name('addons.update');
-    Route::delete('/addons/{addon}', [AddonsController::class, 'destroy'])->name('addons.destroy');
     Route::get('/audit-report', [ReportController::class, 'audit'])->name('audit-report');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
@@ -191,6 +189,24 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
 
     Route::resource('restaurants', RestaurantsController::class)->except(['show']);
     Route::get('restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurants.show');
+
+    // ——— Product Catalog (Super Admin manages items & categories for any restaurant) ———
+    Route::get('items', [AdminItemController::class, 'index'])->name('items.index');
+    Route::post('items', [AdminItemController::class, 'store'])->name('items.store');
+    Route::put('items/{item}', [AdminItemController::class, 'update'])->name('items.update');
+    Route::delete('items/{item}', [AdminItemController::class, 'destroy'])->name('items.destroy');
+    Route::get('items/{item}/assign', [AdminItemController::class, 'assignPage'])->name('items.assign');
+    Route::post('items/{item}/assign', [AdminItemController::class, 'assignSave'])->name('items.assign.save');
+
+    Route::get('categories', [AdminCategoryController::class, 'index'])->name('categories.index');
+    Route::post('categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+    Route::put('categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
+    Route::delete('categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::get('addons', [AdminAddonController::class, 'index'])->name('addons.index');
+    Route::post('addons', [AdminAddonController::class, 'store'])->name('addons.store');
+    Route::put('addons/{addon}', [AdminAddonController::class, 'update'])->name('addons.update');
+    Route::delete('addons/{addon}', [AdminAddonController::class, 'destroy'])->name('addons.destroy');
 
     // ——— Owner only: Subscription Plans & Subscriptions ———
     Route::middleware('owner_admin')->group(function () {

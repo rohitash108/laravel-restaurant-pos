@@ -16,6 +16,9 @@
                     <a href="#" class="nav-link {{ Request::is('admin/restaurants*') ? 'active' : '' }}" title="Restaurants" data-bs-toggle="tab" data-bs-target="#admin-restaurants-tab">
                         <i class="icon-warehouse"></i>
                     </a>
+                    <a href="#" class="nav-link {{ Request::is('admin/items*') || Request::is('admin/categories*') || Request::is('admin/addons*') ? 'active' : '' }}" title="Products" data-bs-toggle="tab" data-bs-target="#admin-products-tab">
+                        <i class="icon-layout-list"></i>
+                    </a>
                     @if(auth()->user()->isOwner())
                     <a href="#" class="nav-link {{ Request::is('admin/subscription*') ? 'active' : '' }}" title="Subscriptions" data-bs-toggle="tab" data-bs-target="#admin-subscriptions-tab">
                         <i class="icon-credit-card"></i>
@@ -95,6 +98,22 @@
                                     <i class="icon-warehouse"></i><span>Restaurants</span>
                                 </a>
                             </li>
+                            <li class="menu-title"><span>CATALOG</span></li>
+                            <li>
+                                <a href="{{ route('admin.categories.index') }}" class="{{ Request::is('admin/categories*') ? 'active' : '' }}">
+                                    <i class="icon-tag"></i><span>Categories</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.items.index') }}" class="{{ Request::is('admin/items*') ? 'active' : '' }}">
+                                    <i class="icon-layout-list"></i><span>Items</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.addons.index') }}" class="{{ Request::is('admin/addons*') ? 'active' : '' }}">
+                                    <i class="icon-text-select"></i><span>Addons</span>
+                                </a>
+                            </li>
                             @if(auth()->user()->isOwner())
                             <li class="menu-title"><span>SUBSCRIPTIONS</span></li>
                             <li>
@@ -116,6 +135,26 @@
                             <li>
                                 <a href="{{ route('admin.restaurants.index') }}" class="{{ Request::is('admin/restaurants*') ? 'active' : '' }}">
                                     <i class="icon-warehouse"></i><span>Restaurants</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade {{ Request::is('admin/items*') || Request::is('admin/categories*') || Request::is('admin/addons*') ? 'show active' : '' }}" id="admin-products-tab">
+                        <ul>
+                            <li class="menu-title"><span>PRODUCT CATALOG</span></li>
+                            <li>
+                                <a href="{{ route('admin.categories.index') }}" class="{{ Request::is('admin/categories*') ? 'active' : '' }}">
+                                    <i class="icon-tag"></i><span>Categories</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.items.index') }}" class="{{ Request::is('admin/items*') ? 'active' : '' }}">
+                                    <i class="icon-layout-list"></i><span>Items</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.addons.index') }}" class="{{ Request::is('admin/addons*') ? 'active' : '' }}">
+                                    <i class="icon-text-select"></i><span>Addons</span>
                                 </a>
                             </li>
                         </ul>
