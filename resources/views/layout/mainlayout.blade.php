@@ -32,6 +32,19 @@
         @include('layout.partials.sidebar')
     @endif
 
+    @if(session('impersonating_super_admin_id'))
+    <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#1a1a1a;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+        <span><i class="icon-shield-alert me-2"></i>Super Admin viewing as: <strong>{{ session('impersonating_restaurant_name') }}</strong></span>
+        <form action="{{ route('return-to-super-admin') }}" method="POST" class="m-0">
+            @csrf
+            <button type="submit" style="background:#1a1a1a;color:#f59e0b;border:none;border-radius:6px;padding:4px 14px;font-size:12px;font-weight:700;cursor:pointer;">
+                &#8617; Return to Super Admin
+            </button>
+        </form>
+    </div>
+    <div style="height:40px;"></div>
+    @endif
+
         @yield('content')
 
         @if (!Route::is(['pos']))

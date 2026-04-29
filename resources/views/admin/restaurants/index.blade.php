@@ -105,10 +105,16 @@
                                         <span class="badge badge-soft-danger">No Subscription</span>
                                     @endif
                                 </div>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex gap-2 mb-2">
                                     <a href="{{ route('admin.restaurants.show', $restaurant) }}" class="btn btn-sm btn-soft-primary flex-grow-1">View</a>
                                     <a href="{{ route('admin.restaurants.edit', $restaurant) }}" class="btn btn-sm btn-primary">Edit</a>
                                 </div>
+                                <form action="{{ route('admin.restaurants.login-as', $restaurant) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success w-100 d-inline-flex align-items-center justify-content-center">
+                                        <i class="icon-log-in me-1"></i> Login as Restaurant Admin
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

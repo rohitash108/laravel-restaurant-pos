@@ -59,6 +59,8 @@ Route::get('/order/{restaurant:slug}/{table}/order-status', [OrderByQRController
     ->name('order.by-qr.order-status');
 
 // ——— Authenticated app (restaurant staff only; super admin is redirected to admin/restaurants) ———
+Route::middleware('auth')->post('/return-to-super-admin', [RestaurantsController::class, 'returnFromRestaurant'])->name('return-to-super-admin');
+
 Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subscription'])->group(function () {
     Route::get('/', function () {
         if (request()->filled('switch_restaurant')) {
@@ -192,6 +194,7 @@ Route::middleware(['auth', 'super_admin'])->prefix('admin')->name('admin.')->gro
     Route::middleware('admin_module:restaurants')->group(function () {
         Route::resource('restaurants', RestaurantsController::class)->except(['show']);
         Route::get('restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurants.show');
+        Route::post('restaurants/{restaurant}/login-as', [RestaurantsController::class, 'loginAs'])->name('restaurants.login-as');
     });
 
     // ——— Product Catalog (Super Admin manages items & categories for any restaurant) ———

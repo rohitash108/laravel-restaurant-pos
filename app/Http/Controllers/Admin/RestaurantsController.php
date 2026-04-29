@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Restaurant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -121,5 +122,62 @@ class RestaurantsController extends Controller
     {
         $restaurant->delete();
         return redirect()->route('admin.restaurants.index')->with('success', 'Restaurant deleted successfully.');
+    }
+
+    public function loginAs(Restaurant $restaurant)
+    {
+        $adminUser = User::where('restaurant_id', $restaurant->id)
+            ->where('role', 'restaurant_admin')
+            ->where('status', 'active')
+            ->orderBy('id')
+            ->first();
+
+        if (! $adminUser) {
+            $adminUser = User::where('restaurant_id', $restaurant->id)
+                ->orderBy('id')
+                ->first();
+        }
+
+        if (! $adminUser) {
+            return redirect()->route('admin.restaurants.index')
+                ->with('error', "Restaurant \"{$restaurant->name}\" has no users. Create an admin user first.");
+        }
+
+        // Store the super admin's ID so we can return later
+        session([
+            'impersonating_super_admin_id' => auth()->id(),
+            'impersonating_restaurant_name' => $restaurant->name,
+            'current_restaurant_id' => $restaurant->id,
+        ]);
+
+        Auth::login($adminUser);
+
+        return redirect()->route('dashboard')
+            ->with('success', "Logged in as {$adminUser->name} ({$restaurant->name})");
+    }
+
+    public static function returnFromRestaurant()
+    {
+        $superAdminId = session('impersonating_super_admin_id');
+
+        if (! $superAdminId) {
+            return redirect()->route('login');
+        }
+
+        $superAdmin = User::where('id', $superAdminId)
+            ->where('role', 'super_admin')
+            ->first();
+
+        if (! $superAdmin) {
+            session()->forget(['impersonating_super_admin_id', 'impersonating_restaurant_name', 'current_restaurant_id']);
+            return redirect()->route('login');
+        }
+
+        session()->forget(['impersonating_super_admin_id', 'impersonating_restaurant_name', 'current_restaurant_id']);
+
+        Auth::login($superAdmin);
+
+        return redirect()->route('admin.restaurants.index')
+            ->with('success', 'Returned to Super Admin panel.');
     }
 }
