@@ -210,7 +210,14 @@
             </div>
             <p id="qr-coupon-error" style="display:none;margin-top:0.35rem;font-size:0.8rem;color:var(--qr-danger);"></p>
         </div>
-        <button type="button" class="place-order-btn" id="place-order-btn" disabled>Place Order</button>
+        @if(!empty($razorpay_enabled))
+        <button type="button" class="place-order-btn" id="pay-online-btn" disabled
+                style="background:#0d6efd;margin-bottom:.5rem;">Pay Online & Place Order</button>
+        @endif
+        <button type="button" class="place-order-btn" id="place-order-btn" disabled
+                @if(!empty($razorpay_enabled)) style="background:#10b981;" @endif>
+            @if(!empty($razorpay_enabled))Place Order (Pay at Counter)@else Place Order @endif
+        </button>
     </div>
 </div>
 
@@ -334,6 +341,8 @@
         }
         cartSheetBody.innerHTML = html;
         placeOrderBtn.disabled = count === 0;
+        const _payOnlineBtn = document.getElementById('pay-online-btn');
+        if (_payOnlineBtn) _payOnlineBtn.disabled = count === 0;
 
         cartSheetBody.querySelectorAll('.sheet-minus').forEach(function (btn) {
             btn.addEventListener('click', function () { changeQty(this.dataset.id, -1); });
@@ -608,6 +617,135 @@
         placeOrderBtn.textContent = 'Placing order…';
         orderForm.submit();
     });
+
+    // ===== Pay Online (Razorpay) =====
+    const payOnlineBtn = document.getElementById('pay-online-btn');
+    const RZP_INITIATE_URL = "{{ route('razorpay.initiate') }}";
+    const RZP_VERIFY_URL   = "{{ route('razorpay.verify') }}";
+    const CSRF_TOKEN = (document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '{{ csrf_token() }}');
+    const RESTAURANT_ID = {{ $restaurant->id }};
+    const RESTAURANT_TABLE_ID = {{ $table->id }};
+
+    function buildOrderPayload() {
+        const items = [];
+        for (const k in cart) {
+            if (cart[k].qty < 1) continue;
+            const line = cart[k];
+            items.push({
+                item_id: line.item_id,
+                quantity: line.qty,
+                unit_price: line.unit_price,
+                notes: line.notes || null,
+            });
+        }
+        return {
+            restaurant_id: RESTAURANT_ID,
+            restaurant_table_id: RESTAURANT_TABLE_ID,
+            items: items,
+            customer_name: document.getElementById('sheet-customer-name').value || null,
+            notes: document.getElementById('sheet-notes').value || null,
+            coupon_id: appliedCoupon ? appliedCoupon.id : null,
+        };
+    }
+
+    function loadRazorpayCheckout() {
+        return new Promise(function (resolve, reject) {
+            if (window.Razorpay) return resolve();
+            const s = document.createElement('script');
+            s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            s.onload = resolve;
+            s.onerror = function () { reject(new Error('Could not load Razorpay checkout')); };
+            document.head.appendChild(s);
+        });
+    }
+
+    function postJson(url, payload) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(payload),
+        }).then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; });
+        });
+    }
+
+    if (payOnlineBtn) {
+        payOnlineBtn.addEventListener('click', function () {
+            const payload = buildOrderPayload();
+            if (payload.items.length === 0) return;
+
+            payOnlineBtn.disabled = true;
+            payOnlineBtn.textContent = 'Loading payment…';
+
+            loadRazorpayCheckout()
+                .then(function () { return postJson(RZP_INITIATE_URL, payload); })
+                .then(function (res) {
+                    if (!res.ok) {
+                        const msg = (res.data && res.data.error) ? res.data.error : 'Could not start payment.';
+                        throw new Error(msg);
+                    }
+                    const init = res.data;
+                    const rzp = new Razorpay({
+                        key: init.key_id,
+                        amount: init.amount,
+                        currency: init.currency,
+                        name: init.restaurant_name,
+                        description: init.description,
+                        order_id: init.razorpay_order_id,
+                        prefill: { name: payload.customer_name || '' },
+                        theme: { color: '#0d6efd' },
+                        handler: function (response) {
+                            payOnlineBtn.textContent = 'Verifying payment…';
+                            const verifyPayload = Object.assign({}, payload, {
+                                razorpay_order_id:   response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature:  response.razorpay_signature,
+                            });
+                            postJson(RZP_VERIFY_URL, verifyPayload)
+                                .then(function (vres) {
+                                    if (vres.ok && vres.data && vres.data.success) {
+                                        window.location.href = vres.data.redirect_url;
+                                    } else {
+                                        const msg = (vres.data && vres.data.error) ? vres.data.error : 'Payment verification failed.';
+                                        alert(msg);
+                                        payOnlineBtn.disabled = false;
+                                        payOnlineBtn.textContent = 'Pay Online & Place Order';
+                                    }
+                                })
+                                .catch(function (e) {
+                                    alert(e.message || 'Payment verification failed.');
+                                    payOnlineBtn.disabled = false;
+                                    payOnlineBtn.textContent = 'Pay Online & Place Order';
+                                });
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                payOnlineBtn.disabled = false;
+                                payOnlineBtn.textContent = 'Pay Online & Place Order';
+                            }
+                        },
+                    });
+                    rzp.on('payment.failed', function (resp) {
+                        const msg = (resp && resp.error && resp.error.description) ? resp.error.description : 'Payment failed.';
+                        alert(msg);
+                        payOnlineBtn.disabled = false;
+                        payOnlineBtn.textContent = 'Pay Online & Place Order';
+                    });
+                    rzp.open();
+                })
+                .catch(function (e) {
+                    alert(e.message || 'Could not start payment.');
+                    payOnlineBtn.disabled = false;
+                    payOnlineBtn.textContent = 'Pay Online & Place Order';
+                });
+        });
+    }
 
     // ===== Search: filter by item name/description only. Category = click pill only. =====
     const searchInput = document.getElementById('menu-search');

@@ -74,6 +74,63 @@
                             </div>
                             <!-- end row -->
 
+                            {{-- ========= Razorpay Route (managed onboarding) ========= --}}
+                            <div class="border-top mt-4 pt-4">
+                                <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                    <div>
+                                        <h5 class="mb-1">Razorpay Route — Managed Onboarding</h5>
+                                        <p class="text-muted mb-0" style="font-size:.85rem;">
+                                            Recommended. Submit your bank + PAN once and we onboard you onto Razorpay automatically.
+                                            You don't need to log in to Razorpay or paste any keys.
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('razorpay.route.onboarding') }}" class="btn btn-primary btn-sm">
+                                        Connect / Manage →
+                                    </a>
+                                </div>
+                            </div>
+
+                            {{-- ========= Razorpay (manual keys, advanced) ========= --}}
+                            <div class="border-top mt-4 pt-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h5 class="mb-1">Razorpay — Manual Keys (advanced)</h5>
+                                        <p class="text-muted mb-0" style="font-size:.85rem;">
+                                            Already have your own Razorpay account? Paste your keys here instead of using Route.
+                                            Get them from <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener">Razorpay Dashboard → Settings → API Keys</a>.
+                                        </p>
+                                    </div>
+                                    <div class="form-check form-switch mb-0">
+                                        <label class="form-check-label" for="razorpay_enabled">Enable</label>
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="razorpay_enabled" name="razorpay_enabled" value="1"
+                                               {{ ($razorpayEnabled ?? false) ? 'checked' : '' }}>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="razorpay_key_id" class="form-label">Key ID</label>
+                                        <input type="text" class="form-control" id="razorpay_key_id"
+                                               name="razorpay_key_id"
+                                               placeholder="rzp_test_XXXXXXXXXXXXXX or rzp_live_XXXXXXXXXXXXXX"
+                                               value="{{ $razorpayKeyId ?? '' }}" autocomplete="off">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="razorpay_key_secret" class="form-label">
+                                            Key Secret
+                                            @if(!empty($razorpaySecretSet))
+                                                <span class="badge bg-success ms-1" style="font-size:.7rem;">saved</span>
+                                            @endif
+                                        </label>
+                                        <input type="password" class="form-control" id="razorpay_key_secret"
+                                               name="razorpay_key_secret" autocomplete="new-password"
+                                               placeholder="{{ !empty($razorpaySecretSet) ? '•••••••••••• (leave blank to keep current)' : 'Enter your key secret' }}">
+                                        <small class="text-muted">Stored encrypted. Leave blank to keep the current secret.</small>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="d-flex align-items-center justify-content-end flex-wrap row-gap-2 border-top mt-4 pt-4">
                                 <button type="button" class="btn btn-light me-2" onclick="window.location.reload()">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>

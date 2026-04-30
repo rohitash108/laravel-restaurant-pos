@@ -19,6 +19,9 @@ use App\Http\Controllers\KanbanViewController;
 use App\Http\Controllers\KitchenController;
 use App\Http\Controllers\OrderByQRController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RazorpayController;
+use App\Http\Controllers\RazorpayRouteOnboardingController;
+use App\Http\Controllers\RazorpayWebhookController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\PrintJobController;
@@ -57,6 +60,15 @@ Route::get('/order/{restaurant:slug}/{table}/success/{order}', [OrderByQRControl
     ->name('order.by-qr.success');
 Route::get('/order/{restaurant:slug}/{table}/order-status', [OrderByQRController::class, 'orderStatus'])
     ->name('order.by-qr.order-status');
+
+// ——— Public: Razorpay payment (no login needed – customer-facing) ———
+Route::post('/payment/razorpay/initiate', [RazorpayController::class, 'initiate'])->name('razorpay.initiate');
+Route::post('/payment/razorpay/verify', [RazorpayController::class, 'verify'])->name('razorpay.verify');
+
+// ——— Public: Razorpay webhook (HMAC-verified inside the controller) ———
+Route::post('/webhooks/razorpay', [RazorpayWebhookController::class, 'handle'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('razorpay.webhook');
 
 // ——— Authenticated app (restaurant staff only; super admin is redirected to admin/restaurants) ———
 Route::middleware('auth')->post('/return-to-super-admin', [RestaurantsController::class, 'returnFromRestaurant'])->name('return-to-super-admin');
@@ -144,6 +156,14 @@ Route::middleware(['auth', 'restaurant', 'redirect_super_admin_to_admin', 'subsc
 
     Route::get('/payment-settings', [SettingsController::class, 'paymentSettings'])->name('payment-settings');
     Route::post('/payment-settings', [SettingsController::class, 'paymentSettingsUpdate'])->name('payment-settings.update');
+
+    // Razorpay Route — restaurant-side onboarding (Linked Account creation)
+    Route::get('/payment-settings/razorpay-route', [RazorpayRouteOnboardingController::class, 'show'])
+        ->name('razorpay.route.onboarding');
+    Route::post('/payment-settings/razorpay-route', [RazorpayRouteOnboardingController::class, 'store'])
+        ->name('razorpay.route.onboarding.store');
+    Route::post('/payment-settings/razorpay-route/refresh', [RazorpayRouteOnboardingController::class, 'refresh'])
+        ->name('razorpay.route.refresh');
 
     Route::get('/delivery-settings', [SettingsController::class, 'deliverySettings'])->name('delivery-settings');
     Route::post('/delivery-settings', [SettingsController::class, 'deliverySettingsUpdate'])->name('delivery-settings.update');

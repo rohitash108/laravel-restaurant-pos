@@ -118,7 +118,18 @@ class SettingsController extends Controller
         $restaurantId = $this->currentRestaurantId();
         $settings = $restaurantId ? Setting::getGroup($restaurantId, 'payment') : [];
 
-        return view('payment-settings', compact('settings'));
+        // Razorpay gateway creds (separate group, secret stays encrypted)
+        $gateway = $restaurantId ? Setting::getGroup($restaurantId, 'payment_gateways') : [];
+        $razorpayKeyId = $gateway['razorpay_key_id'] ?? '';
+        $razorpaySecretSet = ! empty($gateway['razorpay_key_secret']);
+        $razorpayEnabled = ($gateway['razorpay_enabled'] ?? '0') === '1';
+
+        return view('payment-settings', compact(
+            'settings',
+            'razorpayKeyId',
+            'razorpaySecretSet',
+            'razorpayEnabled'
+        ));
     }
 
     /**
@@ -131,9 +142,42 @@ class SettingsController extends Controller
             return redirect()->route('payment-settings')->with('error', 'Restaurant not selected.');
         }
 
+        $request->validate([
+            'razorpay_key_id'     => 'nullable|string|max:255',
+            'razorpay_key_secret' => 'nullable|string|max:255',
+        ]);
+
         $methods = ['cash', 'card', 'wallet', 'paypal', 'qr_reader', 'card_reader', 'bank'];
         foreach ($methods as $method) {
             Setting::setValue($restaurantId, 'payment', $method, $request->has($method) ? '1' : '0');
+        }
+
+        // Razorpay credentials (group: payment_gateways)
+        Setting::setValue(
+            $restaurantId,
+            'payment_gateways',
+            'razorpay_enabled',
+            $request->has('razorpay_enabled') ? '1' : '0'
+        );
+
+        if ($request->filled('razorpay_key_id')) {
+            Setting::setValue(
+                $restaurantId,
+                'payment_gateways',
+                'razorpay_key_id',
+                trim($request->input('razorpay_key_id'))
+            );
+        }
+
+        // Only overwrite the secret if a new value was actually entered (so reloading the
+        // page and saving doesn't blow away the stored credential).
+        if ($request->filled('razorpay_key_secret')) {
+            Setting::setValue(
+                $restaurantId,
+                'payment_gateways',
+                'razorpay_key_secret',
+                encrypt(trim($request->input('razorpay_key_secret')))
+            );
         }
 
         return redirect()->route('payment-settings')->with('success', 'Payment settings updated successfully.');

@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantTable;
 use App\Models\PrintJob;
+use App\Models\Setting;
 use App\Models\Tax;
 use App\Services\Inventory\InventoryStockService;
 use Illuminate\Http\Request;
@@ -91,12 +92,24 @@ class OrderByQRController extends Controller
             })
             ->get(['id', 'code', 'discount_type', 'discount_amount']);
 
+        // Razorpay availability — enabled if EITHER Route is activated OR
+        // per-outlet keys are configured.
+        $gateway = Setting::getGroup($restaurant->id, 'payment_gateways');
+        $perOutletReady = (($gateway['razorpay_enabled'] ?? '0') === '1')
+            && ! empty($gateway['razorpay_key_id'] ?? null)
+            && ! empty($gateway['razorpay_key_secret'] ?? null);
+        $routeReady = $restaurant->isRazorpayRouteActive()
+            && filled(config('services.razorpay.master_key_id'))
+            && filled(config('services.razorpay.master_key_secret'));
+        $razorpayEnabled = $perOutletReady || $routeReady;
+
         return view('order-by-qr.menu', [
             'restaurant' => $restaurant,
             'table' => $table,
             'categories' => $categories,
             'currency_symbol' => $currencySymbol,
             'coupons' => $coupons,
+            'razorpay_enabled' => $razorpayEnabled,
         ]);
     }
 

@@ -28,6 +28,13 @@ class Order extends Model
         'customer_name',
         'customer_phone',
         'notes',
+        'razorpay_order_id',
+        'razorpay_payment_id',
+        'razorpay_signature',
+        'razorpay_transfer_id',
+        'razorpay_linked_account_id',
+        'platform_fee_amount',
+        'payment_method',
     ];
 
     protected function casts(): array

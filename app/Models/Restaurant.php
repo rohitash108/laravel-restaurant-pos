@@ -28,13 +28,32 @@ class Restaurant extends Model
         'currency',
         'gst_number',
         'is_active',
+        // ─── Razorpay Route ──────────────────────────────────────────
+        'razorpay_linked_account_id',
+        'razorpay_account_status',
+        'razorpay_status_reason',
+        'razorpay_stakeholder_id',
+        'razorpay_settlement_account_id',
+        'razorpay_business_type',
+        'razorpay_platform_fee_percent',
+        'razorpay_kyc_data',
+        'razorpay_activated_at',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'razorpay_kyc_data' => 'array',
+            'razorpay_activated_at' => 'datetime',
+            'razorpay_platform_fee_percent' => 'decimal:2',
         ];
+    }
+
+    public function isRazorpayRouteActive(): bool
+    {
+        return $this->razorpay_account_status === 'activated'
+            && ! empty($this->razorpay_linked_account_id);
     }
 
     public function users(): HasMany

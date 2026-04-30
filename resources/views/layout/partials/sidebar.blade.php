@@ -191,7 +191,7 @@
                             @endif
                             @endauth
                             @auth
-                            @if(!auth()->user()->isSuperAdmin())
+                            @if(!auth()->user()->isSuperAdmin() && !auth()->user()->isRestaurantAdmin())
                             <li><a href="{{ url('users') }}" class="{{Request::is(['users']) ? 'active' : '' }}"><i class="icon-users"></i><span>Users</span></a></li>
                             <li><a href="{{ url('role-permission') }}" class="{{Request::is(['role-permission']) ? 'active' : '' }}"><i class="icon-shield"></i><span>Permissions</span></a></li>
                             @endif

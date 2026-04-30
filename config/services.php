@@ -35,4 +35,29 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Razorpay (Platform Master Account / Route)
+    |--------------------------------------------------------------------------
+    |
+    | These keys belong to the SaaS platform's master Razorpay account, which
+    | holds the Route partnership. Each restaurant is onboarded as a Linked
+    | Account under this master and money is settled to their bank via the
+    | transfers[] field on orders.
+    |
+    | Per-outlet keys (where each restaurant has their own independent Razorpay
+    | account) live in the per-restaurant Setting model under the
+    | "payment_gateways" group and are unrelated to these master keys.
+    */
+    'razorpay' => [
+        'mode'                 => env('RAZORPAY_MODE', 'route'), // 'route' | 'per_outlet' | 'auto'
+        'master_key_id'        => env('RAZORPAY_MASTER_KEY_ID'),
+        'master_key_secret'    => env('RAZORPAY_MASTER_KEY_SECRET'),
+        'webhook_secret'       => env('RAZORPAY_WEBHOOK_SECRET'),
+        'platform_fee_percent' => (float) env('RAZORPAY_PLATFORM_FEE_PERCENT', 0),
+        // Razorpay account id (acc_XXX) of the *platform itself* — used in webhook
+        // payload validation so we know the event is for our master, not someone else's.
+        'platform_account_id'  => env('RAZORPAY_PLATFORM_ACCOUNT_ID'),
+    ],
+
 ];
