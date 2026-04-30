@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\RazorpayRouteService;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +13,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Razorpay Route service needs master keys from config/.env.
+        // Controllers type-hint RazorpayRouteService, so bind it here.
+        $this->app->singleton(RazorpayRouteService::class, function () {
+            $keyId = (string) config('services.razorpay.master_key_id', '');
+            $keySecret = (string) config('services.razorpay.master_key_secret', '');
+
+            if ($keyId === '' || $keySecret === '') {
+                // Let controllers handle "master not configured" gracefully.
+                // We still return an instance to avoid container resolution errors.
+                return new RazorpayRouteService('', '');
+            }
+
+            return new RazorpayRouteService($keyId, $keySecret);
+        });
     }
 
     /**
